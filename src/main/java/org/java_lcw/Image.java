@@ -521,7 +521,7 @@ public class Image {
    * @param img Image object to merge
    * @throws ImageException
    */
-  public void mergeImages(int x, int y, Image img) throws ImageException {
+  public void merge(int x, int y, Image img) throws ImageException {
     if (img.getBPP() != this.getBPP()) {
       img = img.changeMode(this.getBPP());
     }
@@ -538,6 +538,26 @@ public class Image {
         System.arraycopy(img.getChannel(c), h*img.getWidth(), MAP[c], x+((y+h)*this.getWidth()), maxW);
       }
     }
+  }
+
+  public Image copy() throws ImageException {
+    return cut(0,0,this.getWidth(), this.getHeight());
+  }
+  
+  public Image cut(int x, int y, int width, int height) throws ImageException {
+    if( (x + width) > this.getWidth() || (y + height) > this.getHeight()) {
+      throw new ImageException("Can not cut over the current Image Size!!");
+    }
+    Image newImage = Image.create(this.getBPP(), width, height);
+    int startPos = x*y;
+    for(byte c = 0; c < this.getChannels(); c++) {
+      byte[] data = new byte[width*height];
+      for(int yy = 0; yy< height; yy++) {
+        System.arraycopy(this.getChannel(c), startPos+(this.getWidth()*yy), data, (yy*width), width);
+      }
+      newImage.setChannel(c, data);
+    }
+    return newImage;
   }
   
   /**

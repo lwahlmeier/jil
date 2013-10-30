@@ -231,7 +231,7 @@ public class ImageTest {
     Image subImg = Image.open(filename);
     subImg =  subImg.changeMode(Image.MODE_L);
     subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
-    img.mergeImages(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("0f09ebbd7713ee60ba3bc9f721350845893518b5029dd3a8fc990d2db8241357", hashByteArray(img.toArray()));
   }
   
@@ -244,7 +244,7 @@ public class ImageTest {
     Image subImg = Image.open(filename);
     subImg =  subImg.changeMode(Image.MODE_RGB);
     subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
-    img.mergeImages(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("6b2f19c7fdeb85aef4043f2bda2bbbb127079abb3621088a669f818b99d421b7", hashByteArray(img.toArray()));
   }
   
@@ -255,7 +255,7 @@ public class ImageTest {
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image subImg = Image.open(filename);
     subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
-    img.mergeImages(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("75ea1d4c88532aa94bcd474b4ae21ec252a39147be7db196408f3d82a270c6fb", hashByteArray(img.toArray()));
   }
   
@@ -266,7 +266,7 @@ public class ImageTest {
     Image img = Image.open(filename);
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image subImg = Image.open(filename);
-    img.mergeImages(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("b6e7cbe370a52211fb46526f368b1541c53ce70cf72bad908e12b16b8bcdad8e", hashByteArray(img.toArray()));
   }
   
@@ -278,7 +278,7 @@ public class ImageTest {
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImageBW.png").getFile();
     Image subImg = Image.open(filename);
     subImg = subImg.changeMode(Image.MODE_L);
-    img.mergeImages(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("1d524eaf968107ba8252af1528e7aba5168059865649368a595cd8d47f2f3ddd", hashByteArray(img.toArray()));
   }
   
@@ -346,6 +346,33 @@ public class ImageTest {
     assertEquals("620f4702e3dc066f875956f5e87a8b19da9859d5340bc6de06b504f41d1b8323", hashByteArray(img.toArray()));
     img = img.resize(200, 480, false);
     assertEquals("cb55aaadcf5693d9252bd3e817f09bff8ddcff9ac3029468a5b685070a7263c3", hashByteArray(img.toArray()));
+  }  
+  
+  @Test
+  public void cutImageTest() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image img = Image.open(filename);
+    Image newImg = img.cut(0, 0, img.getWidth(), img.getHeight());
+    assertEquals(hashByteArray(img.toArray()), hashByteArray(newImg.toArray()));
+    newImg = img.cut(20, 20, 500, 500);
+    assertEquals("a61bad0149011340313cf9698dea329e8474a32301c41b4afe637245fcbe4559", hashByteArray(newImg.toArray()));
+    newImg = img.cut(0, 0, 200, 50);
+     assertEquals("54e9c46019df5ef9e02a82c22f2b4c950d20c6cfa27e790a72c4b41255e96077", hashByteArray(newImg.toArray()));
+  }  
+  
+  @Test(expected=ImageException.class)
+  public void badCutImageTest() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image img = Image.open(filename);
+    Image newImg = img.cut(0, 0, img.getWidth()+10, img.getHeight()+10);
+  }  
+  
+  @Test
+  public void copyImageTest() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image img = Image.open(filename);
+    Image newImg = img.copy();
+    assertEquals(hashByteArray(img.toArray()), hashByteArray(newImg.toArray()));
   }  
   
 }
