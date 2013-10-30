@@ -1,0 +1,48 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group 'org.java_image'
+version = '0.0.3-SNAPSHOT'
+
+repositories {
+  mavenCentral()
+  maven {url 'https://swt-repo.googlecode.com/svn/repo/' }
+}
+
+dependencies {
+  compile ( 
+  'org.eclipse.swt:org.eclipse.swt.gtk.linux.x86_64:4.3'
+  )
+
+  testCompile (
+  'org.eclipse.swt:org.eclipse.swt.gtk.linux.x86_64:4.3',
+  'junit:junit:4.11'
+  )
+
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = 'javadoc'
+  from 'build/docs/javadoc'
+}
+
+javadoc {
+  title = "JIL - Java Image Library"
+}
+
+jar {
+  baseName = 'jil'
+}
+
+task sourcesJar(type: Jar) {
+  from sourceSets.main.allSource
+  classifier = 'sources'
+}
+
+
+artifacts {
+  archives jar
+  archives javadocJar
+  archives sourcesJar
+}
+
