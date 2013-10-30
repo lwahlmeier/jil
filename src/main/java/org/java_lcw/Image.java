@@ -1,4 +1,4 @@
-package org.java_image;
+package org.java_lcw;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

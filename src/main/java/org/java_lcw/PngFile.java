@@ -1,15 +1,11 @@
-package org.java_image;
+package org.java_lcw;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
 
-import org.java_image.Image.ImageException;
-
-import java.awt.image.BufferedImage;
+import org.java_lcw.Image.ImageException;
 
 public class PngFile {
   

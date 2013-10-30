@@ -1,4 +1,4 @@
-package org.java_image;
+package org.java_lcw;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.imageio.ImageIO;
 
-import org.java_image.Image.ImageException;
+import org.java_lcw.Image.ImageException;
 import org.junit.Test;
 
 public class AWTtests {

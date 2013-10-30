@@ -1,4 +1,4 @@
-package org.java_image;
+package org.java_lcw;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import org.java_image.Image.ImageException;
+import org.java_lcw.Image.ImageException;
 
 public class JpegFile {
   private JpegFile(){

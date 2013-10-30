@@ -1,15 +1,11 @@
-package org.java_image;
+package org.java_lcw;
 
 import java.io.DataOutputStream;
-import java.io.DataInputStream;
-import java.io.RandomAccessFile;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
-import org.java_image.Image.ImageException;
+import org.java_lcw.Image.ImageException;
 
 public class TiffFile {
   

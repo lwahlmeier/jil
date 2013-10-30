@@ -1,4 +1,4 @@
-package org.java_image;
+package org.java_lcw;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -10,7 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import org.java_image.Image.ImageException;
+import org.java_lcw.Image.ImageException;
 import org.junit.Test;
 
 
