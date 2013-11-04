@@ -390,68 +390,18 @@ public class Image {
       height = nh;
     }
     
-    Image tmp = Image.create(this.bpp, width, height);
+    Image tmp;
     switch(st) {
     case LINER:
-      tmp = BilinearScaler(width, height);
+      tmp = BiLinearScaler.scale(this, width, height);
+      break;
+    case CUBIC:
+      tmp = BiCubicScaler.scale(this, width, height);
       break;
     default:
-      tmp = nearestNeighborScaler(width, height);
+      tmp = NearestNeighborScaler.scale(this, width, height);
     }
     return tmp;
-  }
-
-  
-  private Image BilinearScaler(int newWidth, int newHeight){
-    Image newImage = Image.create(this.getBPP(), newWidth, newHeight);
-    float x_ratio = ((float)(this.getWidth()-1))/newWidth ;
-    float y_ratio = ((float)(this.getHeight()-1))/newHeight ;
-    float x_diff, y_diff;
-    int px, py, idx;
-    int[] r = new int[4];
-    int[] b = new int[4];
-    int[] g = new int[4];
-    int[] a = new int[4];
-
-    for (int y=0; y < newHeight; y++){
-      for (int x=0; x < newWidth; x++){
-        px = (int)(x_ratio * x);
-        py = (int)(y_ratio * y);
-        x_diff = (x_ratio * x) - px;
-        y_diff = (y_ratio * y) - py;
-        idx = (py*this.getWidth()) + px;
-        for(int c = 0; c < this.getChannels(); c++) {
-          r[0] = this.MAP[c][idx] & 0xff;
-          r[1] = this.MAP[c][idx+1] & 0xff;
-          r[2] = this.MAP[c][idx+this.getWidth()] & 0xff;
-          r[3] = this.MAP[c][idx+this.getWidth()+1] & 0xff;
-          newImage.MAP[c][(y*newWidth)+x] = (byte) (
-            r[0]*(1-x_diff)*(1-y_diff) +  
-            r[1]*(x_diff)  *(1-y_diff) +
-            r[2]*(y_diff)  *(1-x_diff) +
-            r[3]*(x_diff)  *(y_diff) );
-        }
-      }
-    }
-    return newImage;
-  }
-  
-  private Image nearestNeighborScaler(int newWidth, int newHeight){
-    Image newImage = Image.create(this.getBPP(), newWidth, newHeight);
-    double x_ratio = this.getWidth()/(double)newWidth;
-    double y_ratio = this.getHeight()/(double)newHeight;
-    int px = 0;
-    int py = 0;
-    for (int y=0; y<newHeight; y++) {
-      for(int x=0; x<newWidth; x++) {
-        px = (int)Math.floor(x*x_ratio);
-        py = (int)Math.floor(y*y_ratio);
-        for(int c=0; c<(this.getBPP()/8); c++) {
-          newImage.setPixel(x, y, this.getPixel(px, py));
-        }
-      }
-    }
-    return newImage;
   }
   
   /**
@@ -496,6 +446,11 @@ public class Image {
     }
   }
   
+  public void setPixelInChannel(int x, int y, byte c, byte p) {
+    int POS = ((y*this.getWidth())+x);
+    MAP[c][POS] = p;
+  }
+  
   /**
    * The a color for a given pixel
    * @param x X position of the pixel
@@ -512,7 +467,11 @@ public class Image {
       return new Color(MAP[0][POS]);
     }
   }
-
+  
+  public byte getPixelInChannel(int x, int y, byte c) {
+    int POS = ((y*this.getWidth())+x);
+    return MAP[c][POS];
+  }
   /**
    * Merges the given Image object onto the Image
    * If the given Image is taller or wider then this Image we only merge the visable bits onto this Image 
@@ -569,7 +528,6 @@ public class Image {
       r.nextBytes(MAP[x]);
     }
   }
-  
   
   private byte[] getChannel(byte channel) {
     return MAP[channel];
@@ -688,6 +646,7 @@ public class Image {
     private byte red = 0;
     private byte blue = 0;
     private byte alpha = 0;
+    private byte grey = 0;
     
     /**
      * Construct the color with RGB values set
@@ -800,17 +759,19 @@ public class Image {
     }
     
     public byte getGrey() {
-      return (byte) (((red&0xff)+(green&0xff)+(blue&0xff))/3);
+      return (byte) grey;//(((red&0xff)+(green&0xff)+(blue&0xff))/3);
     }
     /**
      * Set the grey value on this color object(overrides all rgb values)
      * @param g
      */
     public void setL(byte g) {
-      red = g;
-      green = g;
-      blue = g;
-      alpha = (byte)255;
+      grey = g;
+
+    }
+        
+    public String toString() {
+      return "Colors: R:"+red+" G:"+green+" B:"+blue+" Alpha:"+alpha+" grey:"+getGrey();
     }
   }
   

@@ -341,12 +341,25 @@ public class ImageTest {
   public void scaleBiliniar() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image img = Image.open(filename);
+    //img.save("/tmp/testFull.png");
     img = img.changeMode(Image.MODE_RGB);
     img = img.resize(640, 480, true, Image.ScaleType.LINER);
-    assertEquals("620f4702e3dc066f875956f5e87a8b19da9859d5340bc6de06b504f41d1b8323", hashByteArray(img.toArray()));
+    assertEquals("1364572b971be93d082c420ce4bd3594d6ae5d252bcec1edc5e1b6b5bea64aaf", hashByteArray(img.toArray()));
     img = img.resize(200, 480, false);
-    assertEquals("cb55aaadcf5693d9252bd3e817f09bff8ddcff9ac3029468a5b685070a7263c3", hashByteArray(img.toArray()));
+    assertEquals("0edcbf8eab4103991907d61e71bf47b1451182f7bd88cec462c2608c3034203d", hashByteArray(img.toArray()));
   }  
+  
+  @Test
+  public void scaleBiCubic() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image img = Image.open(filename);
+    Image newimg = img.resize((int)(img.getWidth()*1.5), (int)(img.getHeight()*1.5), true, Image.ScaleType.CUBIC);
+    assertEquals("82b4962155e8b7debec4523851fad39412151d222886ff55da2b4fdfd02cc0fc", hashByteArray(newimg.toArray()));
+    newimg = img.resize(640, img.getHeight()/2, true, Image.ScaleType.CUBIC);
+    assertEquals("395b6e4850c66dab6c848097f17aa37a96839b128c322c17d6cd88ce00da55cb", hashByteArray(newimg.toArray()));
+    newimg = img.resize(200, 480, false, Image.ScaleType.CUBIC);
+    assertEquals("4960701619ed06260707ff4d08e13eec9787107c493761340bed18d9857a5e69", hashByteArray(newimg.toArray()));
+  }
   
   @Test
   public void cutImageTest() throws ImageException, IOException, NoSuchAlgorithmException {
