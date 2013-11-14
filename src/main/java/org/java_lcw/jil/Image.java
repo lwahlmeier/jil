@@ -473,15 +473,16 @@ public class Image {
     int POS = ((y*this.getWidth())+x);
     return MAP[c][POS];
   }
+  
   /**
-   * Merges the given Image object onto the Image
-   * If the given Image is taller or wider then this Image we only merge the visable bits onto this Image 
+   * Paste the given Image object onto this Image
+   * If the given Image is taller or wider then this Image we only merge the visible bits onto this Image 
    * @param x X position to start the merge
    * @param y Y position to start the merge
    * @param img Image object to merge
    * @throws ImageException
    */
-  public void merge(int x, int y, Image img) throws ImageException {
+  public void paste(int x, int y, Image img) throws ImageException {
     if (img.getBPP() != this.getBPP()) {
       img = img.changeMode(this.getBPP());
     }

@@ -231,7 +231,7 @@ public class ImageTest {
     Image subImg = Image.open(filename);
     subImg =  subImg.changeMode(Image.MODE_L);
     subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
-    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("0f09ebbd7713ee60ba3bc9f721350845893518b5029dd3a8fc990d2db8241357", hashByteArray(img.toArray()));
   }
   
@@ -244,7 +244,7 @@ public class ImageTest {
     Image subImg = Image.open(filename);
     subImg =  subImg.changeMode(Image.MODE_RGB);
     subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
-    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("6b2f19c7fdeb85aef4043f2bda2bbbb127079abb3621088a669f818b99d421b7", hashByteArray(img.toArray()));
   }
   
@@ -255,7 +255,7 @@ public class ImageTest {
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image subImg = Image.open(filename);
     subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
-    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("75ea1d4c88532aa94bcd474b4ae21ec252a39147be7db196408f3d82a270c6fb", hashByteArray(img.toArray()));
   }
   
@@ -266,7 +266,7 @@ public class ImageTest {
     Image img = Image.open(filename);
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image subImg = Image.open(filename);
-    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("b6e7cbe370a52211fb46526f368b1541c53ce70cf72bad908e12b16b8bcdad8e", hashByteArray(img.toArray()));
   }
   
@@ -278,7 +278,7 @@ public class ImageTest {
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImageBW.png").getFile();
     Image subImg = Image.open(filename);
     subImg = subImg.changeMode(Image.MODE_L);
-    img.merge(img.getWidth()/3, img.getHeight()/3, subImg);
+    img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
     assertEquals("1d524eaf968107ba8252af1528e7aba5168059865649368a595cd8d47f2f3ddd", hashByteArray(img.toArray()));
   }
   
