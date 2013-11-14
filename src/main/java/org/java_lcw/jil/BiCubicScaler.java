@@ -1,8 +1,8 @@
-package org.java_lcw;
+package org.java_lcw.jil;
 
 import java.util.HashMap;
 
-import org.java_lcw.Image.Color;
+import org.java_lcw.jil.Image.Color;
 
 public class BiCubicScaler {
   private Image srcImage;

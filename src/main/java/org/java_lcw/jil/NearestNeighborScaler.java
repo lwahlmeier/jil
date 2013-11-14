@@ -1,4 +1,4 @@
-package org.java_lcw;
+package org.java_lcw.jil;
 
 public class NearestNeighborScaler {
   private NearestNeighborScaler() {

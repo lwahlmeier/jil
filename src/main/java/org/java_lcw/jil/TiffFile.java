@@ -1,11 +1,11 @@
-package org.java_lcw;
+package org.java_lcw.jil;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.java_lcw.Image.ImageException;
+import org.java_lcw.jil.Image.ImageException;
 
 public class TiffFile {
   

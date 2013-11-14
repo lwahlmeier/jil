@@ -1,4 +1,4 @@
-package org.java_lcw;
+package org.java_lcw.jil;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -132,6 +132,7 @@ public class Image {
    * @return Returns an Image object from the provided file.
    * @throws ImageException This can happen if we do not know the type of file we where asked to open.
    * @throws IOException This happens when we can not access the file.
+   * 
    */
   public static Image open(String filename, ImageType type) throws IOException, ImageException {
     Image image;
