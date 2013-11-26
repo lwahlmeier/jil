@@ -75,7 +75,7 @@ public class ImageTest {
  
   @Test
   public void colorTest() {
-    Image.Color c = new Image.Color();
+    Color c = new Color();
     c.setRed((byte)10);
     c.setBlue((byte)10);
     c.setGreen((byte)10);
@@ -92,20 +92,13 @@ public class ImageTest {
   }
   
   @Test(expected=ImageException.class)
-  public void exceptionTest1() throws ImageException, IOException {
-    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage1.png").getFile();
-    Image img = Image.open(filename);
-    img.setChannel((byte)0, new byte[10]);
-  }
-  
-  @Test(expected=ImageException.class)
   public void exceptionTest2() throws ImageException, IOException {
     Image.fromByteArray(Image.MODE_RGB, 200, 200, new byte[2]);
   }
   
   @Test(expected=ImageException.class)
   public void exceptionTest3() throws ImageException, IOException {
-    throw new Image.ImageException();
+    Image.open("TEST.BLAH");
   }
   
   @Test
@@ -202,28 +195,40 @@ public class ImageTest {
   @Test
   public void fillColorTestRGB() throws ImageException, IOException, NoSuchAlgorithmException {
     Image img = Image.create(Image.MODE_RGB, 200, 400);
-    Image.Color c = new Image.Color((byte)10, (byte)220, (byte)110);
+    Color c = new Color((byte)10, (byte)220, (byte)110);
     img.fillColor(c);
     assertEquals("63d760feb63b56590e374362ede227a3b0e560f0f1ee63773598f88ae06537e4", hashByteArray(img.toArray()));
   }
   @Test
   public void fillColorTestRGBA() throws ImageException, IOException, NoSuchAlgorithmException {
     Image img = Image.create(Image.MODE_RGBA, 1203, 1226);
-    Image.Color c = new Image.Color((byte)223,(byte)101,(byte)30, (byte)240);
+    Color c = new Color((byte)223,(byte)101,(byte)30, (byte)240);
     img.fillColor(c);
     assertEquals("93ecec7b6dacb67c7a5b7c27dca28880fe8fd5da5f2960f4bdd159e2ef2df7ce", hashByteArray(img.toArray()));
   }
   @Test
   public void fillColorTestL() throws ImageException, IOException, NoSuchAlgorithmException {
     Image img = Image.create(Image.MODE_L, 1440, 19887);
-    Image.Color c = new Image.Color((byte)231);
+    Color c = new Color((byte)231);
     c.setGrey((byte)231);
     img.fillColor(c);
     assertEquals("164be1e3cd389318de8cce67781687ebda9e98571c7592c5ec65d12b40eae091", hashByteArray(img.toArray()));
   }
 
+  
   @Test
-  public void mergeImagesTestL() throws ImageException, IOException, NoSuchAlgorithmException {
+  public void pasteImagesTestRGBA() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
+    Image img = Image.open(filename);
+    filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image subImg = Image.open(filename);
+    subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
+    img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
+    assertEquals("75ea1d4c88532aa94bcd474b4ae21ec252a39147be7db196408f3d82a270c6fb", hashByteArray(img.toArray()));
+  }
+
+  @Test
+  public void pasteImagesTestL() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
     Image img = Image.open(filename);
     img = img.changeMode(Image.MODE_L);
@@ -236,7 +241,7 @@ public class ImageTest {
   }
   
   @Test
-  public void mergeImagesTestRGB() throws ImageException, IOException, NoSuchAlgorithmException {
+  public void pasteImagesTestRGB() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
     Image img = Image.open(filename);
     img = img.changeMode(Image.MODE_RGB);
@@ -249,25 +254,15 @@ public class ImageTest {
   }
   
   @Test
-  public void mergeImagesTestRGBA() throws ImageException, IOException, NoSuchAlgorithmException {
+  public void pasteImagesTestOverSample() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
     Image img = Image.open(filename);
+    img = img.changeMode(Image.MODE_RGB);
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image subImg = Image.open(filename);
-    subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
+    subImg = subImg.changeMode(Image.MODE_RGB);
     img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
-    assertEquals("75ea1d4c88532aa94bcd474b4ae21ec252a39147be7db196408f3d82a270c6fb", hashByteArray(img.toArray()));
-  }
-  
-  
-  @Test
-  public void mergeImagesTestOverSample() throws ImageException, IOException, NoSuchAlgorithmException {
-    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
-    Image img = Image.open(filename);
-    filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
-    Image subImg = Image.open(filename);
-    img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
-    assertEquals("b6e7cbe370a52211fb46526f368b1541c53ce70cf72bad908e12b16b8bcdad8e", hashByteArray(img.toArray()));
+    assertEquals("be1af56c3ac7b5fcaec60f837e0449ea0168630afb30deb519124aae8c408079", hashByteArray(img.toArray()));
   }
   
   
@@ -278,8 +273,9 @@ public class ImageTest {
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImageBW.png").getFile();
     Image subImg = Image.open(filename);
     subImg = subImg.changeMode(Image.MODE_L);
+    //subImg = subImg.resize(50, 50);
     img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
-    assertEquals("1d524eaf968107ba8252af1528e7aba5168059865649368a595cd8d47f2f3ddd", hashByteArray(img.toArray()));
+    //assertEquals("2740469d3f7d98b6fbb713f12826395be721bf5bf58bb90b9118ea2b6b3505ff", hashByteArray(img.toArray()));
   }
   
   @Test
@@ -387,5 +383,18 @@ public class ImageTest {
     Image newImg = img.copy();
     assertEquals(hashByteArray(img.toArray()), hashByteArray(newImg.toArray()));
   }  
+  
+  @Test
+  public void testAlphaMerge() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image img = Image.open(filename);
+    img = img.resize(640, 480, false);
+    String filename2 = ClassLoader.getSystemClassLoader().getResource("resources/cursor.png").getFile();
+    Image img2 = Image.open(filename2);
+    img2 = img2.resize(20, 20);
+    img.paste(10, 10, img2, true);
+    img.paste(200, 10, img2, true);
+    assertEquals("502b04b1dba3dd53a5c9ad16041f369128c60ccece136bd1844ed41c680265e2", hashByteArray(img.toArray()));
+  } 
   
 }

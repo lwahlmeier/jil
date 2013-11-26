@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'org.java-lcw'
-version = '0.0.3-SNAPSHOT'
+version = '0.0.4-SNAPSHOT'
 
 repositories {
   mavenCentral()
@@ -28,6 +28,11 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 javadoc {
   title = "JIL - Java Image Library"
+  exclude (
+  '**/*Scaler.java',
+  '**/*File.java'
+  )
+
 }
 
 jar {

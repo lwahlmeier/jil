@@ -43,6 +43,7 @@ public class Image {
    *
    */
   public enum ImageType {TIFF, JPEG, PNG};
+  
   /**
    * ScaleTypes that can be used when resizing an Image.
    * NN      - Nearest Neighbor - Very fast but kind somewhat noticeable scaler (Default).
@@ -52,11 +53,9 @@ public class Image {
    * @author lcw - Luke Wahlmeier
    *
    */
-
   public enum ScaleType {NN, LINER, CUBIC, LANCZOS};
   
   private Image(byte mode, int width, int height) {
-    
     colors = (byte) (mode/8);
     MAP = new byte[colors][];
     for(int i = 0; i<colors; i++){
@@ -300,7 +299,7 @@ public class Image {
    * as changes to it could effect the new Image Object 
    * @throws ImageException
    */
-  public Image changeMode(byte MODE) throws ImageException {
+  public Image changeMode(byte MODE){
     if (MODE == this.getBPP()) {
       return this;
     } 
@@ -338,8 +337,6 @@ public class Image {
       byte[] alpha = new byte[this.getWidth()*this.getHeight()];
       Arrays.fill(alpha, (byte)255);
       image.setChannel((byte)3, alpha);
-    } else {
-      throw new ImageException("Could not Convert mode!! "+MODE+":"+this.getBPP());
     }
     return image;
   }
@@ -476,16 +473,30 @@ public class Image {
   
   /**
    * Paste the given Image object onto this Image
-   * If the given Image is taller or wider then this Image we only merge the visible bits onto this Image 
+   * If the given Image is taller or wider then this Image we only merge the visible bits onto this Image
+   *  
    * @param x X position to start the merge
    * @param y Y position to start the merge
    * @param img Image object to merge
+   * @param alphaMerge should we do a mask type merge on any alpha channel?
    * @throws ImageException
    */
-  public void paste(int x, int y, Image img) throws ImageException {
-    if (img.getBPP() != this.getBPP()) {
-      img = img.changeMode(this.getBPP());
-    }
+  public void paste(int x, int y, Image img) {
+    paste(x, y, img, false);
+  }
+  
+  /**
+   * Paste the given Image object onto this Image
+   * If the given Image is taller or wider then this Image we only merge the visible bits onto this Image.
+   * If alphaMerge == true and the img has an alpha channel we will use that as a mask on how to merge the images.  
+   * @param x X position to start the merge
+   * @param y Y position to start the merge
+   * @param img Image object to merge
+   * @param alphaMerge should we do a mask type merge on any alpha channel?
+   * @throws ImageException
+   */
+  public void paste(int x, int y, Image img, boolean alphaMerge){
+    
     int maxW = img.getWidth();
     int maxH = img.getHeight();
     if (this.getWidth() - x < maxW) {
@@ -494,9 +505,24 @@ public class Image {
     if (this.getHeight() - y < maxH) {
       maxH = this.getHeight() - y;
     }
-    for(int h = 0; h<maxH; h++) {
-      for(byte c=0; c< this.MAP.length; c++) {
-        System.arraycopy(img.getChannel(c), h*img.getWidth(), MAP[c], x+((y+h)*this.getWidth()), maxW);
+    
+    if (! alphaMerge) {
+      if (img.getBPP() != this.getBPP()) {
+        img = img.changeMode(this.getBPP());
+      }
+      for(int h = 0; h<maxH; h++) {
+        for(byte c=0; c< this.MAP.length; c++) {
+          System.arraycopy(img.getChannel(c), h*img.getWidth(), MAP[c], x+((y+h)*this.getWidth()), maxW);
+        }
+      }
+    } else {
+      for(int h = 0; h<maxH; h++) {
+        for(int w = 0; w<maxW; w++) {
+          Color c = img.getPixel(w, h);
+          Color c2 = this.getPixel(w+x, h+y);
+          c2.merge(c);
+          this.setPixel(w+x, h+y, c2);
+        }
       }
     }
   }
@@ -536,10 +562,7 @@ public class Image {
   }
   
   
-  protected void setChannel(byte channel, byte[] array) throws ImageException {
-    if (array.length != this.MAP[channel].length) {
-      throw new ImageException("Must give array of correct length to set channel, Need:"+this.MAP[channel].length+" Got:"+array.length);
-    }
+  protected void setChannel(byte channel, byte[] array){
     this.MAP[channel] = array;
   }
   
@@ -637,146 +660,6 @@ public class Image {
     return nArray;
   }
 
-  /**
-   * This class is how colors are passed around to/from the Image Object
-   * 
-   * @author lcw - Luke Wahlmeier
-   *
-   */
-  public static class Color {
-    private byte green = 0;
-    private byte red = 0;
-    private byte blue = 0;
-    private byte alpha = 0;
-    private byte grey = 0;
-    
-    /**
-     * Construct the color with RGB values set
-     * @param red
-     * @param green
-     * @param blue
-     */
-    public Color(byte red, byte green, byte blue) {
-      setRGB((byte) red, (byte) green, (byte) blue);
-    }
-    /**
-     * Construct the color with RGBA values set
-     * @param red
-     * @param green
-     * @param blue
-     * @param alpha
-     */
-    public Color(byte red, byte green, byte blue, byte alpha) {
-      setRGBA((byte) red, (byte) green, (byte) blue, (byte)alpha);
-    }
-    
-    /**
-     * Construct the color with grey values set
-     * @param grey
-     */
-    public Color(byte grey) {
-      setL((byte) grey);
-    }
-    /**
-     * Construct a Color object with no colors set (everything is 0)
-     */
-    public Color() {
-    }
-    
-    /**
-     * Set the blue value on this color object
-     * @param b
-     */
-    public void setBlue(byte b) {
-      blue = b;
-    }
-    public byte getBlue() {
-      return blue;
-    }
-    
-    /**
-     * Set the Red value on this color object
-     * @param r
-     */
-    public void setRed(byte r) {
-      red = r;
-    }
-    public byte getRed() {
-      return red;
-    }
-    
-    /**
-     * Set the green value on this color object
-     * @param g
-     */
-    public void setGreen(byte g) {
-      green = g;
-    }
-    public byte getGreen() {
-      return green;
-    }
-    
-    /**
-     * Set the alpha value on this color object
-     * @param a
-     */
-    public void setAlpha(byte a) {
-      alpha = a;
-    }
-    public byte getAlpha() {
-      return alpha;
-    }
-    /**
-     * Set the RGB Value on this Color Object
-     * @param r
-     * @param g
-     * @param b
-     */
-    public void setRGB(byte r, byte g, byte b) {
-      red = r;
-      green = g;
-      blue = b;
-      alpha = (byte)255;
-    }
-    /**
-     * Set the RGBA Value on this Color Object
-     * @param r
-     * @param g
-     * @param b
-     * @param a
-     */
-    public void setRGBA(byte r, byte g, byte b, byte a) {
-      red = r;
-      green = g;
-      blue = b;
-      alpha = a;
-    }
-    
-    /**
-     * Set the Grey value on this Color Object
-     * @param g
-     */
-    public void setGrey(byte g) {
-      setL(g);
-    }
-    
-    public byte getGrey() {
-      return (byte) grey;//(((red&0xff)+(green&0xff)+(blue&0xff))/3);
-    }
-    /**
-     * Set the grey value on this color object(overrides all rgb values)
-     * @param g
-     */
-    public void setL(byte g) {
-      grey = g;
-
-    }
-        
-    public String toString() {
-      return "Colors: R:"+red+" G:"+green+" B:"+blue+" Alpha:"+alpha+" grey:"+getGrey();
-    }
-  }
-  
   public static class ImageException extends Exception {
     private static final long serialVersionUID = 713250734097347352L;
     public ImageException() {
