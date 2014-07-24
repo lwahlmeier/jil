@@ -42,7 +42,7 @@ public class TiffFile {
     //2 bytes for header (they are the same)
     head[0] = stream.readByte();
     head[1] = stream.readByte();
-    String tmp = new String(head);
+
     if (head[0] == 'I' && head[1] == 'I') {
       bt = Endianness.LITTLE;
     } else if (head[0] == 'M' && head[1] == 'M'){ //There are 2 bytes...
@@ -72,7 +72,7 @@ public class TiffFile {
       short tmp = data.readShort();
       int entry = getShort(bt, tmp);
       int type = getShort(bt, data.readShort());
-      long size = getInt(bt, data.readInt());
+      getInt(bt, data.readInt()); //size, dont care
       //System.out.println("ENTRY:"+entry+" TYPE:"+type+" SIZE:"+size);
       if (entry == 0x100) {
         if (type == 3) {

@@ -2,7 +2,6 @@ package org.java_lcw.jil;
 
 import static org.junit.Assert.assertEquals;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -50,7 +49,7 @@ public class AWTtests {
   public void awtToTest1() throws IOException, ImageException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
     Image img = Image.open(filename);
-    BufferedImage BI = img.toBufferedImage();
+    img.toBufferedImage();
     assertEquals("2740469d3f7d98b6fbb713f12826395be721bf5bf58bb90b9118ea2b6b3505ff", ImageTest.hashByteArray(img.toArray()));
   }
   
@@ -59,7 +58,7 @@ public class AWTtests {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
     Image img = Image.open(filename);
     img = img.changeMode(Image.MODE_RGB);
-    BufferedImage BI = img.toBufferedImage();
+    img.toBufferedImage();
     assertEquals("3ba178edbaab22b850174f17989144f74b340c90543abb911f3441e5ad8b357b", ImageTest.hashByteArray(img.toArray()));
   }
   
@@ -68,7 +67,7 @@ public class AWTtests {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
     Image img = Image.open(filename);
     img = img.changeMode(Image.MODE_L);
-    BufferedImage BI = img.toBufferedImage();
+    img.toBufferedImage();
     assertEquals("023edd93087ecbb7c73694d68827beb091886a5811a457b708b5976aea4bdf27", ImageTest.hashByteArray(img.toArray()));
   }
 }

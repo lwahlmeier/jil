@@ -50,7 +50,6 @@ public class SWTtests {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage1.png").getFile();
     Image img = Image.open(filename);
     String origHash = ImageTest.hashByteArray(img.toArray());
-    ImageData ID = img.toImageData();
     assertEquals("8d284842be14a7ad0b4c2b20fc39a1271caf361223ca1734373085f6e3217c86", origHash);
   }
   

@@ -80,6 +80,21 @@ public class Image {
     return new Image((byte)(mode), width, height);
   }
   
+  /**
+   * Creating a new Image with a default color
+   * 
+   * @param mode Image mode, uses the static bytes Image.MODE_(L, RGB, RGBA)
+   * @param width How wide the image should be in pixels
+   * @param height How high the Image should be in pixels
+   * @param color default color to set for the image
+   * @return Returns an Image object
+   */
+  public static Image create(byte mode, int width, int height, Color color) {
+    Image i = new Image((byte)(mode), width, height);
+    i.fillColor(color);
+    return i;
+  }
+  
   
   /**
    * Create an Image object from a byte Array.  The byte array must be a single array
@@ -121,8 +136,17 @@ public class Image {
    * @throws IOException This happens when we can not access the file.
    */
   public static Image open(String filename) throws ImageException, IOException {
-    ImageType type = getImageType(filename);
-    return open(filename, type);
+    try {
+      return open(filename, getImageType(filename));
+    } catch(ImageException e) {
+      for(ImageType t: ImageType.values()) {
+        try {
+          return open(filename, t);
+        } catch(ImageException e1) {
+        }
+      }
+      throw new ImageException("Could not figure out image type!");
+    }
   }
 
   /**
@@ -465,6 +489,25 @@ public class Image {
       MAP[0][p] = c.getGrey();
     }
   }
+  
+  public void setPixel(int x, int y, Color c, boolean alpha) {
+    int p = ((y*this.getWidth())+x);
+    Color cc = this.getPixel(x, y);
+    cc.merge(c);
+    if( this.getBPP() == 32) {
+      MAP[0][p] = cc.getRed();
+      MAP[1][p] = cc.getGreen();
+      MAP[2][p] = cc.getBlue();
+      MAP[3][p] = cc.getAlpha();
+    } else if (this.getBPP() == 24) {
+      MAP[0][p] = cc.getRed();
+      MAP[1][p] = cc.getGreen();
+      MAP[2][p] = cc.getBlue();
+    } else {
+      MAP[0][p] = cc.getGrey();
+    }
+  }
+
   
   public void setPixelInChannel(int x, int y, byte c, byte p) {
     int POS = ((y*this.getWidth())+x);

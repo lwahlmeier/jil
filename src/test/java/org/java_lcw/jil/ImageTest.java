@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -57,6 +58,7 @@ public class ImageTest {
     for (int i = 0; i < mdbytes.length; i++) {
       sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
     }
+    fis.close();
     return sb.toString();
   }
   
@@ -96,7 +98,7 @@ public class ImageTest {
     Image.fromByteArray(Image.MODE_RGB, 200, 200, new byte[2]);
   }
   
-  @Test(expected=ImageException.class)
+  @Test(expected=FileNotFoundException.class)
   public void exceptionTest3() throws ImageException, IOException {
     Image.open("TEST.BLAH");
   }
@@ -105,7 +107,7 @@ public class ImageTest {
   public void openTest1() throws ImageException, IOException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.jpg").getFile();
     Image.open(filename);
-    Image img = Image.open(filename);
+    Image.open(filename);
   }
   
   @Test
@@ -178,6 +180,7 @@ public class ImageTest {
   @Test
   public void openPNGFile() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    System.out.println(filename);
     Image img = Image.open(filename);
     assertEquals("c57c5fe4cf97763ecbded98e82ced7faee5138adb6bd68641d009b4f4ab4c975", hashByteArray(img.toArray()));
   }
@@ -373,7 +376,7 @@ public class ImageTest {
   public void badCutImageTest() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image img = Image.open(filename);
-    Image newImg = img.cut(0, 0, img.getWidth()+10, img.getHeight()+10);
+    img.cut(0, 0, img.getWidth()+10, img.getHeight()+10);
   }  
   
   @Test

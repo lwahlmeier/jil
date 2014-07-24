@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'org.java-lcw'
-version = '0.0.4-SNAPSHOT'
+version = '0.1.8-SNAPSHOT'
 
 repositories {
   mavenCentral()

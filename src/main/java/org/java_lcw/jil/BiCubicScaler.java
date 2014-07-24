@@ -1,8 +1,5 @@
 package org.java_lcw.jil;
 
-import java.util.HashMap;
-
-
 public class BiCubicScaler {
   private Image srcImage;
     
@@ -21,7 +18,7 @@ public class BiCubicScaler {
     float x_ratio = ((float)(srcImage.getWidth()))/newWidth ;
     float y_ratio = ((float)(srcImage.getHeight()))/newHeight ;
     float x_diff, y_diff;
-    int px, py, idx;
+    int px, py;
     for (int y = 0; y < newHeight; y++){
       py = (int)(y_ratio * y);
       y_diff = (y_ratio * y) - py;
