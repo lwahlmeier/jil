@@ -1,6 +1,7 @@
 package org.java_lcw.jil;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
@@ -153,6 +154,27 @@ public class Image {
   
   /**
    * Save the image to the given file name.  We determine the type based on the file extension (required) 
+   * @param file Location for the file to be written out to
+   * @throws IOException This happens if we can not save/open that file
+   * @throws ImageException This happens if we can not figure out the type you want use to save as 
+   */
+  public void save(File file) throws IOException, ImageException {
+    save(file.getAbsolutePath());
+  }
+
+  /**
+   * Save the image for a given location with the provided type.
+   * @param file Location for the file to be written out to
+   * @param type Type of file to open used Image.ImageType.(TIFF, PNG, JPEG)
+   * @throws IOException This happens if we can not save/open that file
+   * @throws ImageException This happens if we can not figure out the type you want use to save as 
+   */
+  public void save(File file, ImageType type) throws IOException, ImageException {
+    save(file.getAbsolutePath(), type);
+  }
+  
+  /**
+   * Save the image to the given file name.  We determine the type based on the file extension (required) 
    * @param filename Path/Name of the file to save
    * @throws IOException This happens if we can not save/open that file
    * @throws ImageException This happens if we can not figure out the type you want use to save as 
@@ -163,7 +185,7 @@ public class Image {
   }
   
   /**
-   * Save the image to the given file name.  We determine the type based on the file extension (required) 
+   * Save the image to the given file name.
    * @param filename Path/Name of the file to save
    * @param type Type of file to open used Image.ImageType.(TIFF, PNG, JPEG)
    * @throws IOException This happens if we can not save/open that file
