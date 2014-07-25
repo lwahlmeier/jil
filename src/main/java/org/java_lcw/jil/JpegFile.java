@@ -3,6 +3,8 @@ package org.java_lcw.jil;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
 
@@ -10,6 +12,14 @@ import org.java_lcw.jil.Image.ImageException;
 
 public class JpegFile {
   private JpegFile(){
+  }
+  
+  public static Image open(InputStream is, ByteBuffer bb) throws IOException, ImageException {
+    System.out.println(bb);
+    BufferedImage bi = ImageIO.read(is);
+    System.out.println(bi);
+    System.out.println(bb);
+    return Image.fromBufferedImage(bi);
   }
   
   public static Image open(String filename) throws IOException, ImageException {

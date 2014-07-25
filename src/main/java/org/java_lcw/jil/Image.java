@@ -120,7 +120,6 @@ public class Image {
         System.arraycopy(data, ((q*cBytes)+i), map[i], q, 1);
       }
     }
-    
     Image image = create(mode, width, height);
     for (byte i = 0; i<cBytes; i++) {
       image.setChannel(i, map[i]);
