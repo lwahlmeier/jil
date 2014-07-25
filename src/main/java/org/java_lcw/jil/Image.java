@@ -563,6 +563,14 @@ public class Image {
     
     int maxW = img.getWidth();
     int maxH = img.getHeight();
+    if (img.height+y < 0 || y > this.height) {
+      return;
+    }
+    
+    if (img.width+x < 0 || x > this.width) {
+      return;
+    }
+    
     if (this.getWidth() - x < maxW) {
       maxW = this.getWidth() - x;
     }
