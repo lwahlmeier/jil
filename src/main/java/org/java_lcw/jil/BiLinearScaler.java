@@ -27,10 +27,10 @@ public class BiLinearScaler {
         px1 = tmp.clampXPos(px+1);
 
         for(byte c = 0; c < tmp.srcImage.getChannels(); c++) {
-          r[0] = tmp.srcImage.getPixelInChannel(px, py, c) & 0xff;
-          r[1] = tmp.srcImage.getPixelInChannel(px1, py, c) & 0xff;
-          r[2] = tmp.srcImage.getPixelInChannel(px, py1, c) & 0xff;
-          r[3] = tmp.srcImage.getPixelInChannel(px1, py1, c) & 0xff;
+          r[0] = tmp.srcImage.getByteInChannel(px, py, c) & 0xff;
+          r[1] = tmp.srcImage.getByteInChannel(px1, py, c) & 0xff;
+          r[2] = tmp.srcImage.getByteInChannel(px, py1, c) & 0xff;
+          r[3] = tmp.srcImage.getByteInChannel(px1, py1, c) & 0xff;
           newImage.setPixelInChannel(x, y, c, (byte) (
               r[0]*(1-x_diff)*(1-y_diff) +  
               r[1]*(x_diff)  *(1-y_diff) +

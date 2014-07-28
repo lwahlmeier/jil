@@ -16,6 +16,8 @@ public class DrawTests {
     Image img = Image.open(filename);
     Color c = new Color((byte)0,(byte)255,(byte)0);
     Draw.rect(img, 10, 10, 100, 10, c, 5, false);
+    Image img2 = Image.create(Image.MODE_RGB, 200, 200);
+    img.save("/tmp/test.png");
     assertEquals("9e7a90f3f3e7bb287e1aa01bbcb2d427ba958af2f1616baa1e6d5d65219746d0", ImageTest.hashByteArray(img.toArray()));
   } 
   

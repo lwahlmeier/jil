@@ -139,7 +139,7 @@ public class Draw {
           for(int nx = x; nx < l+x; nx++) {
             for(int ny = y; ny < l+y; ny++) {
               if(nx >= 0 && ny >= 0 && nx < img.getWidth() && ny < img.getHeight()) {
-                img.setPixel(nx, ny, c, true);
+                img.setPixel(nx, ny, c);
               }
             }
           }
@@ -160,7 +160,7 @@ public class Draw {
             for(int nx = x; nx < l+x; nx++) {
               for(int ny = y; ny < l+y; ny++) {
                 if(nx >= 0 && ny >= 0 && nx < img.getWidth() && ny < img.getHeight()) {
-                  img.setPixel(nx, ny, c, true);
+                  img.setPixel(nx, ny, c);
                 }
               }
             }

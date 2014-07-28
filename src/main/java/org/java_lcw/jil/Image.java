@@ -31,7 +31,7 @@ public class Image {
    */
   public static final byte MODE_RGBA = 32;
   
-  private final byte[][] MAP;
+  protected byte[] MAP;
   private int width;
   private int height;
   private byte bpp;
@@ -58,11 +58,9 @@ public class Image {
   
   private Image(byte mode, int width, int height) {
     colors = (byte) (mode/8);
-    MAP = new byte[colors][];
-    for(int i = 0; i<colors; i++){
-      MAP[i] = new byte[width*height];
-      Arrays.fill(MAP[i], (byte)(0));
-    }
+    int size = colors*width*height;
+    MAP = new byte[size];
+    Arrays.fill(MAP, (byte)(0));
     this.width = width;
     this.height = height;
     this.bpp = mode;
@@ -112,18 +110,8 @@ public class Image {
     if(data.length != (width*height*cBytes)){
       throw new ImageException("Incorrect number of bytes to make an image of that type");
     }
-    
-    byte[][] map = new byte[cBytes][];
-    for(int i = 0; i<cBytes; i++){
-      map[i] = new byte[width*height];
-      for(int q=0; q<map[i].length; q++){
-        System.arraycopy(data, ((q*cBytes)+i), map[i], q, 1);
-      }
-    }
     Image image = create(mode, width, height);
-    for (byte i = 0; i<cBytes; i++) {
-      image.setChannel(i, map[i]);
-    }
+    image.setArray(data);
     return image;
   }
   
@@ -348,40 +336,49 @@ public class Image {
     if (MODE == this.getBPP()) {
       return this;
     } 
-    Image image = Image.create(MODE, width, height);  
-    if (MODE == 24 && this.bpp == 32) {
-      /*simple drop alpha channel*/
-      image.setChannel((byte)0, this.MAP[0]);
-      image.setChannel((byte)1, this.MAP[1]);
-      image.setChannel((byte)2, this.MAP[2]);
-    } else if (MODE == 8) {
-      byte[] data = new byte[this.width*this.height];
+    Image image = Image.create(MODE, width, height);      
+    if (MODE == 8) {
       int avg;
-      for (int x = 0; x < data.length; x++){
-        avg = ((MAP[0][x]&0xff) +(MAP[1][x]&0xff)+(MAP[2][x]&0xff))/3;
-        data[x] = (byte) avg;
+      for (int x = 0; x < image.MAP.length; x++){
+        int pos = x*(this.bpp/8); 
+        avg = ((MAP[pos]&0xff) +(MAP[pos+1]&0xff)+(MAP[pos+2]&0xff))/3;
+        image.MAP[x] = (byte) avg;
       }
-      image.setChannel((byte) 0, data);
+      return image;
+    }
+    
+    if (MODE == 24 && this.bpp == 32) {
+      for(int i=0; i< image.MAP.length/3; i++) {
+        int npos = i*3;
+        int opos = i*4;
+        image.MAP[npos] = MAP[opos];
+        image.MAP[npos+1] = MAP[opos+1];
+        image.MAP[npos+2] = MAP[opos+2];
+      }
     } else if (MODE == 24 && this.bpp == 8) {
-      image.setChannel((byte)0, this.MAP[0]);
-      image.setChannel((byte)1, this.MAP[0]);
-      image.setChannel((byte)2, this.MAP[0]);
-
+      for(int i=0; i<MAP.length; i++) {
+        int pos = i*3;
+        image.MAP[pos] = MAP[i];
+        image.MAP[pos+1] = MAP[i];
+        image.MAP[pos+2] = MAP[i];
+      }
     } else if (MODE == 32 && this.bpp == 8) {
-      image.setChannel((byte)0, this.MAP[0]);
-      image.setChannel((byte)1, this.MAP[0]);
-      image.setChannel((byte)2, this.MAP[0]);
-      byte[] alpha = new byte[this.getWidth()*this.getHeight()];
-      Arrays.fill(alpha, (byte)255);
-      image.setChannel((byte)3, alpha);
-      image.setChannel((byte)3, alpha);
+      for(int i=0; i<MAP.length; i++) {
+        int pos = i*4;
+        image.MAP[pos] = MAP[i];
+        image.MAP[pos+1] = MAP[i];
+        image.MAP[pos+2] = MAP[i];
+        image.MAP[pos+3] = (byte)255;
+      }
     } else if (MODE == 32 && this.bpp == 24) {
-      image.setChannel((byte)0, this.MAP[0]);
-      image.setChannel((byte)1, this.MAP[1]);
-      image.setChannel((byte)2, this.MAP[2]);
-      byte[] alpha = new byte[this.getWidth()*this.getHeight()];
-      Arrays.fill(alpha, (byte)255);
-      image.setChannel((byte)3, alpha);
+      for(int i=0; i<(MAP.length/3); i++) {
+        int npos = i*4;
+        int opos = i*3;
+        image.MAP[npos] = MAP[opos];
+        image.MAP[npos+1] = MAP[opos+1];
+        image.MAP[npos+2] = MAP[opos+2];
+        image.MAP[npos+3] = (byte)255;
+      }
     }
     return image;
   }
@@ -452,18 +449,22 @@ public class Image {
    * @param c
    */
   public void fillColor(Color c) {
-    if (MAP.length == 1){
-      Arrays.fill(MAP[0], c.getGrey());
-    } else if (MAP.length == 3){
-      Arrays.fill(MAP[0], c.getRed());
-      Arrays.fill(MAP[1], c.getBlue());
-      Arrays.fill(MAP[2], c.getGreen());
-    } else if (MAP.length == 4){
-      Arrays.fill(MAP[0], c.getRed());
-      Arrays.fill(MAP[1], c.getBlue());
-      Arrays.fill(MAP[2], c.getGreen());
-      Arrays.fill(MAP[3], c.getAlpha());
-    }
+    if (this.bpp == 8){
+      Arrays.fill(MAP, c.getGrey());
+    } else if (this.bpp >= 24){
+      int size = this.bpp/8;
+      for(int i=0; i<MAP.length/size; i++) {
+        int pos = i*size;
+        MAP[pos] = c.getRed();
+        MAP[pos+1] = c.getBlue();
+        MAP[pos+2] = c.getGreen();
+        if (size == 4){
+          MAP[pos+3] = c.getAlpha();
+        }
+      }
+
+
+    } 
   }
   
   /**
@@ -474,43 +475,29 @@ public class Image {
    * @param c Color to set the pixel to (see Image.Color)
    */
   public void setPixel(int x, int y, Color c) {
-    int p = ((y*this.getWidth())+x);
-    if( this.getBPP() == 32) {
-      MAP[0][p] = c.getRed();
-      MAP[1][p] = c.getGreen();
-      MAP[2][p] = c.getBlue();
-      MAP[3][p] = c.getAlpha();
-    } else if (this.getBPP() == 24) {
-      MAP[0][p] = c.getRed();
-      MAP[1][p] = c.getGreen();
-      MAP[2][p] = c.getBlue();
-    } else {
-      MAP[0][p] = c.getGrey();
+    int pos = ((y*this.width)+x)*(this.bpp/8); 
+    if( this.bpp == 8) {
+      MAP[pos] = c.getGrey();
+    } else if (this.bpp >= 24) {
+      MAP[pos] = c.getRed();
+      MAP[pos+1] = c.getGreen();
+      MAP[pos+2] = c.getBlue();
+      if(this.bpp == 32) {
+        MAP[pos+3] = c.getAlpha();
+      }
     }
   }
   
-  public void setPixel(int x, int y, Color c, boolean alpha) {
-    int p = ((y*this.getWidth())+x);
+  public void mergePixel(int x, int y, Color c, boolean alpha) {
     Color cc = this.getPixel(x, y);
     cc.merge(c);
-    if( this.getBPP() == 32) {
-      MAP[0][p] = cc.getRed();
-      MAP[1][p] = cc.getGreen();
-      MAP[2][p] = cc.getBlue();
-      MAP[3][p] = cc.getAlpha();
-    } else if (this.getBPP() == 24) {
-      MAP[0][p] = cc.getRed();
-      MAP[1][p] = cc.getGreen();
-      MAP[2][p] = cc.getBlue();
-    } else {
-      MAP[0][p] = cc.getGrey();
-    }
+    setPixel(x, y, cc);
   }
 
   
   public void setPixelInChannel(int x, int y, byte c, byte p) {
-    int POS = ((y*this.getWidth())+x);
-    MAP[c][POS] = p;
+    int POS = ((y*this.getWidth())+x)*(this.bpp/8)+c;
+    MAP[POS] = p;
   }
   
   /**
@@ -520,19 +507,19 @@ public class Image {
    * @return Color object of that pixel
    */
   public Color getPixel(int x, int y) {
-    int POS = ((y*this.getWidth())+x);
+    int POS = ((y*this.getWidth())+x)*(this.bpp/8);
     if (this.getBPP() == 32) {
-      return new Color(MAP[0][POS], MAP[1][POS], MAP[2][POS], MAP[3][POS]);
+      return new Color(MAP[POS], MAP[POS+1], MAP[POS+2], MAP[POS+3]);
     } else if (this.getBPP() == 24) {
-      return new Color(MAP[0][POS], MAP[1][POS], MAP[2][POS]);
+      return new Color(MAP[POS], MAP[POS+1], MAP[POS+2]);
     } else {
-      return new Color(MAP[0][POS]);
+      return new Color(MAP[POS]);
     }
   }
   
-  public byte getPixelInChannel(int x, int y, byte c) {
-    int POS = ((y*this.getWidth())+x);
-    return MAP[c][POS];
+  public byte getByteInChannel(int x, int y, byte c) {
+    int POS = ((y*this.getWidth())+x)*(this.bpp/8)+c;
+    return MAP[POS];
   }
   
   /**
@@ -578,14 +565,15 @@ public class Image {
       maxH = this.getHeight() - y;
     }
     
+    if (img.getBPP() != this.getBPP()) {
+      img = img.changeMode(this.getBPP());
+    }
+    
     if (! alphaMerge) {
-      if (img.getBPP() != this.getBPP()) {
-        img = img.changeMode(this.getBPP());
-      }
+      int widthbpp = maxW*(img.bpp/8);
       for(int h = 0; h<maxH; h++) {
-        for(byte c=0; c< this.MAP.length; c++) {
-          System.arraycopy(img.getChannel(c), h*img.getWidth(), MAP[c], x+((y+h)*this.getWidth()), maxW);
-        }
+        int startPos = (((y+h)*this.width)+x)*(this.bpp/8);
+        System.arraycopy(img.MAP, h*img.getWidth()*(this.bpp/8), MAP, startPos, widthbpp);
       }
     } else {
       for(int h = 0; h<maxH; h++) {
@@ -600,22 +588,21 @@ public class Image {
   }
 
   public Image copy() throws ImageException {
-    return cut(0,0,this.getWidth(), this.getHeight());
+    Image newImage = Image.create(this.bpp, width, height);
+    System.arraycopy(MAP, 0, newImage.MAP, 0, MAP.length);
+    return newImage;
   }
   
   public Image cut(int x, int y, int width, int height) throws ImageException {
     if( (x + width) > this.getWidth() || (y + height) > this.getHeight()) {
       throw new ImageException("Can not cut over the current Image Size!!");
     }
-    Image newImage = Image.create(this.getBPP(), width, height);
-    int startPos = x*y;
-    for(byte c = 0; c < this.getChannels(); c++) {
-      byte[] data = new byte[width*height];
+    Image newImage = Image.create(this.bpp, width, height);
+    
       for(int yy = 0; yy< height; yy++) {
-        System.arraycopy(this.getChannel(c), startPos+(this.getWidth()*yy), data, (yy*width), width);
+        int startPos = (((y+yy)*this.width)+x)*(this.bpp/8);
+        System.arraycopy(this.MAP, startPos, newImage.MAP, (yy*width*(newImage.bpp/8)), width*(newImage.bpp/8));
       }
-      newImage.setChannel(c, data);
-    }
     return newImage;
   }
   
@@ -624,18 +611,11 @@ public class Image {
    */
   public void mkRandom() {
     Random r = new Random();
-    for (int x = 0; x< this.MAP.length; x++){
-      r.nextBytes(MAP[x]);
-    }
+    r.nextBytes(MAP);
   }
   
-  private byte[] getChannel(byte channel) {
-    return MAP[channel];
-  }
-  
-  
-  protected void setChannel(byte channel, byte[] array){
-    this.MAP[channel] = array;
+  protected void setArray(byte[] array){
+    this.MAP= array;
   }
   
   /**
@@ -643,13 +623,7 @@ public class Image {
    * @return byte[] of the raw Image data
    */
   public byte[] toArray() {
-    byte[] data = new byte[width*height*(bpp/8)];  
-    for (int i = 0; i< MAP[0].length; i++){
-      for (int c = 0; c < MAP.length; c++){
-        System.arraycopy(MAP[c], i, data, (c+(i*MAP.length)), 1);
-      }
-    }
-    return data;
+    return MAP;
   }
   
   /**
