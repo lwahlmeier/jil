@@ -40,7 +40,7 @@ public class AWTtests {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImageBW.png").getFile();
     File file = new File(filename);
     Image newImg = Image.fromBufferedImage(ImageIO.read(file));
-    assertEquals("6e6e224898e25dd4f4fceb08342df7f8d661622c08e8c3e77c59d9ed27e5f8ca", ImageTest.hashByteArray(newImg.toArray()));
+    assertEquals("4bf067d7bacb26cf8b36c3915c82e8222a3f339bfc40a08c16f4ad54ce141b94", ImageTest.hashByteArray(newImg.toArray()));
   }
 
   
