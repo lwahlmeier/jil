@@ -93,7 +93,7 @@ public class ImageTest {
     Image.open("/bad/path/to/open.png");
   }
   
-  @Test(expected=ImageException.class)
+  @Test(expected=RuntimeException.class)
   public void exceptionTest2() throws ImageException, IOException {
     Image.fromByteArray(Image.MODE_RGB, 200, 200, new byte[2]);
   }
@@ -165,7 +165,7 @@ public class ImageTest {
   public void openJPEGFile() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.jpg").getFile();
     Image img = Image.open(filename);
-    assertEquals("2740469d3f7d98b6fbb713f12826395be721bf5bf58bb90b9118ea2b6b3505ff", hashByteArray(img.toArray()));
+    assertEquals("a759cfdac85db551ab3fce07d0abf514bcafb1413601ce713e3bda14429314cb", hashByteArray(img.toArray()));
   }
   
   @Test
@@ -373,12 +373,25 @@ public class ImageTest {
   public void scaleAWTBiCubic() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image img = Image.open(filename);
+    img = img.changeMode(Image.MODE_L);
     Image newimg = img.resize((int)(img.getWidth()*1.5), (int)(img.getHeight()*1.5), true, Image.ScaleType.AWT_CUBIC);
-    assertEquals("03593999987441372fa5874bf53adf2c5da02b0cfb139900fce3b5d30adf925d", hashByteArray(newimg.toArray()));
+    assertEquals("559aad396a482c9cc4788acf211653392386c67184c43addf7a5e4d424e2d303", hashByteArray(newimg.toArray()));
     newimg = img.resize(640, img.getHeight()/2, true, Image.ScaleType.AWT_CUBIC);
-    assertEquals("e72936f2170916f9820cfc1641b296827b2b8579638e6f8951f094b9cde92bd2", hashByteArray(newimg.toArray()));
+    assertEquals("57bf73fbb651caaf970ae1ed4e50995a2e0bc2e47b1379585838022d0f6fb0dc", hashByteArray(newimg.toArray()));
     newimg = img.resize(200, 480, false, Image.ScaleType.AWT_CUBIC);
-    assertEquals("8d3c3b36f3e5aaf42cfcead6c522daaa9914ddc19a8de239a5b390fa80a04eb7", hashByteArray(newimg.toArray()));
+    assertEquals("9f7055baaf5850d401b40c5b4870c06f45ecd367681237494724cc7c1fddcf86", hashByteArray(newimg.toArray()));
+  }
+  
+  @Test
+  public void scaleAWTLiner() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image img = Image.open(filename);
+    Image newimg = img.resize((int)(img.getWidth()*1.5), (int)(img.getHeight()*1.5), true, Image.ScaleType.AWT_LINER);
+    assertEquals("41c927ebd731eaac71807ba5954bffec3e699573ec2ce68e55032eac195cca6c", hashByteArray(newimg.toArray()));
+    newimg = img.resize(640, img.getHeight()/2, true, Image.ScaleType.AWT_LINER);
+    assertEquals("85067c86dcdd54121d2af418b17c2a79ca31c0a8d17203ce3468107b558a5409", hashByteArray(newimg.toArray()));
+    newimg = img.resize(200, 480, false, Image.ScaleType.AWT_LINER);
+    assertEquals("f17f34ce6f877fd9f2122c1a5e727ad55f606f121d48567afe8936c4c4658ad3", hashByteArray(newimg.toArray()));
   }
   
   @Test

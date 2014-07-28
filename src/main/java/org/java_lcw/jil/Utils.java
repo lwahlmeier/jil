@@ -3,22 +3,34 @@ package org.java_lcw.jil;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public class Utils {
   
   
-  public static Image awtResizeBiCubic(Image img, int width, int height) {
+  public static byte[] awtResizeBiCubic(Image img, int width, int height) {
     BufferedImage orig = img.toBufferedImage(); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
-    g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     g.drawImage(orig, 0, 0, width, height, null);
-    return Image.fromBufferedImage(resizedImage);
+    return bufferedImageToByteArray(resizedImage);
   }
   
-  public static Image awtResizeNN(Image img, int width, int height) {
+  public static byte[] awtResizeLiner(Image img, int width, int height) {
+    BufferedImage orig = img.toBufferedImage(); 
+    BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
+    Graphics2D g = resizedImage.createGraphics();
+    g.drawImage(orig, 0, 0, width, height, null);
+    g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+    return bufferedImageToByteArray(resizedImage);
+  }
+  
+  public static byte[] awtResizeNN(Image img, int width, int height) {
     BufferedImage orig = img.toBufferedImage(); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
@@ -26,11 +38,14 @@ public class Utils {
     g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-    return Image.fromBufferedImage(resizedImage);
+    return bufferedImageToByteArray(resizedImage);
   }
 
-  public static byte[] bufferedImageToByteArray(BufferedImage BI) {
-    return intsToBytes(BI.getRGB(0, 0, BI.getWidth(), BI.getHeight(), null , 0, BI.getWidth()), (byte) 32);
+  public static byte[] bufferedImageToByteArray(BufferedImage bufferedImage) {
+    if(bufferedImage.getType() == BufferedImage.TYPE_3BYTE_BGR || bufferedImage.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+      return ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
+    }
+    return intsToBytes(bufferedImage.getRGB(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), null , 0, bufferedImage.getWidth()), (byte) 32);
   }
   
   public static byte[] intsToBytes(int[] array, byte bpp) {
@@ -65,5 +80,22 @@ public class Utils {
       }
     }
     return nArray;
+  }
+  
+  public static int[] getAspectSize(int origWidth, int origHeight, int width, int height) {
+      int nw = origWidth;
+      int nh = origHeight;
+      double ratio = nw/(double)nh;
+      if (nw != width) {
+        nw = width;
+        nh = (int)Math.floor(nw/ratio);
+      }
+      if (nh > height) {
+        nh = height;
+        nw = (int)Math.floor(nh*ratio);
+      }
+      width = nw;
+      height = nh;
+      return new int[]{width, height};
   }
 }

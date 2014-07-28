@@ -1,6 +1,9 @@
 package org.java_lcw.jil;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -225,7 +228,16 @@ public class Image {
    * @throws ImageException This happens if there is something wrong with the BufferedImage
    */
   public static Image fromBufferedImage(BufferedImage BI) {
-    Image img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    Image img;
+    if(BI.getType() == BufferedImage.TYPE_3BYTE_BGR) {
+      img = Image.fromByteArray(MODE_RGB, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    } else if(BI.getType() == BufferedImage.TYPE_4BYTE_ABGR) {
+      img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    } else if (BI.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+      img = Image.fromByteArray(MODE_L, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    } else {
+      throw new RuntimeException("problem opening BufferedImage Type! "+BI.getType());
+    }
     return img;
   }
   //This always up changes to RGBA image
@@ -235,10 +247,22 @@ public class Image {
    * @throws ImageException
    */
   public BufferedImage toBufferedImage() {
-    BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-    int[] array = Utils.bytesToInts(Image.MODE_RGBA, this.changeMode(Image.MODE_RGBA).toArray());
-    BB.setRGB(0, 0, this.getWidth(), this.getHeight(), array, 0, this.getWidth());
-    return BB;
+    if(this.bpp == 24) {
+      BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+      byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
+      System.arraycopy(MAP, 0, test, 0, test.length);
+      return BB;
+    } else if(this.bpp == 8) {
+      BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+      byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
+      System.arraycopy(MAP, 0, test, 0, test.length);
+      return BB;
+    } else {
+      BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+      int[] array = Utils.bytesToInts(Image.MODE_RGBA, this.changeMode(Image.MODE_RGBA).toArray());
+      BB.setRGB(0, 0, this.getWidth(), this.getHeight(), array, 0, this.getWidth());
+      return BB;
+    }
   }
 
   
@@ -381,6 +405,35 @@ public class Image {
     }
     return image;
   }
+  
+  /**
+   * This resizes the Image, uses the Nearest Neighbor scaler, and keeps aspect ratio
+   * @param width new Width
+   * @param height new Height
+   * @return new Image object of the given size
+   */
+  public byte[] resizeToArray(int width, int height, boolean keepAspect, ScaleType st) {
+    if(keepAspect) {
+      int[] aspect = Utils.getAspectSize(this.width, this.height, width, height);
+      width = aspect[0];
+      height = aspect[1];
+    }
+    byte[] tmp;
+    switch(st) {
+    case AWT_NN:
+      tmp = Utils.awtResizeNN(this, width, height);
+      break;
+    case AWT_LINER:
+      tmp = Utils.awtResizeLiner(this, width, height);
+      break;
+    case AWT_CUBIC:
+      tmp = Utils.awtResizeBiCubic(this, width, height);
+      break;
+    default:
+      throw new RuntimeException("Cant not resize to array if not using AWT scaler!");
+    }
+    return tmp;
+  }
 
   
   /**
@@ -414,21 +467,10 @@ public class Image {
    */
   public Image resize(int width, int height, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
-      int nw = this.getWidth();
-      int nh = this.getHeight();
-      double ratio = nw/(double)nh;
-      if (nw != width) {
-        nw = width;
-        nh = (int)Math.floor(nw/ratio);
-      }
-      if (nh > height) {
-        nh = height;
-        nw = (int)Math.floor(nh*ratio);
-      }
-      width = nw;
-      height = nh;
+      int[] aspect = Utils.getAspectSize(this.width, this.height, width, height);
+      width = aspect[0];
+      height = aspect[1];
     }
-    
     Image tmp;
     switch(st) {
     case LINER:
@@ -438,10 +480,13 @@ public class Image {
       tmp = BiCubicScaler.scale(this, width, height);
       break;
     case AWT_NN:
-      tmp = Utils.awtResizeNN(this, width, height);
+      tmp = Image.fromByteArray(this.bpp, width, height, Utils.awtResizeNN(this, width, height));
+      break;
+    case AWT_LINER:
+      tmp = Image.fromByteArray(this.bpp, width, height,Utils.awtResizeLiner(this, width, height));
       break;
     case AWT_CUBIC:
-      tmp = Utils.awtResizeBiCubic(this, width, height);
+      tmp = Image.fromByteArray(this.bpp, width, height,Utils.awtResizeBiCubic(this, width, height));
       break;
     default:
       tmp = NearestNeighborScaler.scale(this, width, height);
