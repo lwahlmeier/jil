@@ -54,7 +54,7 @@ public class Image {
    * @author lcw - Luke Wahlmeier
    *
    */
-  public enum ScaleType {NN, LINER, CUBIC, LANCZOS};
+  public enum ScaleType {NN, LINER, CUBIC, LANCZOS, AWT_NN, AWT_LINER, AWT_CUBIC};
   
   private Image(byte mode, int width, int height) {
     colors = (byte) (mode/8);
@@ -104,11 +104,11 @@ public class Image {
    * @return Returns an Image object with the provided byte[] set in it
    * @throws ImageException This happens if the data provided is to large or to small for the (mode/8)*width*height
    */
-  public static Image fromByteArray(byte mode, int width, int height, byte[] data) throws ImageException {
+  public static Image fromByteArray(byte mode, int width, int height, byte[] data) {
     
     byte cBytes = (byte)(mode/8);
     if(data.length != (width*height*cBytes)){
-      throw new ImageException("Incorrect number of bytes to make an image of that type");
+      throw new RuntimeException("Incorrect number of bytes to make an image of that type");
     }
     Image image = create(mode, width, height);
     image.setArray(data);
@@ -224,9 +224,8 @@ public class Image {
    * @return returns an Image object based from the BufferedImage
    * @throws ImageException This happens if there is something wrong with the BufferedImage
    */
-  public static Image fromBufferedImage(BufferedImage BI) throws ImageException{
-    Image img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), 
-        intsToBytes(BI.getRGB(0, 0, BI.getWidth(), BI.getHeight(), null , 0, BI.getWidth()), (byte) 32));
+  public static Image fromBufferedImage(BufferedImage BI) {
+    Image img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
     return img;
   }
   //This always up changes to RGBA image
@@ -235,9 +234,9 @@ public class Image {
    * @return BufferedImage
    * @throws ImageException
    */
-  public BufferedImage toBufferedImage() throws ImageException {
+  public BufferedImage toBufferedImage() {
     BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-    int[] array = bytesToInts(Image.MODE_RGBA, this.changeMode(Image.MODE_RGBA).toArray());
+    int[] array = Utils.bytesToInts(Image.MODE_RGBA, this.changeMode(Image.MODE_RGBA).toArray());
     BB.setRGB(0, 0, this.getWidth(), this.getHeight(), array, 0, this.getWidth());
     return BB;
   }
@@ -258,7 +257,7 @@ public class Image {
       int width = data.width*data.height;
       int[] newInt = new int[width];
       data.getPixels(0, 0, width, newInt, 0);
-      byte[] newBytes = intsToBytes(newInt, bpp);
+      byte[] newBytes = Utils.intsToBytes(newInt, bpp);
       newImg = Image.fromByteArray(bpp, data.width, data.height, newBytes);
     } else {
       byte bpp = (byte)(32);
@@ -300,20 +299,20 @@ public class Image {
           cBytes[0] = c.getRed();
           cBytes[1] = c.getGreen();
           cBytes[2] = c.getBlue();
-          newInt = bytesToInts(Image.MODE_RGB, cBytes);
+          newInt = Utils.bytesToInts(Image.MODE_RGB, cBytes);
           ID.setPixel(x, y, newInt[0]);
           ID.setAlpha(x, y, c.getAlpha() &0xff );
         } else if (this.getChannels() == 3){
           cBytes[0] = c.getRed();
           cBytes[1] = c.getGreen();
           cBytes[2] = c.getBlue();
-          newInt = bytesToInts(Image.MODE_RGB, cBytes);
+          newInt = Utils.bytesToInts(Image.MODE_RGB, cBytes);
           ID.setPixel(x, y, newInt[0]);
         } else {
           cBytes[0] = c.getGrey();
           cBytes[1] = c.getGrey();
           cBytes[2] = c.getGrey();
-          newInt = bytesToInts(Image.MODE_RGB, cBytes);
+          newInt = Utils.bytesToInts(Image.MODE_RGB, cBytes);
           ID.setPixel(x, y, newInt[0]);
         }
       }
@@ -437,6 +436,12 @@ public class Image {
       break;
     case CUBIC:
       tmp = BiCubicScaler.scale(this, width, height);
+      break;
+    case AWT_NN:
+      tmp = Utils.awtResizeNN(this, width, height);
+      break;
+    case AWT_CUBIC:
+      tmp = Utils.awtResizeBiCubic(this, width, height);
       break;
     default:
       tmp = NearestNeighborScaler.scale(this, width, height);
@@ -672,39 +677,7 @@ public class Image {
     throw new ImageException("Could not determen file type");
   }
 
-  private static byte[] intsToBytes(int[] array, byte bpp) {
-    byte cp = (byte) (bpp/8);
-    byte[] nArray = new byte[array.length*cp];
-    for (int i =0; i< array.length; i++) {
-      int c = i*cp;
-      nArray[c] = (byte) ((array[i] >> 16) & 0xff);
-      nArray[c+1] = (byte) ((array[i] >> 8) & 0xff);
-      nArray[c+2] = (byte) (array[i] & 0xff);
-      if (cp == 4) {
-        nArray[c+3] = (byte) ((array[i] >> 24) & 0xff);
-      }
-    }
-    return nArray;
-  }
-  
-  private static int[] bytesToInts(byte mode, byte[] array) {
-    int[] nArray = new int[array.length/(mode/8)];
-    for (int i =0; i< nArray.length; i++) {
-      int c = i*(mode/8);
-      if (mode == 32 ) {
-      nArray[i] =  ((array[c+3] << 24 ) & 0xff000000) | ((array[c] << 16) & 0xff0000) | 
-          ((array[c+1] << 8) & 0xff00) | ((array[c+2]) & 0xff);
-      //Dont hit these because we upsample to 32bit before we make BufferedImage
-      } else if (mode == 24) {
-        nArray[i] =  ((array[c] << 16)&0xff0000) | 
-            ((array[c+1] << 8)&0xff00) | ((array[c+2])&0xff);        
-      } else if (mode == 8) {
-        nArray[i] =  (255<<24) | ((array[c] << 16)) | 
-            ((array[c] << 8)) | ((array[c]));
-      }
-    }
-    return nArray;
-  }
+
 
   public static class ImageException extends Exception {
     private static final long serialVersionUID = 713250734097347352L;

@@ -85,28 +85,45 @@ public class BiCubicScaler {
   private Color getInterpolatedPixel(int x, int y, float tx, float ty){
     int cX;
     int cY;
-    Color[] newColors = new Color[4];    
-    Color[] pixles = new Color[4];
+    int cSize = srcImage.getChannels();
+    byte[][] newColors = new byte[4][];    
+    byte[][] pixles = new byte[4][];
+    for(int i=0; i<pixles.length; i++){
+      pixles[i] = new byte[cSize];
+      newColors[i] = new byte[cSize];
+    }
+    
     for(int newY = 0; newY<4; newY++){
       cY = this.clampYPos(y+newY-1);
       for(int newX = 0; newX<4; newX++){
-        cX = this.clampXPos(x+newX-1); 
-        pixles[newX] = srcImage.getPixel(cX, cY);
+        cX = this.clampXPos(x+newX-1);
+        int cp = ((cY*srcImage.getWidth())+cX)*cSize;
+        for(int i=0; i<cSize; i++){ 
+          pixles[newX][i] = srcImage.MAP[cp+i];
+        }
       }
       //Combine Rows into 1 px
-      newColors[newY] = new Color(
-          (byte) getInterpolatedValues(pixles[0].getRed(),pixles[1].getRed(),pixles[2].getRed(),pixles[3].getRed(), tx),
-          (byte) getInterpolatedValues(pixles[0].getGreen(),pixles[1].getGreen(),pixles[2].getGreen(),pixles[3].getGreen(), tx),
-          (byte) getInterpolatedValues(pixles[0].getBlue(),pixles[1].getBlue(),pixles[2].getBlue(),pixles[3].getBlue(), tx),
-          (byte) getInterpolatedValues(pixles[0].getAlpha(),pixles[1].getAlpha(),pixles[2].getAlpha(),pixles[3].getAlpha(), tx)
+      for(int i=0; i<cSize; i++){ 
+        newColors[newY][i] = getInterpolatedValues(pixles[0][i],pixles[1][i],pixles[2][i],pixles[3][i], tx);
+      }
+    }
+    Color last = null;
+    if(cSize == 1) { 
+      last = new Color (getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty));
+    } else if(cSize == 3) {
+      last = new Color (
+          getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty),
+          getInterpolatedValues(newColors[0][1],newColors[1][1],newColors[2][1],newColors[3][1], ty),
+          getInterpolatedValues(newColors[0][2],newColors[1][2],newColors[2][2],newColors[3][2], ty)
+          );
+    } else if (cSize == 4) {
+      last = new Color (
+          getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty),
+          getInterpolatedValues(newColors[0][1],newColors[1][1],newColors[2][1],newColors[3][1], ty),
+          getInterpolatedValues(newColors[0][2],newColors[1][2],newColors[2][2],newColors[3][2], ty),
+          getInterpolatedValues(newColors[0][3],newColors[1][3],newColors[2][3],newColors[3][3], ty)
           );
     }
-    //Combine Column of combined rows into 1px
-    byte r = (byte) getInterpolatedValues(newColors[0].getRed(),newColors[1].getRed(),newColors[2].getRed(),newColors[3].getRed(), ty);
-    byte g = (byte) getInterpolatedValues(newColors[0].getGreen(),newColors[1].getGreen(),newColors[2].getGreen(),newColors[3].getGreen(), ty);
-    byte b = (byte) getInterpolatedValues(newColors[0].getBlue(),newColors[1].getBlue(),newColors[2].getBlue(),newColors[3].getBlue(), ty);
-    byte a = (byte) getInterpolatedValues(newColors[0].getAlpha(),newColors[1].getAlpha(),newColors[2].getAlpha(),newColors[3].getAlpha(), ty);
-    Color last = new Color(r, g, b, a);
     return last; 
   }
 }

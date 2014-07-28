@@ -312,12 +312,14 @@ public class ImageTest {
   
   @Test
   public void scaleTestRGBA() throws ImageException, IOException, NoSuchAlgorithmException {
-    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image img = Image.open(filename);
-    img = img.resize(640, 480, false);
-    assertEquals("b03185220896e6e7672664cda9777924df509a0c740c7a28f1550d172ac31773", hashByteArray(img.toArray()));
-    img = img.resize(200, 480, false);
-    assertEquals("6780546dc43dd72de1e09dfe23372c2178397fc0969c4a0f5bbbcff06e7648e1", hashByteArray(img.toArray()));
+    Image newimg = img.resize((int)(img.getWidth()*1.5), (int)(img.getHeight()*1.5), true);
+    assertEquals("41c927ebd731eaac71807ba5954bffec3e699573ec2ce68e55032eac195cca6c", hashByteArray(newimg.toArray()));
+    newimg = img.resize(640, img.getHeight()/2, true);
+    assertEquals("3be385c3ee1189a86248eedcbedbb1143c1ece24ad9c045442bc60e5138c928e", hashByteArray(newimg.toArray()));
+    newimg = img.resize(200, 480, false);
+    assertEquals("e4c249a9912c8f04cbbd3c94c140ae64205d1fcda0a9351801c14bbd4be38a1e", hashByteArray(newimg.toArray()));
   }
   
   @Test
@@ -365,6 +367,30 @@ public class ImageTest {
     assertEquals("395b6e4850c66dab6c848097f17aa37a96839b128c322c17d6cd88ce00da55cb", hashByteArray(newimg.toArray()));
     newimg = img.resize(200, 480, false, Image.ScaleType.CUBIC);
     assertEquals("4960701619ed06260707ff4d08e13eec9787107c493761340bed18d9857a5e69", hashByteArray(newimg.toArray()));
+  }
+  
+  @Test
+  public void scaleAWTBiCubic() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image img = Image.open(filename);
+    Image newimg = img.resize((int)(img.getWidth()*1.5), (int)(img.getHeight()*1.5), true, Image.ScaleType.AWT_CUBIC);
+    assertEquals("03593999987441372fa5874bf53adf2c5da02b0cfb139900fce3b5d30adf925d", hashByteArray(newimg.toArray()));
+    newimg = img.resize(640, img.getHeight()/2, true, Image.ScaleType.AWT_CUBIC);
+    assertEquals("e72936f2170916f9820cfc1641b296827b2b8579638e6f8951f094b9cde92bd2", hashByteArray(newimg.toArray()));
+    newimg = img.resize(200, 480, false, Image.ScaleType.AWT_CUBIC);
+    assertEquals("8d3c3b36f3e5aaf42cfcead6c522daaa9914ddc19a8de239a5b390fa80a04eb7", hashByteArray(newimg.toArray()));
+  }
+  
+  @Test
+  public void scaleAWTNN() throws ImageException, IOException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    Image img = Image.open(filename);
+    Image newimg = img.resize((int)(img.getWidth()*1.5), (int)(img.getHeight()*1.5), true, Image.ScaleType.AWT_NN);
+    assertEquals("41c927ebd731eaac71807ba5954bffec3e699573ec2ce68e55032eac195cca6c", hashByteArray(newimg.toArray()));
+    newimg = img.resize(640, img.getHeight()/2, true, Image.ScaleType.AWT_NN);
+    assertEquals("85067c86dcdd54121d2af418b17c2a79ca31c0a8d17203ce3468107b558a5409", hashByteArray(newimg.toArray()));
+    newimg = img.resize(200, 480, false, Image.ScaleType.AWT_NN);
+    assertEquals("f17f34ce6f877fd9f2122c1a5e727ad55f606f121d48567afe8936c4c4658ad3", hashByteArray(newimg.toArray()));
   }
   
   @Test
