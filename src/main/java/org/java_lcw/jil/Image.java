@@ -419,36 +419,10 @@ public class Image {
    * @param height new Height
    * @return new Image object of the given size
    */
-  public byte[] resizeToArray(int width, int height, boolean keepAspect, ScaleType st) {
-    if(keepAspect) {
-      int[] aspect = Utils.getAspectSize(this.width, this.height, width, height);
-      width = aspect[0];
-      height = aspect[1];
-    }
-    byte[] tmp;
-    switch(st) {
-    case AWT_NN:
-      tmp = Utils.awtResizeNN(this, width, height);
-      break;
-    case AWT_LINER:
-      tmp = Utils.awtResizeLiner(this, width, height);
-      break;
-    case AWT_CUBIC:
-      tmp = Utils.awtResizeBiCubic(this, width, height);
-      break;
-    default:
-      throw new RuntimeException("Cant not resize to array if not using AWT scaler!");
-    }
-    return tmp;
-  }
-  
-  public byte[] resizeToArrayWithBorders(int borderWidth, int borderHeight, ScaleType st) {
+  public Image resizeWithBorders(int borderWidth, int borderHeight, ScaleType st) {
     Image ib = Image.create(this.bpp, borderWidth, borderHeight);
     
-    int[] aspect = Utils.getAspectSize(this.width, this.height, borderWidth, borderHeight);
-    byte[] tmp = resizeToArray(borderWidth, borderHeight, true, st);
-    
-    Image newI = Image.fromByteArray(this.bpp, aspect[0], aspect[1], tmp);
+    Image newI = resize(borderWidth, borderHeight, true, st);
     
     if(newI.getHeight() == ib.getHeight()) {
       int pos = (ib.getWidth()/2) - (newI.getWidth()/2);
@@ -458,9 +432,8 @@ public class Image {
       ib.paste(0, pos, newI);
     }
     
-    return ib.toArray();
+    return ib;
   }
-
   
   /**
    * This resizes the Image, uses the Nearest Neighbor scaler, and keeps aspect ratio
@@ -485,37 +458,37 @@ public class Image {
   
   /**
    * This resizes the Image
-   * @param width new Width
-   * @param height new Height
+   * @param newWidth new Width
+   * @param newHeight new Height
    * @param keepAspect boolean, true means keep aspect, false means dont keep the aspect
    * @param st ScaleType to use (see Image.ScaleTypes)
    * @return new Image object of the given size
    */
-  public Image resize(int width, int height, boolean keepAspect, ScaleType st) {
+  public Image resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
-      int[] aspect = Utils.getAspectSize(this.width, this.height, width, height);
-      width = aspect[0];
-      height = aspect[1];
+      int[] aspect = Utils.getAspectSize(this.width, this.height, newWidth, newHeight);
+      newWidth = aspect[0];
+      newHeight = aspect[1];
     }
     Image tmp;
     switch(st) {
     case LINER:
-      tmp = BiLinearScaler.scale(this, width, height);
+      tmp = BiLinearScaler.scale(this, newWidth, newHeight);
       break;
     case CUBIC:
-      tmp = BiCubicScaler.scale(this, width, height);
+      tmp = BiCubicScaler.scale(this, newWidth, newHeight);
       break;
     case AWT_NN:
-      tmp = Image.fromByteArray(this.bpp, width, height, Utils.awtResizeNN(this, width, height));
+      tmp = Image.fromByteArray(this.bpp, newWidth, newHeight, Utils.awtResizeNN(this, newWidth, newHeight));
       break;
     case AWT_LINER:
-      tmp = Image.fromByteArray(this.bpp, width, height,Utils.awtResizeLiner(this, width, height));
+      tmp = Image.fromByteArray(this.bpp, newWidth, newHeight,Utils.awtResizeLiner(this, newWidth, newHeight));
       break;
     case AWT_CUBIC:
-      tmp = Image.fromByteArray(this.bpp, width, height,Utils.awtResizeBiCubic(this, width, height));
+      tmp = Image.fromByteArray(this.bpp, newWidth, newHeight,Utils.awtResizeBiCubic(this, newWidth, newHeight));
       break;
     default:
-      tmp = NearestNeighborScaler.scale(this, width, height);
+      tmp = NearestNeighborScaler.scale(this, newWidth, newHeight);
     }
     return tmp;
   }
@@ -623,35 +596,55 @@ public class Image {
    * @throws ImageException
    */
   public void paste(int x, int y, Image img, boolean alphaMerge){
-    int maxW = img.getWidth();
-    int maxH = img.getHeight();
-    if (img.height+y < 0 || y > this.height) {
+    if (img.height+y < 0 || y >= this.height) {
       return;
     }
     
-    if (img.width+x < 0 || x > this.width) {
+    if (img.width+x < 0 || x >= this.width) {
       return;
     }
     
-    if (this.getWidth() - x < maxW) {
-      maxW = this.getWidth() - x;
+    int pxSize = this.bpp/8;
+    int maxW = img.getWidth()*pxSize;
+    int maxRows = img.getHeight();
+    int Xoffset = 0;
+    if(x < 0) {
+      Xoffset = Math.abs(x)*pxSize;
     }
-    if (this.getHeight() - y < maxH) {
-      maxH = this.getHeight() - y;
+    
+    int Yoffset = 0;
+    if(y < 0) {
+      Yoffset = Math.abs(y);
+    }
+    int yStart = Math.max(0, y);
+    int xStart = Math.max(0, x)*(this.bpp/8);
+    
+    if (this.getWidth()*pxSize - xStart < maxW) {
+      maxW = (this.getWidth()*pxSize - xStart);
+    }
+    if (this.getHeight() - yStart < maxRows) {
+      maxRows = this.getHeight() - yStart;
     }
     
     if (img.getBPP() != this.getBPP()) {
       img = img.changeMode(this.getBPP());
     }
     
+
     if (! alphaMerge) {
-      int widthbpp = maxW*(img.bpp/8);
-      for(int h = 0; h<maxH; h++) {
-        int startPos = (((y+h)*this.width)+x)*(this.bpp/8);
-        System.arraycopy(img.MAP, h*img.getWidth()*(this.bpp/8), MAP, startPos, widthbpp);
+      int origRowSize = this.width * pxSize;
+      int newRowSize = (img.width * pxSize);
+      for(int row = 0; row<maxRows-Yoffset; row++) {
+        int origRow = (origRowSize*row) + (origRowSize*yStart);
+        int newRow = (newRowSize*row) + (newRowSize*Yoffset);
+        newRow += Xoffset;
+        //System.out.println(origRow+":"+newRow);
+        System.arraycopy(img.MAP, newRow, this.MAP, origRow+xStart, maxW-Xoffset);
+
       }
     } else {
-      for(int h = 0; h<maxH; h++) {
+      maxW = maxW/pxSize;
+      for(int h = 0; h<maxRows; h++) {
         for(int w = 0; w<maxW; w++) {
           if(w+x > 0 && h+y > 0) {
             Color c = img.getPixel(w, h);

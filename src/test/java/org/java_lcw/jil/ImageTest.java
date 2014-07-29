@@ -228,8 +228,13 @@ public class ImageTest {
     Image subImg = Image.open(filename);
     subImg = subImg.resize(img.getWidth()/3, img.getHeight()/3);
     img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
-    img.save("/tmp/test.png");
     assertEquals("75ea1d4c88532aa94bcd474b4ae21ec252a39147be7db196408f3d82a270c6fb", hashByteArray(img.toArray()));
+  }
+  
+  
+  @Test
+  public void pasteImagesTestRGBA2() throws ImageException, IOException, NoSuchAlgorithmException {
+
   }
 
   @Test
