@@ -67,6 +67,15 @@ public class Image {
     this.height = height;
     this.bpp = mode;
   }
+  
+  private Image(byte mode, int width, int height, byte[] map) {
+    colors = (byte) (mode/8);
+    int size = colors*width*height;
+    MAP = map;
+    this.width = width;
+    this.height = height;
+    this.bpp = mode;
+  }
 
   /**
    * Main Method for creating a new Image
@@ -112,8 +121,7 @@ public class Image {
     if(data.length != (width*height*cBytes)){
       throw new RuntimeException("Incorrect number of bytes to make an image of that type");
     }
-    Image image = create(mode, width, height);
-    image.setArray(data);
+    Image image = new Image(mode, width, height, data);
     return image;
   }
   
@@ -435,10 +443,13 @@ public class Image {
   }
   
   public byte[] resizeToArrayWithBorders(int borderWidth, int borderHeight, ScaleType st) {
-    Image ib = Image.create(this.bpp, borderWidth, borderHeight, new Color((byte)255));
+    Image ib = Image.create(this.bpp, borderWidth, borderHeight);
+    
     int[] aspect = Utils.getAspectSize(this.width, this.height, borderWidth, borderHeight);
     byte[] tmp = resizeToArray(borderWidth, borderHeight, true, st);
+    
     Image newI = Image.fromByteArray(this.bpp, aspect[0], aspect[1], tmp);
+    
     if(newI.getHeight() == ib.getHeight()) {
       int pos = (ib.getWidth()/2) - (newI.getWidth()/2);
       ib.paste(pos, 0, newI);
