@@ -63,7 +63,6 @@ public class Image {
     colors = (byte) (mode/8);
     int size = colors*width*height;
     MAP = new byte[size];
-    Arrays.fill(MAP, (byte)(0));
     this.width = width;
     this.height = height;
     this.bpp = mode;
