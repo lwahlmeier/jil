@@ -434,6 +434,22 @@ public class Image {
     }
     return tmp;
   }
+  
+  public byte[] resizeToArrayWithBorders(int borderWidth, int borderHeight, ScaleType st) {
+    Image ib = Image.create(this.bpp, borderWidth, borderHeight, new Color((byte)255));
+    int[] aspect = Utils.getAspectSize(this.width, this.height, borderWidth, borderHeight);
+    byte[] tmp = resizeToArray(borderWidth, borderHeight, true, st);
+    Image newI = Image.fromByteArray(this.bpp, aspect[0], aspect[1], tmp);
+    if(newI.getHeight() == ib.getHeight()) {
+      int pos = (ib.getWidth()/2) - (newI.getWidth()/2);
+      ib.paste(pos, 0, newI);
+    } else {
+      int pos = (ib.getHeight()/2)  - (newI.getHeight()/2);
+      ib.paste(0, pos, newI);
+    }
+    
+    return ib.toArray();
+  }
 
   
   /**
@@ -597,7 +613,6 @@ public class Image {
    * @throws ImageException
    */
   public void paste(int x, int y, Image img, boolean alphaMerge){
-    
     int maxW = img.getWidth();
     int maxH = img.getHeight();
     if (img.height+y < 0 || y > this.height) {
@@ -628,10 +643,13 @@ public class Image {
     } else {
       for(int h = 0; h<maxH; h++) {
         for(int w = 0; w<maxW; w++) {
-          Color c = img.getPixel(w, h);
-          Color c2 = this.getPixel(w+x, h+y);
-          c2.merge(c);
-          this.setPixel(w+x, h+y, c2);
+          if(w+x > 0 && h+y > 0) {
+            Color c = img.getPixel(w, h);
+            Color c2 = this.getPixel(w+x, h+y);
+            c2.merge(c);
+
+            this.setPixel(w+x, h+y, c2);
+          }
         }
       }
     }
