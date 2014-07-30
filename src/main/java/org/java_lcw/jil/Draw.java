@@ -1,11 +1,7 @@
 package org.java_lcw.jil;
 
-import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayDeque;
-import java.util.Random;
-
-import org.java_lcw.jil.Image.ImageException;
+import java.util.ArrayList;
 
 public class Draw {
 
@@ -44,7 +40,13 @@ public class Draw {
     }
   }
 
-  public static void floodFill(Image img, int x, int y, Color c, Color edge) throws IOException, ImageException {
+  public static void floodFill(Image img, int x, int y, Color c, Color edge) {
+    if(x <0 || x>=img.getWidth()) {
+      return;
+    }
+    if(y <0 || y>=img.getWidth()) {
+      return;
+    }
     synchronized(img) {
       Color OC = img.getPixel(x, y);
       if(OC.equals(c)) {
@@ -58,12 +60,20 @@ public class Draw {
           ce = pl.poll();
           try {
             Color tmpC = img.getPixel(ce[0], ce[1]);
-            if(tmpC.equals(OC)) {
+            if(tmpC!=null && tmpC.equals(OC)) {
               img.setPixel(ce[0], ce[1], c);
-              pl.add(new Integer[]{ce[0]+1, ce[1]});
-              pl.add(new Integer[]{ce[0]-1, ce[1]});
-              pl.add(new Integer[]{ce[0], ce[1]+1});
-              pl.add(new Integer[]{ce[0], ce[1]-1});
+              if(ce[0]+1 < img.getWidth()) {
+                pl.add(new Integer[]{ce[0]+1, ce[1]});
+              }
+              if(ce[0] -1 >= 0) {
+                pl.add(new Integer[]{ce[0]-1, ce[1]});
+              }
+              if(ce[0]+1 < img.getHeight()) {
+                pl.add(new Integer[]{ce[0], ce[1]+1});
+              }
+              if(ce[0] -1 >= 0) {
+                pl.add(new Integer[]{ce[0], ce[1]-1});
+              }
             }
           } catch(ArrayIndexOutOfBoundsException e) { 
           }
@@ -75,10 +85,18 @@ public class Draw {
             Color tmpC = img.getPixel(ce[0], ce[1]);
             if(!tmpC.equals(c) && !tmpC.equals(edge)) {
               img.setPixel(ce[0], ce[1], c);
-              pl.add(new Integer[]{ce[0]+1, ce[1]});
-              pl.add(new Integer[]{ce[0]-1, ce[1]});
-              pl.add(new Integer[]{ce[0], ce[1]+1});
-              pl.add(new Integer[]{ce[0], ce[1]-1});
+              if(ce[0]+1 < img.getWidth()) {
+                pl.add(new Integer[]{ce[0]+1, ce[1]});
+              }
+              if(ce[0] -1 >= 0) {
+                pl.add(new Integer[]{ce[0]-1, ce[1]});
+              }
+              if(ce[0]+1 < img.getHeight()) {
+                pl.add(new Integer[]{ce[0], ce[1]+1});
+              }
+              if(ce[0] -1 >= 0) {
+                pl.add(new Integer[]{ce[0], ce[1]-1});
+              }
             }
           } catch(ArrayIndexOutOfBoundsException e) { 
           }
@@ -88,90 +106,93 @@ public class Draw {
     }
   }
 
-  public static void fillColor(Image img, int x, int y, Color c) throws IOException, ImageException {
+  public static void fillColor(Image img, int x, int y, Color c) {
     floodFill(img,x,y,c, null);
   }
 
   public static void circle(Image img, int cx, int cy, int size, Color c, int lineWidth, boolean fill){
-    synchronized(img) {
-      int r = size/2;
-      int points = Math.max(r/16, 5);
-      for(int i=0; i<360*points; i++) {
-        int px = (int)Math.round(cx+Math.cos(i*Math.PI/180.0/points)*r);
-        int py = (int)Math.round(cy+Math.sin(i*Math.PI/180.0/points)*r);
-        if(px >= 0 && py >= 0 && py < img.getHeight() && px < img.getWidth()) {
-          img.setPixel(px, py, c);
-        }
-      }
-
-      if(fill) {
-        lineWidth = size;
-      }
-
-      for(int l = 1; l<lineWidth; l++){
-        size -=1;
-        Draw.circle(img, cx, cy, size, c, 1, false);
+    int r = size/2;
+    int points = Math.max(r/16, 5);
+    for(int i=0; i<360*points; i++) {
+      int px = (int)Math.round(cx+Math.cos(i*Math.PI/180.0/points)*r);
+      int py = (int)Math.round(cy+Math.sin(i*Math.PI/180.0/points)*r);
+      if(px >= 0 && py >= 0 && py < img.getHeight() && px < img.getWidth()) {
+        img.setPixel(px, py, c);
       }
     }
+
+    if(fill) {
+      lineWidth = size;
+    }
+
+    for(int l = 1; l<lineWidth; l++){
+      size -=1;
+      Draw.circle(img, cx, cy, size, c, 1, false);
+    }
   }
-
   public static void line(Image img, int startX, int startY, int endX, int endY, Color c, int lineWidth) {
-    synchronized(img) {
-      int xdist = Math.abs(endX-startX);
-      int ydist = Math.abs(endY-startY);
-      int err = xdist - ydist;
-
-      int sx = 1;
-      int sy = 1;
-      if(startX > endX) {
-        sx = -1;
-      }
-      if(startY > endY) {
-        sy = -1;
-      }
-
-      int x = startX;
-      int y = startY;
-      int e2 = 0;
-
-      while(true) {
-        for(int l = 0; l < lineWidth; l++) {
-          for(int nx = x; nx < l+x; nx++) {
-            for(int ny = y; ny < l+y; ny++) {
-              if(nx >= 0 && ny >= 0 && nx < img.getWidth() && ny < img.getHeight()) {
-                img.setPixel(nx, ny, c);
-              }
-            }
-          }
+    line(img, startX, startY, endX, endY, c, lineWidth, false);
+    
+  }
+  public static void line(Image img, int startX, int startY, int endX, int endY, Color c, int lineWidth, boolean alphaMerge) {
+    int xdist = Math.abs(endX-startX);
+    int ydist = Math.abs(endY-startY);
+    int sx = 1;
+    int sy = 1;
+    if(startX  >= endX) {
+      sx = -1;
+    }
+    if(startY >= endY) {
+      sy = -1;
+    }
+    int err = xdist-ydist;
+    Image origImg = img;
+    Image circle = null;
+    ArrayList<int[]> pxlist = new ArrayList<int[]>();
+    if(alphaMerge && origImg.getBPP() == Image.MODE_RGBA) {
+      img = Image.create(Image.MODE_RGBA, img.getWidth(), img.getHeight(), new Color((byte)0,(byte)0,(byte)0,(byte)0));  
+    } else if (lineWidth > 1) {
+      img = Image.create(Image.MODE_RGBA, img.getWidth(), img.getHeight(), new Color((byte)0,(byte)0,(byte)0,(byte)0));
+    }
+    
+    while(true) {
+      pxlist.add(new int[]{startX, startY});
+      if(lineWidth > 1) {
+        if(circle == null) {
+          circle = Image.create(img.getBPP(), lineWidth+1, lineWidth+1, new Color((byte)0,(byte)0,(byte)0,(byte)0));
+          circle(circle, (lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
         }
+        img.paste(startX-(lineWidth/2), startY-(lineWidth/2), circle, true);
+      } else {
+        img.setPixel(startX, startY, c);
+      }
 
-        if(x == endX && y == endY){
+      if(startX == endX && startY == endY) {
+        break;
+      }
+      int er2 = 2*err;
+      if (er2 > -ydist) {
+        err-=ydist;
+        startX+=sx;
+      }
+      if(er2 < xdist) {
+        err+=xdist;
+        startY+=sy;
+      }
+    } 
+    
+    if(alphaMerge && origImg.getBPP() == Image.MODE_RGBA) {
+      while(pxlist.size() > 0) {
+        int[] tmp = pxlist.remove(0);
+        Color pc = img.getPixel(tmp[0], tmp[1]);
+        if(pc != null) {
+          floodFill(img, tmp[0], tmp[1], c, null);
           break;
         }
-
-        e2 = 4*err;
-        if(e2 > -ydist) {
-          err = err-ydist;
-          x = x + sx;
-        }
-
-        if(x == endX && y == endY){
-          for(int l = 0; l < lineWidth; l++) {
-            for(int nx = x; nx < l+x; nx++) {
-              for(int ny = y; ny < l+y; ny++) {
-                if(nx >= 0 && ny >= 0 && nx < img.getWidth() && ny < img.getHeight()) {
-                  img.setPixel(nx, ny, c);
-                }
-              }
-            }
-          }
-          break;
-        }
-        if (e2 < xdist) {
-          err = err +xdist;
-          y = y + sy;
-        }
-      }
+      } 
+      origImg.paste(0, 0, img, true);
+    }else if (lineWidth > 1) {
+      origImg.paste(0, 0, img, true);
     }
   }
 }

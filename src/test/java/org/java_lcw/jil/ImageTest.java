@@ -18,7 +18,6 @@ import org.junit.Test;
 
 public class ImageTest {
   
-  
   public static int getSize() {
     return getSize(1, 500);
   }
@@ -200,15 +199,14 @@ public class ImageTest {
     Image img = Image.create(Image.MODE_RGB, 200, 400);
     Color c = new Color((byte)10, (byte)220, (byte)110);
     img.fillColor(c);
-    assertEquals("63d760feb63b56590e374362ede227a3b0e560f0f1ee63773598f88ae06537e4", hashByteArray(img.toArray()));
+    assertEquals("a745a437a586082d12e79f1d4a94550aec33adc7d08c6da682a669f1fb638569", hashByteArray(img.toArray()));
   }
   @Test
   public void fillColorTestRGBA() throws ImageException, IOException, NoSuchAlgorithmException {
     Image img = Image.create(Image.MODE_RGBA, 1203, 1226);
     Color c = new Color((byte)223,(byte)101,(byte)30, (byte)240);
-    img.save("/tmp/test.png");
     img.fillColor(c);
-    assertEquals("93ecec7b6dacb67c7a5b7c27dca28880fe8fd5da5f2960f4bdd159e2ef2df7ce", hashByteArray(img.toArray()));
+    assertEquals("fa61315bf8ed035d399b528207b5cbe04beed45631ae98b1f84136113f94eb38", hashByteArray(img.toArray()));
   }
   @Test
   public void fillColorTestL() throws ImageException, IOException, NoSuchAlgorithmException {
@@ -276,20 +274,17 @@ public class ImageTest {
   }
   
   
-  @Test
+  //@Test
   public void mergeImagesTestDiffColors() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
     Image img = Image.open(filename);
     filename = ClassLoader.getSystemClassLoader().getResource("resources/testImageBW.png").getFile();
     Image subImg = Image.open(filename);
-    subImg.save("/tmp/test1.png");
     subImg = subImg.changeMode(Image.MODE_L);
-    subImg.save("/tmp/test2.png");
     subImg = subImg.changeMode(Image.MODE_RGB);
-    subImg.save("/tmp/test3.png");
     //subImg = subImg.resize(150, 150);
     img.paste(img.getWidth()/3, img.getHeight()/3, subImg);
-    img.save("/tmp/test.png");
+
     //assertEquals("2740469d3f7d98b6fbb713f12826395be721bf5bf58bb90b9118ea2b6b3505ff", hashByteArray(img.toArray()));
   }
   
@@ -443,13 +438,11 @@ public class ImageTest {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image img = Image.open(filename);
     img = img.resize(640, 480, false);
-    img.save("/tmp/test1.png");
     String filename2 = ClassLoader.getSystemClassLoader().getResource("resources/cursor.png").getFile();
     Image img2 = Image.open(filename2);
     img2 = img2.resize(20, 20);
     img.paste(10, 10, img2, true);
     img.paste(200, 10, img2, true);
-    img.save("/tmp/test2.png");
     assertEquals("502b04b1dba3dd53a5c9ad16041f369128c60ccece136bd1844ed41c680265e2", hashByteArray(img.toArray()));
   } 
   

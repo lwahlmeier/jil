@@ -4,8 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 public class Utils {
   

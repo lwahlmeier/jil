@@ -16,8 +16,7 @@ public class DrawTests {
     Image img = Image.open(filename);
     Color c = new Color((byte)0,(byte)255,(byte)0);
     Draw.rect(img, 10, 10, 100, 10, c, 5, false);
-    Image img2 = Image.create(Image.MODE_RGB, 200, 200);
-    img.save("/tmp/test.png");
+    //Image img2 = Image.create(Image.MODE_RGB, 200, 200);
     assertEquals("9e7a90f3f3e7bb287e1aa01bbcb2d427ba958af2f1616baa1e6d5d65219746d0", ImageTest.hashByteArray(img.toArray()));
   } 
   
@@ -84,11 +83,35 @@ public class DrawTests {
     c = new Color((byte)144,(byte)114,(byte)55);
     Draw.line(img, 500, -100, -100, 500, c, 5);
     
+    img.save("/tmp/test.png");
+    assertEquals("c9c8b60b0949367ea2ed91f49d6881a6ead95dd08d71827b22844841a129da6d", ImageTest.hashByteArray(img.toArray()));
+  }
+  
+  
+  @Test
+  public void lineTestWithAlpha() throws ImageException, IOException, NoSuchAlgorithmException {
+    Image img = Image.create(Image.MODE_RGBA, 400, 400);
+    Color c;
+    //grey canvas
+    c = new Color((byte)100,(byte)100,(byte)100);
+    Draw.fillColor(img, 0, 0, c);
     
-    //img.save("/tmp/img/test.png");
-    System.out.println(ImageTest.hashByteArray(img.toArray()));
-    assertEquals("abe51876f6793f962b4cde43b81c1610c2ef95e19534b3238fb732c2328279ad", ImageTest.hashByteArray(img.toArray()));
-
+    //Horizontal line all the way through
+    c = new Color((byte)200,(byte)12,(byte)100, (byte)100);
+    Draw.line(img, -100, 200, 500, 200, c, 5, true);
     
+    //Vertical line all the way through
+    c = new Color((byte)142,(byte)114,(byte)176, (byte)100);
+    Draw.line(img, 200, -100, 200, 500, c, 5, true);
+    
+    //left to right line all the way through
+    c = new Color((byte)44,(byte)214,(byte)55, (byte)100);
+    Draw.line(img, -100, -100, 500, 500, c, 5, true);
+    
+    //right to left line all the way through
+    c = new Color((byte)144,(byte)114,(byte)55, (byte)100);
+    Draw.line(img, 500, -100, -100, 500, c, 5, true);
+    
+    assertEquals("47cc9e85cf826f57ff25539b9813b822003cc1fde5e1d32972fd695f6c626fbd", ImageTest.hashByteArray(img.toArray()));
   }
 }

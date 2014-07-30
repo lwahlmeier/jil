@@ -32,6 +32,17 @@ public class Color {
   public Color(byte red, byte green, byte blue, byte alpha) {
     setRGBA((byte) red, (byte) green, (byte) blue, (byte)alpha);
   }
+  
+  /**
+   * Construct the color with grey values set
+   * @param grey
+   */
+  public Color(int color) {
+    setRGBA((byte)((color >> 16) & 0xFF), 
+        (byte)((color >>  8) & 0xFF), 
+        (byte)(color & 0xFF), 
+        (byte)((color >> 24) & 0xFF));
+  }
 
   /**
    * Construct the color with grey values set

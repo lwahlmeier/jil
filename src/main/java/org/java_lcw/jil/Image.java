@@ -1,9 +1,7 @@
 package org.java_lcw.jil;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -57,7 +55,7 @@ public class Image {
    * @author lcw - Luke Wahlmeier
    *
    */
-  public enum ScaleType {NN, LINER, CUBIC, LANCZOS, AWT_NN, AWT_LINER, AWT_CUBIC};
+  public enum ScaleType {NN, LINER, CUBIC, AWT_NN, AWT_LINER, AWT_CUBIC};
   
   private Image(byte mode, int width, int height) {
     colors = (byte) (mode/8);
@@ -70,7 +68,6 @@ public class Image {
   
   private Image(byte mode, int width, int height, byte[] map) {
     colors = (byte) (mode/8);
-    int size = colors*width*height;
     MAP = map;
     this.width = width;
     this.height = height;
@@ -254,12 +251,7 @@ public class Image {
    * @throws ImageException
    */
   public BufferedImage toBufferedImage() {
-    if(this.bpp == 24) {
-      BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-      byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
-      System.arraycopy(MAP, 0, test, 0, test.length);
-      return BB;
-    } else if(this.bpp == 8) {
+    if(this.bpp == 8) {
       BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
       byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
       System.arraycopy(MAP, 0, test, 0, test.length);
@@ -505,8 +497,8 @@ public class Image {
       for(int i=0; i<MAP.length/size; i++) {
         int pos = i*size;
         MAP[pos] = c.getRed();
-        MAP[pos+1] = c.getBlue();
-        MAP[pos+2] = c.getGreen();
+        MAP[pos+1] = c.getGreen();
+        MAP[pos+2] = c.getBlue();
         if (size == 4){
           MAP[pos+3] = c.getAlpha();
         }
@@ -524,6 +516,12 @@ public class Image {
    * @param c Color to set the pixel to (see Image.Color)
    */
   public void setPixel(int x, int y, Color c) {
+    if(x<0 || x>=this.width) {
+      return;
+    }
+    if(y<0 || y>=this.height) {
+      return;
+    }
     int pos = ((y*this.width)+x)*(this.bpp/8); 
     if( this.bpp == 8) {
       MAP[pos] = c.getGrey();
@@ -537,7 +535,7 @@ public class Image {
     }
   }
   
-  public void mergePixel(int x, int y, Color c, boolean alpha) {
+  public void mergePixel(int x, int y, Color c) {
     Color cc = this.getPixel(x, y);
     cc.merge(c);
     setPixel(x, y, cc);
@@ -545,6 +543,7 @@ public class Image {
 
   
   public void setPixelInChannel(int x, int y, byte c, byte p) {
+
     int POS = ((y*this.getWidth())+x)*(this.bpp/8)+c;
     MAP[POS] = p;
   }
@@ -556,6 +555,9 @@ public class Image {
    * @return Color object of that pixel
    */
   public Color getPixel(int x, int y) {
+    if(x < 0 || x >= width || y < 0 || y >= height) {
+      return null;
+    }
     int POS = ((y*this.getWidth())+x)*(this.bpp/8);
     if (this.getBPP() == 32) {
       return new Color(MAP[POS], MAP[POS+1], MAP[POS+2], MAP[POS+3]);
@@ -626,7 +628,7 @@ public class Image {
       maxRows = this.getHeight() - yStart;
     }
     
-    if (img.getBPP() != this.getBPP()) {
+    if (! alphaMerge && img.getBPP() != this.getBPP()) {
       img = img.changeMode(this.getBPP());
     }
     
@@ -638,20 +640,24 @@ public class Image {
         int origRow = (origRowSize*row) + (origRowSize*yStart);
         int newRow = (newRowSize*row) + (newRowSize*Yoffset);
         newRow += Xoffset;
-        //System.out.println(origRow+":"+newRow);
         System.arraycopy(img.MAP, newRow, this.MAP, origRow+xStart, maxW-Xoffset);
-
       }
     } else {
-      maxW = maxW/pxSize;
+      maxW = (maxW/pxSize);
       for(int h = 0; h<maxRows; h++) {
         for(int w = 0; w<maxW; w++) {
-          if(w+x > 0 && h+y > 0) {
+          if(w+x >= 0 && h+y >= 0) {
             Color c = img.getPixel(w, h);
-            Color c2 = this.getPixel(w+x, h+y);
-            c2.merge(c);
-
-            this.setPixel(w+x, h+y, c2);
+            if (c != null) {
+              Color c2 = this.getPixel(w+x, h+y);
+              if((c2.getAlpha() & 0xff) > 0) {
+                c2.merge(c);
+                this.setPixel(w+x, h+y, c2);
+              } else {
+                this.setPixel(w+x, h+y, c);
+              }
+            }
+            
           }
         }
       }
