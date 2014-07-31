@@ -6,10 +6,21 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
 public class Utils {
-  
+
+  private static BufferedImage toBufferedForScaling(Image img) {
+    if(img.getBPP() == Image.MODE_RGB){
+      //NOTE: this ends up in the wrong color space, but since it does not matter for scaling we use it because its faster.
+      BufferedImage BB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+      byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
+      System.arraycopy(img.getArray(), 0, test, 0, test.length);
+      return BB;
+    } else {
+      return img.toBufferedImage();
+    }
+  }
   
   public static byte[] awtResizeBiCubic(Image img, int width, int height) {
-    BufferedImage orig = img.toBufferedImage(); 
+    BufferedImage orig = toBufferedForScaling(img); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -18,7 +29,7 @@ public class Utils {
   }
   
   public static byte[] awtResizeLiner(Image img, int width, int height) {
-    BufferedImage orig = img.toBufferedImage(); 
+    BufferedImage orig = toBufferedForScaling(img); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
     g.drawImage(orig, 0, 0, width, height, null);
@@ -29,7 +40,7 @@ public class Utils {
   }
   
   public static byte[] awtResizeNN(Image img, int width, int height) {
-    BufferedImage orig = img.toBufferedImage(); 
+    BufferedImage orig = toBufferedForScaling(img); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
     g.drawImage(orig, 0, 0, width, height, null);
