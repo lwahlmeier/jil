@@ -6,102 +6,99 @@ import java.util.ArrayList;
 public class Draw {
 
   public static void rect(Image img, int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
-    synchronized(img) {
-      int maxW = x+w;
-      int maxH = y+h;
-      if (img.getWidth() < maxW) {
-        maxW = img.getWidth() - x;
+    int maxW = x+w;
+    int maxH = y+h;
+    if (img.getWidth() < maxW) {
+      maxW = img.getWidth() - x;
+    }
+    if (img.getHeight() < maxH) {
+      maxH = img.getHeight() - y;
+    }
+
+    if(fill) {
+      for(int H = 0; H<maxH; H++) {
+        for(int W = 0;  W< maxW; W++) {
+          img.setPixel(W+x, y+H, c);
+        }
       }
-      if (img.getHeight() < maxH) {
-        maxH = img.getHeight() - y;
+    } else {
+      for(int H = 0; H<maxH; H++) {
+        for(int lw=0; lw<lineWidth; lw++) {
+          img.setPixel(x+lw, y+H, c);
+          img.setPixel(x+maxW-lw, y+H, c);
+        }
       }
 
-      if(fill) {
-        for(int H = 0; H<maxH; H++) {
-          for(int W = 0;  W< maxW; W++) {
-            img.setPixel(W+x, y+H, c);
-          }
-        }
-      } else {
-        for(int H = 0; H<maxH; H++) {
-          for(int lw=0; lw<lineWidth; lw++) {
-            img.setPixel(x+lw, y+H, c);
-            img.setPixel(x+maxW-lw, y+H, c);
-          }
-        }
-
-        for(int W = 0; W<maxW; W++) {
-          for(int lw=0; lw<lineWidth; lw++) {
-            img.setPixel(x+W, y+lw, c);
-            img.setPixel(x+W, y+maxH-lw, c);
-          }
+      for(int W = 0; W<maxW; W++) {
+        for(int lw=0; lw<lineWidth; lw++) {
+          img.setPixel(x+W, y+lw, c);
+          img.setPixel(x+W, y+maxH-lw, c);
         }
       }
     }
   }
 
   public static void floodFill(Image img, int x, int y, Color c, Color edge) {
+
     if(x <0 || x>=img.getWidth()) {
       return;
     }
     if(y <0 || y>=img.getWidth()) {
       return;
     }
-    synchronized(img) {
-      Color OC = img.getPixel(x, y);
-      if(OC.equals(c)) {
-        return;
+    Color OC = img.getPixel(x, y);
+    if(OC.equals(c)) {
+      return;
+    }
+    Integer[] ce = new Integer[] {x, y};
+    ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
+    pl.add(ce);
+    if(edge == null) {
+      while(pl.size() > 0) {
+        ce = pl.poll();
+        try {
+          Color tmpC = img.getPixel(ce[0], ce[1]);
+          if(tmpC!=null && tmpC.equals(OC)) {
+            img.setPixel(ce[0], ce[1], c);
+            if(ce[0]+1 < img.getWidth()) {
+              pl.add(new Integer[]{ce[0]+1, ce[1]});
+            }
+            if(ce[0] -1 >= 0) {
+              pl.add(new Integer[]{ce[0]-1, ce[1]});
+            }
+            if(ce[0]+1 < img.getHeight()) {
+              pl.add(new Integer[]{ce[0], ce[1]+1});
+            }
+            if(ce[0] -1 >= 0) {
+              pl.add(new Integer[]{ce[0], ce[1]-1});
+            }
+          }
+        } catch(ArrayIndexOutOfBoundsException e) { 
+        }
       }
-      Integer[] ce = new Integer[] {x, y};
-      ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
-      pl.add(ce);
-      if(edge == null) {
-        while(pl.size() > 0) {
-          ce = pl.poll();
-          try {
-            Color tmpC = img.getPixel(ce[0], ce[1]);
-            if(tmpC!=null && tmpC.equals(OC)) {
-              img.setPixel(ce[0], ce[1], c);
-              if(ce[0]+1 < img.getWidth()) {
-                pl.add(new Integer[]{ce[0]+1, ce[1]});
-              }
-              if(ce[0] -1 >= 0) {
-                pl.add(new Integer[]{ce[0]-1, ce[1]});
-              }
-              if(ce[0]+1 < img.getHeight()) {
-                pl.add(new Integer[]{ce[0], ce[1]+1});
-              }
-              if(ce[0] -1 >= 0) {
-                pl.add(new Integer[]{ce[0], ce[1]-1});
-              }
+    } else {
+      while(pl.size() > 0) {
+        ce = pl.poll();
+        try{
+          Color tmpC = img.getPixel(ce[0], ce[1]);
+          if(!tmpC.equals(c) && !tmpC.equals(edge)) {
+            img.setPixel(ce[0], ce[1], c);
+            if(ce[0]+1 < img.getWidth()) {
+              pl.add(new Integer[]{ce[0]+1, ce[1]});
             }
-          } catch(ArrayIndexOutOfBoundsException e) { 
+            if(ce[0] -1 >= 0) {
+              pl.add(new Integer[]{ce[0]-1, ce[1]});
+            }
+            if(ce[0]+1 < img.getHeight()) {
+              pl.add(new Integer[]{ce[0], ce[1]+1});
+            }
+            if(ce[0] -1 >= 0) {
+              pl.add(new Integer[]{ce[0], ce[1]-1});
+            }
           }
+        } catch(ArrayIndexOutOfBoundsException e) { 
         }
-      } else {
-        while(pl.size() > 0) {
-          ce = pl.poll();
-          try{
-            Color tmpC = img.getPixel(ce[0], ce[1]);
-            if(!tmpC.equals(c) && !tmpC.equals(edge)) {
-              img.setPixel(ce[0], ce[1], c);
-              if(ce[0]+1 < img.getWidth()) {
-                pl.add(new Integer[]{ce[0]+1, ce[1]});
-              }
-              if(ce[0] -1 >= 0) {
-                pl.add(new Integer[]{ce[0]-1, ce[1]});
-              }
-              if(ce[0]+1 < img.getHeight()) {
-                pl.add(new Integer[]{ce[0], ce[1]+1});
-              }
-              if(ce[0] -1 >= 0) {
-                pl.add(new Integer[]{ce[0], ce[1]-1});
-              }
-            }
-          } catch(ArrayIndexOutOfBoundsException e) { 
-          }
 
-        }
       }
     }
   }
@@ -190,7 +187,7 @@ public class Draw {
           break;
         }
       } 
-      origImg.paste(0, 0, img, true);
+      origImg.paste(0, 0, img, alphaMerge);
     }else if (lineWidth > 1) {
       origImg.paste(0, 0, img, true);
     }
