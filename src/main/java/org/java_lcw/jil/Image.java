@@ -644,22 +644,21 @@ public class Image {
       }
     } else {
       maxW = (maxW/this.colors);
-      
+
       for(int h = 0; h<maxRows; h++) {
         for(int w = 0; w<maxW; w++) {
           if(w+x >= 0 && h+y >= 0) {
             Color c = img.getPixel(w, h);
-            if (c != null) {
-              Color c2 = this.getPixel(w+x, h+y);
-              if((c2.getAlpha() & 0xff) > 0) {
+            if((c.getAlpha() & 0xff) > 0) {
+              if (c != null) {
+                Color c2 = this.getPixel(w+x, h+y);
+
                 c2.merge(c);
                 this.setPixel(w+x, h+y, c2);
-              } else {
-                this.setPixel(w+x, h+y, c);
               }
             }
-            
           }
+
         }
       }
     }
