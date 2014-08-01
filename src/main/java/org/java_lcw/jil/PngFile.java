@@ -20,7 +20,6 @@ public class PngFile {
   }
   
   public static Image open(String filename) throws IOException, ImageException {
-    System.out.println(filename);
     File file = new File(filename);
     return Image.fromBufferedImage(ImageIO.read(file));    
   }
