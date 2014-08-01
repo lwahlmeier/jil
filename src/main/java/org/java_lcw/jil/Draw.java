@@ -56,25 +56,22 @@ public class Draw {
     if(edge == null) {
       while(pl.size() > 0) {
         ce = pl.poll();
-        try {
           Color tmpC = img.getPixel(ce[0], ce[1]);
           if(tmpC!=null && tmpC.equals(OC)) {
             img.setPixel(ce[0], ce[1], c);
             if(ce[0]+1 < img.getWidth()) {
               pl.add(new Integer[]{ce[0]+1, ce[1]});
             }
-            if(ce[0] -1 >= 0) {
+            if(ce[0]-1 >= 0) {
               pl.add(new Integer[]{ce[0]-1, ce[1]});
             }
-            if(ce[0]+1 < img.getHeight()) {
+            if(ce[1]+1 < img.getHeight()) {
               pl.add(new Integer[]{ce[0], ce[1]+1});
             }
-            if(ce[0] -1 >= 0) {
+            if(ce[1]-1 >= 0) {
               pl.add(new Integer[]{ce[0], ce[1]-1});
             }
           }
-        } catch(ArrayIndexOutOfBoundsException e) { 
-        }
       }
     } else {
       while(pl.size() > 0) {
@@ -89,10 +86,10 @@ public class Draw {
             if(ce[0] -1 >= 0) {
               pl.add(new Integer[]{ce[0]-1, ce[1]});
             }
-            if(ce[0]+1 < img.getHeight()) {
+            if(ce[1]+1 < img.getHeight()) {
               pl.add(new Integer[]{ce[0], ce[1]+1});
             }
-            if(ce[0] -1 >= 0) {
+            if(ce[1] -1 >= 0) {
               pl.add(new Integer[]{ce[0], ce[1]-1});
             }
           }

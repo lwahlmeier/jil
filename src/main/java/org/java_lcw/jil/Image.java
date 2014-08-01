@@ -665,7 +665,7 @@ public class Image {
     }
   }
 
-  public Image copy() throws ImageException {
+  public Image copy() {
     Image newImage = Image.create(this.bpp, width, height);
     System.arraycopy(MAP, 0, newImage.MAP, 0, MAP.length);
     return newImage;
