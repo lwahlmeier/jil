@@ -164,7 +164,8 @@ public class ImageTest {
   public void openJPEGFile() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.jpg").getFile();
     Image img = Image.open(filename);
-    assertEquals("a759cfdac85db551ab3fce07d0abf514bcafb1413601ce713e3bda14429314cb", hashByteArray(img.getArray()));
+    img.save("/tmp/test.png");
+    assertEquals("3ba178edbaab22b850174f17989144f74b340c90543abb911f3441e5ad8b357b", hashByteArray(img.getArray()));
   }
   
   @Test

@@ -236,14 +236,14 @@ public class Image {
    */
   public static Image fromBufferedImage(BufferedImage BI) {
     Image img;
-    if(BI.getType() == BufferedImage.TYPE_3BYTE_BGR) {
-      img = Image.fromByteArray(MODE_RGB, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    if (BI.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+      img = Image.fromByteArray(MODE_L, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
     } else if(BI.getType() == BufferedImage.TYPE_4BYTE_ABGR) {
       img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
-    } else if (BI.getType() == BufferedImage.TYPE_BYTE_GRAY) {
-      img = Image.fromByteArray(MODE_L, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    } else if(BI.getType() == BufferedImage.TYPE_3BYTE_BGR) {
+      img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI)).changeMode(MODE_RGB);
     } else {
-      throw new RuntimeException("problem opening BufferedImage Type! "+BI.getType());
+      img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
     }
     return img;
   }

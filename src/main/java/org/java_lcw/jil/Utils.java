@@ -18,6 +18,16 @@ public class Utils {
       return img.toBufferedImage();
     }
   }
+  private static byte[] fromBufferedForScaling(BufferedImage img) {
+    if(img.getType() == BufferedImage.TYPE_3BYTE_BGR){
+      //NOTE: this ends up in the wrong color space, but since it does not matter for scaling we use it because its faster.
+      byte[] test = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
+      return test;
+    } else {
+      return Image.fromBufferedImage(img).getArray();
+    }
+  }
+  
   
   public static byte[] awtResizeBiCubic(Image img, int width, int height) {
     BufferedImage orig = toBufferedForScaling(img); 
@@ -25,7 +35,7 @@ public class Utils {
     Graphics2D g = resizedImage.createGraphics();
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
     g.drawImage(orig, 0, 0, width, height, null);
-    return bufferedImageToByteArray(resizedImage);
+    return fromBufferedForScaling(resizedImage);
   }
   
   public static byte[] awtResizeLiner(Image img, int width, int height) {
@@ -36,7 +46,7 @@ public class Utils {
     g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-    return bufferedImageToByteArray(resizedImage);
+    return fromBufferedForScaling(resizedImage);
   }
   
   public static byte[] awtResizeNN(Image img, int width, int height) {
@@ -47,11 +57,11 @@ public class Utils {
     g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-    return bufferedImageToByteArray(resizedImage);
+    return fromBufferedForScaling(resizedImage);
   }
 
   public static byte[] bufferedImageToByteArray(BufferedImage bufferedImage) {
-    if(bufferedImage.getType() == BufferedImage.TYPE_3BYTE_BGR || bufferedImage.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+    if(bufferedImage.getType() == BufferedImage.TYPE_BYTE_GRAY) {
       return ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
     }
     return intsToBytes(bufferedImage.getRGB(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), null , 0, bufferedImage.getWidth()), (byte) 32);
