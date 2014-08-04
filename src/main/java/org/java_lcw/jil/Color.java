@@ -12,9 +12,11 @@ public class Color implements Comparable<Color> {
   
   public static final Color BLACK = new Color(EMPTY_BYTE);
   public static final Color WHITE = new Color(MAX_BYTE);
+  public static final Color GREY = new Color((byte)127);
   public static final Color RED   = new Color(MAX_BYTE, EMPTY_BYTE, EMPTY_BYTE);
   public static final Color GREEN = new Color(EMPTY_BYTE, MAX_BYTE, EMPTY_BYTE);
   public static final Color BLUE  = new Color(EMPTY_BYTE, EMPTY_BYTE, MAX_BYTE);
+  public static final Color ALPHA  = new Color(EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE);
   
   private byte green = EMPTY_BYTE;
   private byte red = EMPTY_BYTE;

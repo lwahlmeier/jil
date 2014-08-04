@@ -633,7 +633,7 @@ public class Image {
     }
     
 
-    if (! alphaMerge) {
+    if (! alphaMerge || img.colors < 4) {
       int origRowSize = this.width * this.colors;
       int newRowSize = (img.width * this.colors);
       for(int row = 0; row<maxRows-Yoffset; row++) {
@@ -644,21 +644,24 @@ public class Image {
       }
     } else {
       maxW = (maxW/this.colors);
-
       for(int h = 0; h<maxRows; h++) {
         for(int w = 0; w<maxW; w++) {
           if(w+x >= 0 && h+y >= 0) {
-            Color c = img.getPixel(w, h);
-            if((c.getAlpha() & 0xff) > 0) {
-              if (c != null) {
+            if(img.colors == 4) {
+              int cpos = ((h*img.width)+w)*img.colors;
+              int npos = (((h+y)*this.width)+w+x)*this.colors;
+              if(img.MAP[cpos+3] == 0) {
+                continue;
+              } else if (img.MAP[cpos+3] == 255) {
+                System.arraycopy(img.MAP, cpos, this.MAP, npos, 4);
+              } else {
+                Color c = img.getPixel(w, h);
                 Color c2 = this.getPixel(w+x, h+y);
-
                 c2.merge(c);
                 this.setPixel(w+x, h+y, c2);
               }
             }
           }
-
         }
       }
     }

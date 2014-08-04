@@ -14,21 +14,17 @@ public class DrawTests {
   public void rectTest() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
     Image img = Image.open(filename);
-    Color c = new Color((byte)0,(byte)255,(byte)0);
-    Draw.rect(img, 10, 10, 100, 10, c, 5, false);
-    //Image img2 = Image.create(Image.MODE_RGB, 200, 200);
-    assertEquals("9e7a90f3f3e7bb287e1aa01bbcb2d427ba958af2f1616baa1e6d5d65219746d0", ImageTest.hashByteArray(img.getArray()));
+    Draw.rect(img, 10, 10, 100, 10, Color.GREEN, 5, false);
+    assertEquals("c99082a82740e9f35eddc9a582c3befd28389ab3759bf69e3d8b4e073f45a06f", ImageTest.hashByteArray(img.getArray()));
   } 
   
   @Test
   public void fillColorTest() throws ImageException, IOException, NoSuchAlgorithmException {
     Image img = Image.create(Image.MODE_RGB, 200, 200);
-    Color c;
-    c = new Color((byte)120,(byte)120,(byte)120);
-    Draw.rect(img, 10, 10, 10, 10, c, 1, true);
-    c = new Color((byte)84,(byte)201,(byte)12);
-    Draw.fillColor(img, 0, 0, c);
-    assertEquals("9483be16958c7dd03492b611a41c7dd33d6a5874f52b023a623042872bfb8671", ImageTest.hashByteArray(img.getArray()));
+    Draw.rect(img, 10, 10, 10, 10, Color.GREY, 1, true);
+    Draw.rect(img, 50, 50, 10, 10, Color.WHITE, 1, false);
+    Draw.fillColor(img, 0, 0, Color.RED);
+    assertEquals("7b3b3952bf8e4af176dfddd92c2f275c023572e9751629a3de5b7c1a9698a991", ImageTest.hashByteArray(img.getArray()));
   } 
   
   @Test
@@ -82,13 +78,13 @@ public class DrawTests {
     //right to left line all the way through
     c = new Color((byte)144,(byte)114,(byte)55);
     Draw.line(img, 500, -100, -100, 500, c, 5);
+    img.save("/tmp/test.png");
     assertEquals("c9c8b60b0949367ea2ed91f49d6881a6ead95dd08d71827b22844841a129da6d", ImageTest.hashByteArray(img.getArray()));
   }
   
   
   @Test
   public void lineTestWithAlpha() throws ImageException, IOException, NoSuchAlgorithmException {   
-
     Image img = Image.create(Image.MODE_RGBA, 400, 400);
     Color c;
     //grey canvas
@@ -109,8 +105,9 @@ public class DrawTests {
     
     //right to left line all the way through
     c = new Color((byte)144,(byte)114,(byte)55, (byte)100);
-    Draw.line(img, 500, -100, -100, 500, c, 5, true);
-    
+    Draw.line(img, 400, 0, 0, 400, c, 5, true);
     assertEquals("47cc9e85cf826f57ff25539b9813b822003cc1fde5e1d32972fd695f6c626fbd", ImageTest.hashByteArray(img.getArray()));
   }
+  
+  
 }
