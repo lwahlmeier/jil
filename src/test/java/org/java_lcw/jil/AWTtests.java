@@ -11,8 +11,7 @@ import javax.imageio.ImageIO;
 import org.java_lcw.jil.Image.ImageException;
 import org.junit.Test;
 
-public class AWTtests {
-  
+public class AWTtests {  
   @Test
   public void awtTest1() throws IOException, ImageException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
