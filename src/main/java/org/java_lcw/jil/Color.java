@@ -62,36 +62,49 @@ public class Color implements Comparable<Color> {
    */
   public Color() {
   }
+  
+  public Color copy() {
+    return new Color(red, green, blue, alpha);
+  }
 
   public void merge(Color c) {
     double pct = ((c.alpha & 0xff) / 255.0);
     if (pct == 1.0) {
-      this.setRGB(c.red, c.green, c.blue);
-      this.setAlpha(c.alpha);
+      this.setRGBA(c.red, c.green, c.blue, c.alpha);
     } else if (pct == 0) {
       return;
     }else {
-      double epct = 1.0-((c.alpha & 0xff) / 255.0);
-      int tmp = (int) ((this.green & 0xff)*epct + ((c.green&0xff) * pct));
-
+      double epct = 1.0-pct;
+      double srcA = ((this.alpha & 0xff) / 255.0);
+      double newApct = (((srcA + ((c.alpha&0xff) * epct))));
+      
+      int tmp = (int) (255 * newApct);
       if (tmp > 255) {
-        this.green = (byte)255;
-      } else {
-        this.green = (byte)tmp;
+        this.alpha = Color.MAX_BYTE;
+      }else {
+        this.alpha = (byte)tmp;
       }
-      tmp = (int) ((this.red & 0xff)*epct + ((c.red&0xff) * pct));
+      tmp = (int) (((c.red&0xff)*pct)+(this.red & 0xff)*epct);
       if (tmp> 255) {
-        this.red = (byte)255;
+        this.red = Color.MAX_BYTE;
       } else {
         this.red = (byte)tmp;
       }
-
-      tmp = (int) ((this.blue & 0xff)*epct + ((c.blue&0xff) * pct));
+      tmp = (int) (((c.green&0xff)*pct)+(this.green & 0xff)*epct);
+      if (tmp > 255) {
+        this.green = Color.MAX_BYTE;
+      } else {
+        this.green = (byte)tmp;
+      }
+      tmp = (int) (((c.blue&0xff)*pct)+(this.blue & 0xff)*epct);
       if (tmp> 255) {
-        this.blue = (byte)255;
+        this.blue = Color.MAX_BYTE;
       }else {
         this.blue = (byte)tmp;
       }
+      
+
+      
     }
   }
 
@@ -211,6 +224,10 @@ public class Color implements Comparable<Color> {
     return alpha<<24 & 0xff000000 | red<<16 & 0xff0000 | green<<8 & 0xff00 | blue & 0xff;
   }
   
+  public int getRGB() {
+    return red<<16 & 0xff0000 | green<<8 & 0xff00 | blue & 0xff;
+  }
+  
   @Override
   public String toString() {
     return "Colors: R:"+red+" G:"+green+" B:"+blue+" Alpha:"+alpha+" grey:"+getGrey();
@@ -234,7 +251,19 @@ public class Color implements Comparable<Color> {
       return true;
     }
     return false;
-    
+  }
+  
+  public boolean equalsNoAlpha(Object o) {
+    if(!(o instanceof Color)) {
+      return false;
+    }
+    Color c = (Color) o;
+    long t = getRGB() & 0xffffffffL;
+    long ot = c.getRGB() & 0xffffffffL;
+    if (t == ot){
+      return true;
+    }
+    return false;
   }
 
   @Override

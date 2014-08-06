@@ -1,10 +1,35 @@
 package org.java_lcw.jil;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.java_lcw.jil.Image.ImageException;
+
 public class Draw {
+  private static final int sigmaD = 2;
+  private static final int sigmaR = 2;
+  private static final double sigmaMax = Math.max(sigmaD, sigmaR);
+  private static final int kernelRadius = (int)Math.ceil(2 * sigmaMax);
+  private static final double twoSigmaRSquared = 2 * sigmaR * sigmaR;
+  private static final int kernelSize = kernelRadius * 2 + 1;
+  private static final int center = (kernelSize - 1) / 2;
+  private static final double[][] kernelD = new double[kernelSize][kernelSize];
+  private static final double gaussSimilarity[] = new double[256];
+  static {
+
+    for (int x = -center; x < -center + kernelSize; x++) {
+      for (int y = -center; y < -center + kernelSize; y++) {
+        kernelD[x + center][y + center] = Math.exp(-((x * x + y * y) / (2 * sigmaD * sigmaD)));
+      }
+    }
+
+
+    for (int i = 0; i < 256; i++) {
+      gaussSimilarity[i] = Math.exp(-((i) / twoSigmaRSquared));
+    }
+  }
 
 
 
@@ -33,31 +58,42 @@ public class Draw {
     if(fill) {
       int tx = x+ w/2;
       int ty = y+ h/2;
-      floodFill(img, tx, ty, c, c);
+      floodFill(img, tx, ty, c, c, false);
     }
   }
-
+  
+  public static void floodFill(Image img, int x, int y, Color c) {
+    floodFill(img, x, y, c, null, false);
+  }
+  
   public static void floodFill(Image img, int x, int y, Color c, Color edge) {
+    floodFill(img, x, y, c, edge, false);
+  }
 
+  public static void floodFill(Image img, int x, int y, Color c, Color edge, boolean keepAlpha) {
     if(x < 0 || x >= img.getWidth()) {
       return;
     }
     if(y <0 || y>=img.getWidth()) {
       return;
     }
-    Color OC = img.getPixel(x, y);
-    if(OC.equals(c)) {
-      return;
-    }
     Integer[] ce = new Integer[] {x, y};
     ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
     pl.add(ce);
     if(edge == null) {
+      Color OC = img.getPixel(x, y);
+      if(OC.equals(c)) {
+        return;
+      }
       while(pl.size() > 0) {
         ce = pl.poll();
         Color tmpC = img.getPixel(ce[0], ce[1]);
-        if(tmpC!=null && tmpC.equals(OC)) {
-          img.setPixel(ce[0], ce[1], c);
+        if(tmpC!=null && tmpC.equalsNoAlpha(OC)) {
+          Color nc = c.copy();
+          if(keepAlpha) {
+            nc.setAlpha(tmpC.getAlpha());
+          }
+          img.setPixel(ce[0], ce[1], nc);
           if(ce[0]+1 < img.getWidth()) {
             pl.add(new Integer[]{ce[0]+1, ce[1]});
           }
@@ -76,8 +112,13 @@ public class Draw {
       while(pl.size() > 0) {
         ce = pl.poll();
         Color tmpC = img.getPixel(ce[0], ce[1]);
-        if(!tmpC.equals(c) && !tmpC.equals(edge)) {
-          img.setPixel(ce[0], ce[1], c);
+        Color nc = c.copy();
+        if(keepAlpha) {
+          nc.setAlpha(tmpC.getAlpha());
+        }
+        if(!tmpC.equals(edge) && !tmpC.equals(nc)) {
+          
+          img.setPixel(ce[0], ce[1], nc);
           if(ce[0]+1 < img.getWidth()) {
             pl.add(new Integer[]{ce[0]+1, ce[1]});
           }
@@ -96,7 +137,7 @@ public class Draw {
   }
 
   public static void fillColor(Image img, int x, int y, Color c) {
-    floodFill(img,x,y,c, null);
+    floodFill(img,x,y,c, null, false);
   }
 
   public static void circle(Image img, int cx, int cy, int size, Color c, int lineWidth, boolean fill){
@@ -182,13 +223,13 @@ public class Draw {
     Image circle = null;
     if(lineWidth > 1) {
       img = Image.create(Image.MODE_RGBA, img.getWidth(), img.getHeight());  
+      if(circle == null) {
+        circle = Image.create(img.getBPP(), lineWidth+1, lineWidth+1);
+        circle(circle, (lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
+      }
     }
     for(int[] ai: pxlist) {
       if(lineWidth > 1) {
-        if(circle == null) {
-          circle = Image.create(img.getBPP(), lineWidth+1, lineWidth+1);
-          circle(circle, (lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
-        }
         img.paste(ai[0]-(lineWidth/2), ai[1]-(lineWidth/2), circle, true);
       } else {
         img.setPixel(ai[0], ai[1], c);
@@ -200,36 +241,15 @@ public class Draw {
         int[] tmp = pxlist.remove(0);
         Color pc = img.getPixel(tmp[0], tmp[1]);
         if(pc != null) {
-          floodFill(img, tmp[0], tmp[1], c, null);
+          floodFill(img, tmp[0], tmp[1], c, Color.ALPHA, false);
           break;
         }
-      } 
+      }
       origImg.paste(0, 0, img, true);
     }
   }
-
-  public static class xyPos {
-    final int x;
-    final int y;
-    public xyPos(int x, int y) {
-      this.x = x;
-      this.y = y;
-    }
-    @Override 
-    public boolean equals(Object o) {
-      if(o instanceof xyPos) {
-        xyPos c = (xyPos)o;
-        if(c.x == this.x && c.y == this.y) {
-          return true;
-        }
-      }
-      return false;
-    }
-    @Override
-    public int hashCode() {
-      return x^y;
-    }
-
-  }
 }
+
+
+
 

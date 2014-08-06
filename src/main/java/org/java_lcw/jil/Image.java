@@ -652,8 +652,10 @@ public class Image {
               int npos = (((h+y)*this.width)+w+x)*this.colors;
               if(img.MAP[cpos+3] == 0) {
                 continue;
-              } else if (img.MAP[cpos+3] == 255) {
+              } else if (this.colors == 4 && this.MAP[npos+3] == 0) {
                 System.arraycopy(img.MAP, cpos, this.MAP, npos, 4);
+              } else if (img.MAP[cpos+3] == 255) {
+                System.arraycopy(img.MAP, cpos, this.MAP, npos, this.colors);
               } else {
                 Color c = img.getPixel(w, h);
                 Color c2 = this.getPixel(w+x, h+y);

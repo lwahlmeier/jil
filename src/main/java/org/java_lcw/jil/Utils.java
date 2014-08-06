@@ -3,14 +3,10 @@ package org.java_lcw.jil;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 public class Utils {
 
@@ -36,32 +32,33 @@ public class Utils {
   }
   
   public static Image drawSmoothCircle(int diameter, Color color) {
-    BufferedImage bufferedImage = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
+    BufferedImage bufferedImage = new BufferedImage(diameter+2, diameter+2, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g2d = bufferedImage.createGraphics();
-    g2d.setRenderingHint (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+    g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+    g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+    g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
     g2d.setPaint(new java.awt.Color(color.getRed()&0xff, color.getGreen()&0xff,color.getBlue()&0xff, color.getAlpha()&0xff));
-    g2d.fillOval(0, 0, diameter, diameter);
+    g2d.fillOval(1, 1, diameter, diameter);
     g2d.dispose();
     Image circle = Image.fromBufferedImage(bufferedImage);
     return circle;
     //ImageIO.write(bufferedImage, "png", new File("/tmp/newimage.png"));
   }
   
-  public static void getTextImage(String text, String font, byte size) throws IOException {
+  @SuppressWarnings("unused")
+  private static void getTextImage(String text, String font, byte size) throws IOException {
     Font tmpFont = new Font(font, Font.PLAIN, size);
     Frame f = new Frame(text);
     f.setFont(tmpFont);
     f.setForeground(new java.awt.Color(255, 255, 255));
-    int height = f.getFontMetrics(tmpFont).getHeight();
-    int width = f.getFontMetrics(tmpFont).stringWidth(text);
-    
-    BufferedImage tmpBI = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-    Graphics2D tmpG = tmpBI.createGraphics();
-
-
-    //tmpG.draw
-    //File file = new File("/tmp/test.png");
-    //ImageIO.write(tmpBI, "png", file);
+    //int height = f.getFontMetrics(tmpFont).getHeight();
+    //int width = f.getFontMetrics(tmpFont).stringWidth(text);
+   
+    //BufferedImage tmpBI = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+    //Graphics2D tmpG = tmpBI.createGraphics();
   }
   
   
