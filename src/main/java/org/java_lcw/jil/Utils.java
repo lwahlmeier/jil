@@ -67,6 +67,8 @@ public class Utils {
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
     g.drawImage(orig, 0, 0, width, height, null);
     g.dispose();
     return fromBufferedForScaling(resizedImage);
@@ -77,7 +79,6 @@ public class Utils {
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
     g.drawImage(orig, 0, 0, width, height, null);
-    g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     g.dispose();
