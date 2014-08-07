@@ -62,13 +62,51 @@ public class Utils {
   }
   
   
+  public static byte[] awtResizeDownSmoothly(Image img, int width, int height) {
+    if(width > img.getWidth() || height > img.getHeight()) {
+      throw new RuntimeException("width and height must be less then the current image!!");
+    }
+    
+    int scaleFactor = 7;
+    BufferedImage orig = toBufferedForScaling(img);
+    BufferedImage resizedImage;
+    while(true) {
+      int runWidth = width;
+      int runHeight = height;
+      if(orig.getWidth() > width) {
+        runWidth = orig.getWidth()-(orig.getWidth()/scaleFactor); 
+        if(runWidth < width) {
+          runWidth = width;
+        }
+      }
+      
+      if(orig.getHeight() > height) {
+        runHeight = orig.getHeight()-(orig.getHeight()/scaleFactor); 
+        if(runHeight < height) {
+          runHeight = height;
+        }
+      }
+      
+      resizedImage = new BufferedImage(runWidth, runHeight, orig.getType());
+      Graphics2D g = resizedImage.createGraphics();
+      g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+      g.drawImage(orig, 0, 0, runWidth, runHeight, null);
+      g.dispose();
+      orig.flush();
+      orig = resizedImage;
+      if(orig.getWidth() == width && orig.getHeight() == height) {
+        break;
+      }
+    }
+    return fromBufferedForScaling(resizedImage);
+  }
+  
+  
   public static byte[] awtResizeBiCubic(Image img, int width, int height) {
     BufferedImage orig = toBufferedForScaling(img); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
     g.drawImage(orig, 0, 0, width, height, null);
     g.dispose();
     return fromBufferedForScaling(resizedImage);

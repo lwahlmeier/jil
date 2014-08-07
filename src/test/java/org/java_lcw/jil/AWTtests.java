@@ -14,6 +14,17 @@ import org.junit.Test;
 public class AWTtests {
   
   @Test
+  public void awtTest111() throws IOException, ImageException, NoSuchAlgorithmException {
+    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+    File file = new File(filename);
+    Image newImg = Image.fromBufferedImage(ImageIO.read(file));
+    Image testimg = Image.fromByteArray(newImg.getBPP(), 256, 192, Utils.awtResizeDownSmoothly(newImg, 256, 192));
+    testimg.save("/tmp/test.png");
+    testimg = newImg.resize(256, 192, false, Image.ScaleType.AWT_CUBIC);
+    testimg.save("/tmp/test2.png");
+  }
+  
+  @Test
   public void awtTest1() throws IOException, ImageException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
     File file = new File(filename);
