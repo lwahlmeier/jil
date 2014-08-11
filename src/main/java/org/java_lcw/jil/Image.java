@@ -1,6 +1,7 @@
 package org.java_lcw.jil;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -9,6 +10,9 @@ import java.util.Random;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
+import org.java_lcw.jil.scalers.BiCubicScaler;
+import org.java_lcw.jil.scalers.BiLinearScaler;
+import org.java_lcw.jil.scalers.NearestNeighborScaler;
 
 
 /**
@@ -31,11 +35,11 @@ public class Image {
    */
   public static final byte MODE_RGBA = 32;
   
-  private final byte[][] MAP;
-  private int width;
-  private int height;
-  private byte bpp;
-  private byte colors;
+  private final int width;
+  private final int height;
+  private final byte bpp;
+  private final byte colors;
+  protected byte[] MAP;
   
   /**
    * Image Types for Image Object to use (open/save)
@@ -54,15 +58,20 @@ public class Image {
    * @author lcw - Luke Wahlmeier
    *
    */
-  public enum ScaleType {NN, LINER, CUBIC, LANCZOS};
+  public enum ScaleType {NN, LINER, CUBIC, AWT_NN, AWT_LINER, AWT_CUBIC};
   
   private Image(byte mode, int width, int height) {
     colors = (byte) (mode/8);
-    MAP = new byte[colors][];
-    for(int i = 0; i<colors; i++){
-      MAP[i] = new byte[width*height];
-      Arrays.fill(MAP[i], (byte)(0));
-    }
+    int size = colors*width*height;
+    MAP = new byte[size];
+    this.width = width;
+    this.height = height;
+    this.bpp = mode;
+  }
+  
+  private Image(byte mode, int width, int height, byte[] map) {
+    colors = (byte) (mode/8);
+    MAP = map;
     this.width = width;
     this.height = height;
     this.bpp = mode;
@@ -106,24 +115,13 @@ public class Image {
    * @return Returns an Image object with the provided byte[] set in it
    * @throws ImageException This happens if the data provided is to large or to small for the (mode/8)*width*height
    */
-  public static Image fromByteArray(byte mode, int width, int height, byte[] data) throws ImageException {
+  public static Image fromByteArray(byte mode, int width, int height, byte[] data) {
     
     byte cBytes = (byte)(mode/8);
     if(data.length != (width*height*cBytes)){
-      throw new ImageException("Incorrect number of bytes to make an image of that type");
+      throw new RuntimeException("Incorrect number of bytes to make an image of that type");
     }
-    
-    byte[][] map = new byte[cBytes][];
-    for(int i = 0; i<cBytes; i++){
-      map[i] = new byte[width*height];
-      for(int q=0; q<map[i].length; q++){
-        System.arraycopy(data, ((q*cBytes)+i), map[i], q, 1);
-      }
-    }
-    Image image = create(mode, width, height);
-    for (byte i = 0; i<cBytes; i++) {
-      image.setChannel(i, map[i]);
-    }
+    Image image = new Image(mode, width, height, data);
     return image;
   }
   
@@ -236,22 +234,37 @@ public class Image {
    * @return returns an Image object based from the BufferedImage
    * @throws ImageException This happens if there is something wrong with the BufferedImage
    */
-  public static Image fromBufferedImage(BufferedImage BI) throws ImageException{
-    Image img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), 
-        intsToBytes(BI.getRGB(0, 0, BI.getWidth(), BI.getHeight(), null , 0, BI.getWidth()), (byte) 32));
+  public static Image fromBufferedImage(BufferedImage BI) {
+    Image img;
+    if (BI.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+      img = Image.fromByteArray(MODE_L, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    } else if(BI.getType() == BufferedImage.TYPE_4BYTE_ABGR) {
+      img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    } else if(BI.getType() == BufferedImage.TYPE_3BYTE_BGR) {
+      img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI)).changeMode(MODE_RGB);
+    } else {
+      img = Image.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+    }
     return img;
   }
-  //This always up changes to RGBA image
+
   /**
    * Take the current Image object and make a BufferedImage out of it.  This is always of TYPE_INT_ARGB. 
    * @return BufferedImage
    * @throws ImageException
    */
-  public BufferedImage toBufferedImage() throws ImageException {
-    BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
-    int[] array = bytesToInts(Image.MODE_RGBA, this.changeMode(Image.MODE_RGBA).toArray());
-    BB.setRGB(0, 0, this.getWidth(), this.getHeight(), array, 0, this.getWidth());
-    return BB;
+  public BufferedImage toBufferedImage() {
+    if(this.bpp == 8) {
+      BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+      byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
+      System.arraycopy(MAP, 0, test, 0, test.length);
+      return BB;
+    } else {
+      BufferedImage BB = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+      int[] array = Utils.bytesToInts(Image.MODE_RGBA, this.changeMode(Image.MODE_RGBA).getArray());
+      BB.setRGB(0, 0, this.getWidth(), this.getHeight(), array, 0, this.getWidth());
+      return BB;
+    }
   }
 
   
@@ -270,7 +283,7 @@ public class Image {
       int width = data.width*data.height;
       int[] newInt = new int[width];
       data.getPixels(0, 0, width, newInt, 0);
-      byte[] newBytes = intsToBytes(newInt, bpp);
+      byte[] newBytes = Utils.intsToBytes(newInt, bpp);
       newImg = Image.fromByteArray(bpp, data.width, data.height, newBytes);
     } else {
       byte bpp = (byte)(32);
@@ -308,24 +321,24 @@ public class Image {
     for(int y=0; y<this.getHeight(); y++) {
       for(int x=0; x<this.getWidth(); x++) {
         c = this.getPixel(x, y);
-        if( this.getChannels() == 4) {
+        if( this.getColors() == 4) {
           cBytes[0] = c.getRed();
           cBytes[1] = c.getGreen();
           cBytes[2] = c.getBlue();
-          newInt = bytesToInts(Image.MODE_RGB, cBytes);
+          newInt = Utils.bytesToInts(Image.MODE_RGB, cBytes);
           ID.setPixel(x, y, newInt[0]);
           ID.setAlpha(x, y, c.getAlpha() &0xff );
-        } else if (this.getChannels() == 3){
+        } else if (this.getColors() == 3){
           cBytes[0] = c.getRed();
           cBytes[1] = c.getGreen();
           cBytes[2] = c.getBlue();
-          newInt = bytesToInts(Image.MODE_RGB, cBytes);
+          newInt = Utils.bytesToInts(Image.MODE_RGB, cBytes);
           ID.setPixel(x, y, newInt[0]);
         } else {
           cBytes[0] = c.getGrey();
           cBytes[1] = c.getGrey();
           cBytes[2] = c.getGrey();
-          newInt = bytesToInts(Image.MODE_RGB, cBytes);
+          newInt = Utils.bytesToInts(Image.MODE_RGB, cBytes);
           ID.setPixel(x, y, newInt[0]);
         }
       }
@@ -344,48 +357,79 @@ public class Image {
    * as changes to it could effect the new Image Object 
    * @throws ImageException
    */
-  public Image changeMode(byte MODE){
-    if (MODE == this.getBPP()) {
+  public Image changeMode(byte MODE) {
+    if (MODE == this.bpp) {
       return this;
     } 
-    Image image = Image.create(MODE, width, height);  
-    if (MODE == 24 && this.bpp == 32) {
-      /*simple drop alpha channel*/
-      image.setChannel((byte)0, this.MAP[0]);
-      image.setChannel((byte)1, this.MAP[1]);
-      image.setChannel((byte)2, this.MAP[2]);
-    } else if (MODE == 8) {
-      byte[] data = new byte[this.width*this.height];
+    Image image = Image.create(MODE, width, height);      
+    if (MODE == 8) {
       int avg;
-      for (int x = 0; x < data.length; x++){
-        avg = ((MAP[0][x]&0xff) +(MAP[1][x]&0xff)+(MAP[2][x]&0xff))/3;
-        data[x] = (byte) avg;
+      for (int x = 0; x < image.MAP.length; x++){
+        int pos = x*this.colors; 
+        avg = ((MAP[pos]&0xff) + (MAP[pos+1]&0xff) + (MAP[pos+2]&0xff))/3;
+        image.MAP[x] = (byte) avg;
       }
-      image.setChannel((byte) 0, data);
+      return image;
+    }
+    
+    if (MODE == 24 && this.bpp == 32) {
+      for(int i=0; i< image.MAP.length/3; i++) {
+        int npos = i*3;
+        int opos = i*4;
+        image.MAP[npos] = MAP[opos];
+        image.MAP[npos+1] = MAP[opos+1];
+        image.MAP[npos+2] = MAP[opos+2];
+      }
     } else if (MODE == 24 && this.bpp == 8) {
-      image.setChannel((byte)0, this.MAP[0]);
-      image.setChannel((byte)1, this.MAP[0]);
-      image.setChannel((byte)2, this.MAP[0]);
-
+      for(int i=0; i<MAP.length; i++) {
+        int pos = i*3;
+        image.MAP[pos] = MAP[i];
+        image.MAP[pos+1] = MAP[i];
+        image.MAP[pos+2] = MAP[i];
+      }
     } else if (MODE == 32 && this.bpp == 8) {
-      image.setChannel((byte)0, this.MAP[0]);
-      image.setChannel((byte)1, this.MAP[0]);
-      image.setChannel((byte)2, this.MAP[0]);
-      byte[] alpha = new byte[this.getWidth()*this.getHeight()];
-      Arrays.fill(alpha, (byte)255);
-      image.setChannel((byte)3, alpha);
-      image.setChannel((byte)3, alpha);
+      for(int i=0; i<MAP.length; i++) {
+        int pos = i*4;
+        image.MAP[pos] = MAP[i];
+        image.MAP[pos+1] = MAP[i];
+        image.MAP[pos+2] = MAP[i];
+        image.MAP[pos+3] = (byte)255;
+      }
     } else if (MODE == 32 && this.bpp == 24) {
-      image.setChannel((byte)0, this.MAP[0]);
-      image.setChannel((byte)1, this.MAP[1]);
-      image.setChannel((byte)2, this.MAP[2]);
-      byte[] alpha = new byte[this.getWidth()*this.getHeight()];
-      Arrays.fill(alpha, (byte)255);
-      image.setChannel((byte)3, alpha);
+      for(int i=0; i<(MAP.length/3); i++) {
+        int npos = i*4;
+        int opos = i*3;
+        image.MAP[npos] = MAP[opos];
+        image.MAP[npos+1] = MAP[opos+1];
+        image.MAP[npos+2] = MAP[opos+2];
+        image.MAP[npos+3] = (byte)255;
+      }
     }
     return image;
   }
-
+  
+  /**
+   * This resizes the Image keeping its aspect then adds a border to it if it is not the set width/height
+   * @param bWidth new Width
+   * @param bHeight new Height
+   * @param borderColor new Height
+   * @return new Image object of the given size
+   */
+  public Image resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st) {
+    Image ib = Image.create(this.bpp, bWidth, bHeight, borderColor);
+    
+    Image newI = resize(bWidth, bHeight, true, st);
+    
+    if(newI.getHeight() == ib.getHeight()) {
+      int pos = (ib.getWidth()/2) - (newI.getWidth()/2);
+      ib.paste(pos, 0, newI);
+    } else {
+      int pos = (ib.getHeight()/2)  - (newI.getHeight()/2);
+      ib.paste(0, pos, newI);
+    }
+    
+    return ib;
+  }
   
   /**
    * This resizes the Image, uses the Nearest Neighbor scaler, and keeps aspect ratio
@@ -410,39 +454,37 @@ public class Image {
   
   /**
    * This resizes the Image
-   * @param width new Width
-   * @param height new Height
+   * @param newWidth new Width
+   * @param newHeight new Height
    * @param keepAspect boolean, true means keep aspect, false means dont keep the aspect
    * @param st ScaleType to use (see Image.ScaleTypes)
    * @return new Image object of the given size
    */
-  public Image resize(int width, int height, boolean keepAspect, ScaleType st) {
+  public Image resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
-      int nw = this.getWidth();
-      int nh = this.getHeight();
-      double ratio = nw/(double)nh;
-      if (nw != width) {
-        nw = width;
-        nh = (int)Math.floor(nw/ratio);
-      }
-      if (nh > height) {
-        nh = height;
-        nw = (int)Math.floor(nh*ratio);
-      }
-      width = nw;
-      height = nh;
+      int[] aspect = Utils.getAspectSize(this.width, this.height, newWidth, newHeight);
+      newWidth = aspect[0];
+      newHeight = aspect[1];
     }
-    
     Image tmp;
     switch(st) {
     case LINER:
-      tmp = BiLinearScaler.scale(this, width, height);
+      tmp = BiLinearScaler.scale(this, newWidth, newHeight);
       break;
     case CUBIC:
-      tmp = BiCubicScaler.scale(this, width, height);
+      tmp = BiCubicScaler.scale(this, newWidth, newHeight);
+      break;
+    case AWT_NN:
+      tmp = Image.fromByteArray(this.bpp, newWidth, newHeight, Utils.awtResizeNN(this, newWidth, newHeight));
+      break;
+    case AWT_LINER:
+      tmp = Image.fromByteArray(this.bpp, newWidth, newHeight,Utils.awtResizeLiner(this, newWidth, newHeight));
+      break;
+    case AWT_CUBIC:
+      tmp = Image.fromByteArray(this.bpp, newWidth, newHeight,Utils.awtResizeBiCubic(this, newWidth, newHeight));
       break;
     default:
-      tmp = NearestNeighborScaler.scale(this, width, height);
+      tmp = NearestNeighborScaler.scale(this, newWidth, newHeight);
     }
     return tmp;
   }
@@ -452,18 +494,21 @@ public class Image {
    * @param c
    */
   public void fillColor(Color c) {
-    if (MAP.length == 1){
-      Arrays.fill(MAP[0], c.getGrey());
-    } else if (MAP.length == 3){
-      Arrays.fill(MAP[0], c.getRed());
-      Arrays.fill(MAP[1], c.getBlue());
-      Arrays.fill(MAP[2], c.getGreen());
-    } else if (MAP.length == 4){
-      Arrays.fill(MAP[0], c.getRed());
-      Arrays.fill(MAP[1], c.getBlue());
-      Arrays.fill(MAP[2], c.getGreen());
-      Arrays.fill(MAP[3], c.getAlpha());
-    }
+    if (this.bpp == 8){
+      Arrays.fill(MAP, c.getGrey());
+    } else if (this.bpp >= 24){
+      for(int i=0; i<MAP.length/this.colors; i++) {
+        int pos = i*this.colors;
+        MAP[pos] = c.getRed();
+        MAP[pos+1] = c.getGreen();
+        MAP[pos+2] = c.getBlue();
+        if (this.colors == 4){
+          MAP[pos+3] = c.getAlpha();
+        }
+      }
+
+
+    } 
   }
   
   /**
@@ -474,43 +519,35 @@ public class Image {
    * @param c Color to set the pixel to (see Image.Color)
    */
   public void setPixel(int x, int y, Color c) {
-    int p = ((y*this.getWidth())+x);
-    if( this.getBPP() == 32) {
-      MAP[0][p] = c.getRed();
-      MAP[1][p] = c.getGreen();
-      MAP[2][p] = c.getBlue();
-      MAP[3][p] = c.getAlpha();
-    } else if (this.getBPP() == 24) {
-      MAP[0][p] = c.getRed();
-      MAP[1][p] = c.getGreen();
-      MAP[2][p] = c.getBlue();
-    } else {
-      MAP[0][p] = c.getGrey();
+    if(x<0 || x>=this.width) {
+      return;
+    }
+    if(y<0 || y>=this.height) {
+      return;
+    }
+    int pos = ((y*this.width)+x)*(this.colors); 
+    if( this.bpp == 8) {
+      MAP[pos] = c.getGrey();
+    } else if (this.bpp >= 24) {
+      MAP[pos] = c.getRed();
+      MAP[pos+1] = c.getGreen();
+      MAP[pos+2] = c.getBlue();
+      if(this.bpp == 32) {
+        MAP[pos+3] = c.getAlpha();
+      }
     }
   }
   
-  public void setPixel(int x, int y, Color c, boolean alpha) {
-    int p = ((y*this.getWidth())+x);
+  public void mergePixel(int x, int y, Color c) {
     Color cc = this.getPixel(x, y);
     cc.merge(c);
-    if( this.getBPP() == 32) {
-      MAP[0][p] = cc.getRed();
-      MAP[1][p] = cc.getGreen();
-      MAP[2][p] = cc.getBlue();
-      MAP[3][p] = cc.getAlpha();
-    } else if (this.getBPP() == 24) {
-      MAP[0][p] = cc.getRed();
-      MAP[1][p] = cc.getGreen();
-      MAP[2][p] = cc.getBlue();
-    } else {
-      MAP[0][p] = cc.getGrey();
-    }
+    setPixel(x, y, cc);
   }
 
   
   public void setPixelInChannel(int x, int y, byte c, byte p) {
-    int POS = ((y*this.getWidth())+x);
-    MAP[c][POS] = p;
+    int POS = ((y*this.getWidth())+x)*(this.colors)+c;
+    MAP[POS] = p;
   }
   
   /**
@@ -520,19 +557,22 @@ public class Image {
    * @return Color object of that pixel
    */
   public Color getPixel(int x, int y) {
-    int POS = ((y*this.getWidth())+x);
+    if(x < 0 || x >= width || y < 0 || y >= height) {
+      return null;
+    }
+    int POS = ((y*this.getWidth())+x)*(this.colors);
     if (this.getBPP() == 32) {
-      return new Color(MAP[0][POS], MAP[1][POS], MAP[2][POS], MAP[3][POS]);
+      return new Color(MAP[POS], MAP[POS+1], MAP[POS+2], MAP[POS+3]);
     } else if (this.getBPP() == 24) {
-      return new Color(MAP[0][POS], MAP[1][POS], MAP[2][POS]);
+      return new Color(MAP[POS], MAP[POS+1], MAP[POS+2]);
     } else {
-      return new Color(MAP[0][POS]);
+      return new Color(MAP[POS]);
     }
   }
   
-  public byte getPixelInChannel(int x, int y, byte c) {
-    int POS = ((y*this.getWidth())+x);
-    return MAP[c][POS];
+  public byte getByteInChannel(int x, int y, byte c) {
+    int POS = ((y*this.getWidth())+x)*(this.colors)+c;
+    return MAP[POS];
   }
   
   /**
@@ -542,7 +582,6 @@ public class Image {
    * @param x X position to start the merge
    * @param y Y position to start the merge
    * @param img Image object to merge
-   * @param alphaMerge should we do a mask type merge on any alpha channel?
    * @throws ImageException
    */
   public void paste(int x, int y, Image img) {
@@ -560,62 +599,92 @@ public class Image {
    * @throws ImageException
    */
   public void paste(int x, int y, Image img, boolean alphaMerge){
-    
-    int maxW = img.getWidth();
-    int maxH = img.getHeight();
-    if (img.height+y < 0 || y > this.height) {
+    if (img.height+y < 0 || y >= this.height) {
       return;
     }
     
-    if (img.width+x < 0 || x > this.width) {
+    if (img.width+x < 0 || x >= this.width) {
       return;
     }
     
-    if (this.getWidth() - x < maxW) {
-      maxW = this.getWidth() - x;
-    }
-    if (this.getHeight() - y < maxH) {
-      maxH = this.getHeight() - y;
+    int maxW = img.getWidth()*this.colors;
+    int maxRows = img.getHeight();
+    int Xoffset = 0;
+    if(x < 0) {
+      Xoffset = Math.abs(x)*this.colors;
     }
     
-    if (! alphaMerge) {
-      if (img.getBPP() != this.getBPP()) {
-        img = img.changeMode(this.getBPP());
-      }
-      for(int h = 0; h<maxH; h++) {
-        for(byte c=0; c< this.MAP.length; c++) {
-          System.arraycopy(img.getChannel(c), h*img.getWidth(), MAP[c], x+((y+h)*this.getWidth()), maxW);
-        }
+    int Yoffset = 0;
+    if(y < 0) {
+      Yoffset = Math.abs(y);
+    }
+    int yStart = Math.max(0, y);
+    int xStart = Math.max(0, x)*(this.colors);
+    
+    if (this.getWidth()*this.colors - xStart < maxW) {
+      maxW = (this.getWidth()*this.colors - xStart);
+    }
+    if (this.getHeight() - yStart < maxRows) {
+      maxRows = this.getHeight() - yStart;
+    }
+    
+    if (! alphaMerge && img.getBPP() != this.getBPP()) {
+      img = img.changeMode(this.getBPP());
+    }
+    
+
+    if (! alphaMerge || img.colors < 4) {
+      int origRowSize = this.width * this.colors;
+      int newRowSize = (img.width * this.colors);
+      for(int row = 0; row<maxRows-Yoffset; row++) {
+        int origRow = (origRowSize*row) + (origRowSize*yStart);
+        int newRow = (newRowSize*row) + (newRowSize*Yoffset);
+        newRow += Xoffset;
+        System.arraycopy(img.MAP, newRow, this.MAP, origRow+xStart, maxW-Xoffset);
       }
     } else {
-      for(int h = 0; h<maxH; h++) {
+      maxW = (maxW/this.colors);
+      for(int h = 0; h<maxRows; h++) {
         for(int w = 0; w<maxW; w++) {
-          Color c = img.getPixel(w, h);
-          Color c2 = this.getPixel(w+x, h+y);
-          c2.merge(c);
-          this.setPixel(w+x, h+y, c2);
+          if(w+x >= 0 && h+y >= 0) {
+            if(img.colors == 4) {
+              int cpos = ((h*img.width)+w)*img.colors;
+              int npos = (((h+y)*this.width)+w+x)*this.colors;
+              if(img.MAP[cpos+3] == 0) {
+                continue;
+              } else if (this.colors == 4 && this.MAP[npos+3] == 0) {
+                System.arraycopy(img.MAP, cpos, this.MAP, npos, 4);
+              } else if (img.MAP[cpos+3] == 255) {
+                System.arraycopy(img.MAP, cpos, this.MAP, npos, this.colors);
+              } else {
+                Color c = img.getPixel(w, h);
+                Color c2 = this.getPixel(w+x, h+y);
+                c2.merge(c);
+                this.setPixel(w+x, h+y, c2);
+              }
+            }
+          }
         }
       }
     }
   }
 
-  public Image copy() throws ImageException {
-    return cut(0,0,this.getWidth(), this.getHeight());
+  public Image copy() {
+    Image newImage = Image.create(this.bpp, width, height);
+    System.arraycopy(MAP, 0, newImage.MAP, 0, MAP.length);
+    return newImage;
   }
   
   public Image cut(int x, int y, int width, int height) throws ImageException {
     if( (x + width) > this.getWidth() || (y + height) > this.getHeight()) {
       throw new ImageException("Can not cut over the current Image Size!!");
     }
-    Image newImage = Image.create(this.getBPP(), width, height);
-    int startPos = x*y;
-    for(byte c = 0; c < this.getChannels(); c++) {
-      byte[] data = new byte[width*height];
+    Image newImage = Image.create(this.bpp, width, height);
+    
       for(int yy = 0; yy< height; yy++) {
-        System.arraycopy(this.getChannel(c), startPos+(this.getWidth()*yy), data, (yy*width), width);
+        int startPos = (((y+yy)*this.width)+x)*(this.colors);
+        System.arraycopy(this.MAP, startPos, newImage.MAP, (yy*width*(newImage.colors)), width*(newImage.colors));
       }
-      newImage.setChannel(c, data);
-    }
     return newImage;
   }
   
@@ -624,32 +693,19 @@ public class Image {
    */
   public void mkRandom() {
     Random r = new Random();
-    for (int x = 0; x< this.MAP.length; x++){
-      r.nextBytes(MAP[x]);
-    }
+    r.nextBytes(MAP);
   }
   
-  private byte[] getChannel(byte channel) {
-    return MAP[channel];
-  }
-  
-  
-  protected void setChannel(byte channel, byte[] array){
-    this.MAP[channel] = array;
+  protected void setArray(byte[] array){
+    this.MAP= array;
   }
   
   /**
-   * Outputs this image to a ByteArray.  This has to be constructed so should not be called unless it is needed 
+   * This gives the backing byte array for the image.  Modifying it will modify the image. 
    * @return byte[] of the raw Image data
    */
-  public byte[] toArray() {
-    byte[] data = new byte[width*height*(bpp/8)];  
-    for (int i = 0; i< MAP[0].length; i++){
-      for (int c = 0; c < MAP.length; c++){
-        System.arraycopy(MAP[c], i, data, (c+(i*MAP.length)), 1);
-      }
-    }
-    return data;
+  public byte[] getArray() {
+    return MAP;
   }
   
   /**
@@ -661,10 +717,10 @@ public class Image {
   }  
   
   /**
-   * Returns the number channels in this Image (BPP/8)
+   * Returns the number color channels in this Image (BPP/8)
    * @return byte (1, 3, or 4)
    */
-  public byte getChannels(){
+  public byte getColors(){
     return this.colors;
   }  
   
@@ -698,39 +754,7 @@ public class Image {
     throw new ImageException("Could not determen file type");
   }
 
-  private static byte[] intsToBytes(int[] array, byte bpp) {
-    byte cp = (byte) (bpp/8);
-    byte[] nArray = new byte[array.length*cp];
-    for (int i =0; i< array.length; i++) {
-      int c = i*cp;
-      nArray[c] = (byte) ((array[i] >> 16) & 0xff);
-      nArray[c+1] = (byte) ((array[i] >> 8) & 0xff);
-      nArray[c+2] = (byte) (array[i] & 0xff);
-      if (cp == 4) {
-        nArray[c+3] = (byte) ((array[i] >> 24) & 0xff);
-      }
-    }
-    return nArray;
-  }
-  
-  private static int[] bytesToInts(byte mode, byte[] array) {
-    int[] nArray = new int[array.length/(mode/8)];
-    for (int i =0; i< nArray.length; i++) {
-      int c = i*(mode/8);
-      if (mode == 32 ) {
-      nArray[i] =  ((array[c+3] << 24 ) & 0xff000000) | ((array[c] << 16) & 0xff0000) | 
-          ((array[c+1] << 8) & 0xff00) | ((array[c+2]) & 0xff);
-      //Dont hit these because we upsample to 32bit before we make BufferedImage
-      } else if (mode == 24) {
-        nArray[i] =  ((array[c] << 16)&0xff0000) | 
-            ((array[c+1] << 8)&0xff00) | ((array[c+2])&0xff);        
-      } else if (mode == 8) {
-        nArray[i] =  (255<<24) | ((array[c] << 16)) | 
-            ((array[c] << 8)) | ((array[c]));
-      }
-    }
-    return nArray;
-  }
+
 
   public static class ImageException extends Exception {
     private static final long serialVersionUID = 713250734097347352L;

@@ -6,12 +6,23 @@ package org.java_lcw.jil;
  * @author lcw - Luke Wahlmeier
  *
  */
-public class Color {
-  private byte green = 0;
-  private byte red = 0;
-  private byte blue = 0;
-  private byte alpha = (byte) 0xff;
-  private byte grey = 0;
+public class Color implements Comparable<Color> {
+  private static final byte MAX_BYTE = (byte)255;
+  private static final byte EMPTY_BYTE = (byte)0;
+  
+  public static final Color BLACK = new Color(EMPTY_BYTE);
+  public static final Color WHITE = new Color(MAX_BYTE);
+  public static final Color GREY = new Color((byte)127);
+  public static final Color RED   = new Color(MAX_BYTE, EMPTY_BYTE, EMPTY_BYTE);
+  public static final Color GREEN = new Color(EMPTY_BYTE, MAX_BYTE, EMPTY_BYTE);
+  public static final Color BLUE  = new Color(EMPTY_BYTE, EMPTY_BYTE, MAX_BYTE);
+  public static final Color ALPHA  = new Color(EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE);
+  
+  private byte green = EMPTY_BYTE;
+  private byte red = EMPTY_BYTE;
+  private byte blue = EMPTY_BYTE;
+  private byte grey = EMPTY_BYTE;
+  private byte alpha = MAX_BYTE;
 
   /**
    * Construct the color with RGB values set
@@ -32,6 +43,12 @@ public class Color {
   public Color(byte red, byte green, byte blue, byte alpha) {
     setRGBA((byte) red, (byte) green, (byte) blue, (byte)alpha);
   }
+  
+  /**
+   * Construct the color object with an int thats ARGB
+   * @param color
+   */
+
 
   /**
    * Construct the color with grey values set
@@ -45,37 +62,49 @@ public class Color {
    */
   public Color() {
   }
+  
+  public Color copy() {
+    return new Color(red, green, blue, alpha);
+  }
 
   public void merge(Color c) {
     double pct = ((c.alpha & 0xff) / 255.0);
-
     if (pct == 1.0) {
-      this.setRGB(c.red, c.green, c.blue);
-      this.setAlpha(c.alpha);
+      this.setRGBA(c.red, c.green, c.blue, c.alpha);
     } else if (pct == 0) {
       return;
     }else {
-      double epct = 1.0-((c.alpha & 0xff) / 255.0);
-      int tmp = (int) ((this.green & 0xff)*epct + ((c.green&0xff) * pct));
-
+      double epct = 1.0-pct;
+      double srcA = ((this.alpha & 0xff) / 255.0);
+      double newApct = (((srcA + ((c.alpha&0xff) * epct))));
+      
+      int tmp = (int) (255 * newApct);
       if (tmp > 255) {
-        this.green = (byte)255;
-      } else {
-        this.green = (byte)tmp;
+        this.alpha = Color.MAX_BYTE;
+      }else {
+        this.alpha = (byte)tmp;
       }
-      tmp = (int) ((this.red & 0xff)*epct + ((c.red&0xff) * pct));
+      tmp = (int) (((c.red&0xff)*pct)+(this.red & 0xff)*epct);
       if (tmp> 255) {
-        this.red = (byte)255;
+        this.red = Color.MAX_BYTE;
       } else {
         this.red = (byte)tmp;
       }
-
-      tmp = (int) ((this.blue & 0xff)*epct + ((c.blue&0xff) * pct));
+      tmp = (int) (((c.green&0xff)*pct)+(this.green & 0xff)*epct);
+      if (tmp > 255) {
+        this.green = Color.MAX_BYTE;
+      } else {
+        this.green = (byte)tmp;
+      }
+      tmp = (int) (((c.blue&0xff)*pct)+(this.blue & 0xff)*epct);
       if (tmp> 255) {
-        this.blue = (byte)255;
+        this.blue = Color.MAX_BYTE;
       }else {
         this.blue = (byte)tmp;
       }
+      
+
+      
     }
   }
 
@@ -85,6 +114,7 @@ public class Color {
    */
   public void setBlue(byte b) {
     blue = b;
+    grey = EMPTY_BYTE;
   }
   public byte getBlue() {
     return blue;
@@ -96,6 +126,7 @@ public class Color {
    */
   public void setRed(byte r) {
     red = r;
+    grey = EMPTY_BYTE;
   }
   public byte getRed() {
     return red;
@@ -107,6 +138,7 @@ public class Color {
    */
   public void setGreen(byte g) {
     green = g;
+    grey = EMPTY_BYTE;
   }
   public byte getGreen() {
     return green;
@@ -119,6 +151,7 @@ public class Color {
   public void setAlpha(byte a) {
     alpha = a;
   }
+  
   public byte getAlpha() {
     return alpha;
   }
@@ -133,7 +166,9 @@ public class Color {
     green = g;
     blue = b;
     alpha = (byte)255;
+    grey = EMPTY_BYTE;
   }
+  
   /**
    * Set the RGBA Value on this Color Object
    * @param r
@@ -146,6 +181,7 @@ public class Color {
     green = g;
     blue = b;
     alpha = a;
+    grey = EMPTY_BYTE;
   }
 
   /**
@@ -155,34 +191,91 @@ public class Color {
   public void setGrey(byte g) {
     setL(g);
   }
-
+  
+  /**
+   * Get the grey value on this color object(overrides all rgb values)
+   * @return the grey scale of this color
+   */
   public byte getGrey() {
-    return (byte) grey;//(((red&0xff)+(green&0xff)+(blue&0xff))/3);
+    if(grey == EMPTY_BYTE) {
+      grey = (byte) (((red&0xff)+(green&0xff)+(blue&0xff))/3);
+    }
+    return grey;
   }
+  
   /**
    * Set the grey value on this color object(overrides all rgb values)
    * @param g
    */
   public void setL(byte g) {
-    grey = g;
     red = g;
     green = g;
     blue = g;
   }
-
+  
+  public void setARGB(int color) {
+    setRGBA((byte)((color >> 16) & 0xFF), 
+        (byte)((color >>  8) & 0xFF), 
+        (byte)(color & 0xFF), 
+        (byte)((color >> 24) & 0xFF));
+  }
+  
+  public int getARGB() {
+    return alpha<<24 & 0xff000000 | red<<16 & 0xff0000 | green<<8 & 0xff00 | blue & 0xff;
+  }
+  
+  public int getRGB() {
+    return red<<16 & 0xff0000 | green<<8 & 0xff00 | blue & 0xff;
+  }
+  
+  @Override
   public String toString() {
     return "Colors: R:"+red+" G:"+green+" B:"+blue+" Alpha:"+alpha+" grey:"+getGrey();
   }
   
-  public boolean equals(Color c) {
-    if (c.alpha == this.alpha && 
-        c.red == this.red &&
-        c.green == this.green &&
-        c.blue == this.blue){
+  @Override
+  public int hashCode() {
+    return getARGB();
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    if(!(o instanceof Color)) {
+      return false;
+    }
+
+    Color c = (Color) o;
+    long t = getARGB() & 0xffffffffL;
+    long ot = c.getARGB() & 0xffffffffL;
+    if (t == ot){
       return true;
     }
     return false;
-    
+  }
+  
+  public boolean equalsNoAlpha(Object o) {
+    if(!(o instanceof Color)) {
+      return false;
+    }
+    Color c = (Color) o;
+    long t = getRGB() & 0xffffffffL;
+    long ot = c.getRGB() & 0xffffffffL;
+    if (t == ot){
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public int compareTo(Color o) {
+    long t = getARGB() & (long)0xffffffffL;
+    long ot = o.getARGB() & (long)0xffffffffL;
+    if(t > ot) {
+      return 1;
+    } else if (t < ot) {
+      return -1;
+    }
+    return 0;
   }
   
 }

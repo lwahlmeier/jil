@@ -126,7 +126,7 @@ public class TiffFile {
   }
   
   public static void save(String saveTo, Image image) throws IOException, ImageException {
-    final byte[] data = image.changeMode(Image.MODE_RGB).toArray();
+    final byte[] data = image.changeMode(Image.MODE_RGB).getArray();
     DataOutputStream out = new DataOutputStream(new FileOutputStream(saveTo));
     //TODO: Nothing seems to work with bigI here anymore??
     Endianness bt = Endianness.LITTLE;

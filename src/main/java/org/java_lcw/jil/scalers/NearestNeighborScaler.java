@@ -1,4 +1,6 @@
-package org.java_lcw.jil;
+package org.java_lcw.jil.scalers;
+
+import org.java_lcw.jil.Image;
 
 public class NearestNeighborScaler {
   private NearestNeighborScaler() {
@@ -10,13 +12,18 @@ public class NearestNeighborScaler {
     float y_ratio = srcImage.getHeight()/(float)newHeight;
     int px = 0;
     int py = 0;
+    int size = srcImage.getBPP()/8;
+    byte[] newImageArray = newImage.getArray();
+    byte[] srcImageArray = srcImage.getArray();
+    
     for (int y=0; y<newHeight; y++) {
       py = (int) (y*y_ratio);
       for(int x=0; x<newWidth; x++) {
         px = (int)(x*x_ratio);
-        for(int c=0; c<(srcImage.getBPP()/8); c++) {
-          newImage.setPixel(x, y, srcImage.getPixel(px, py));
-        }
+        
+          int sp = ((srcImage.getWidth()*py)+px)*(size) ;
+          int np = ((newImage.getWidth()*y)+x)*(size);
+          System.arraycopy(srcImageArray, sp, newImageArray, np, size);
       }
     }
     return newImage;
