@@ -18,7 +18,16 @@ public class AlphaWithMergePasteTests extends PasteTests {
     img = img.changeMode(Image.MODE_RGBA);
     subImg = subImg.changeMode(Image.MODE_RGBA);
     subImg = subImg.resize(300, 300);
+    subImg2 = Image.create(Image.MODE_RGBA, 4304, 4024);
+    subImg2.fillColor(Color.BLACK);
     addAlphaToImage((byte)100, subImg);
+    addAlphaToImage((byte)100, subImg2);
+  }
+  
+  @Override
+  public void biggerPasteImage() throws Exception {
+    super.biggerPasteImage();
+    assertEquals("6fcad6c545c1c4726dd048edfde9651541ec63d296e310da77f7a0a0e1babf2d", ImageTest.hashByteArray(img.getArray()));
   }
   
   @Override

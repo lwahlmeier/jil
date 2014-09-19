@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'org.java-lcw'
-version="0.5."+"git rev-list HEAD --count".execute().in.text.trim()+"-SNAPSHOT"
+version="0.5."+"git rev-list HEAD --count".execute().in.text.trim()
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6

@@ -10,6 +10,7 @@ public abstract class PasteTests {
   Random rnd = new Random();
   Image img;
   Image subImg;
+  Image subImg2;
   boolean alpha = false;
   String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
   String filename2 = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
@@ -34,6 +35,11 @@ public abstract class PasteTests {
   @Test
   public void normal() throws Exception {
     img.paste(100, 100, subImg, alpha);
+  }
+  
+  @Test
+  public void biggerPasteImage() throws Exception {
+    img.paste(-1280, -50, subImg2, alpha);
   }
   
   @Test
