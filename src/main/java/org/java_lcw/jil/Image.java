@@ -629,26 +629,29 @@ public class Image {
     int imgXOffBytes = imgXOff * img.colors;
     int XBytes = x*this.colors;
     for(int h=y; h < this.height; h++) {
-      if(h-y+imgYOff >= img.height) {
+      int imgYPos = h-y+imgYOff;
+      if( imgYPos >= img.height) {
         break;
       }
       int thisStart = thisLineWidth*h;
-      int imgStart = imgLineWidth*(h-y+imgYOff);
+      int imgStart = imgLineWidth*(imgYPos);
       if(! alphaMerge) {
         System.arraycopy(img.MAP, imgStart+(imgXOffBytes), this.MAP, thisStart+(XBytes), Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes)));
       } else {
-        int maxWidth = Math.min((imgLineWidth-(imgXOffBytes))/img.colors, (thisLineWidth-XBytes)/this.colors);
-        for(int w = 0; w <maxWidth; w++) {
+        int maxWidth = Math.min((img.width-(imgXOff)), (this.width-x));
+        for(int w = 0; w < maxWidth; w++) {
           int wImgBytes = w*img.colors;
           int wThisBytes = w*this.colors;
-          if(img.colors == 4 && img.MAP[imgStart+wImgBytes+imgXOffBytes+3] == 0) {
+          int imgXPos = imgStart+wImgBytes+imgXOffBytes;
+          int thisXPos = thisStart+XBytes+wThisBytes;
+          if(img.colors == 4 && img.MAP[imgXPos+3] == 0) {
             continue;
-          } else if (this.colors == 4 && this.MAP[thisStart+XBytes+wThisBytes+3] == 0) {
-            System.arraycopy(img.MAP, imgStart+wImgBytes+imgXOffBytes, this.MAP, thisStart+wThisBytes+(XBytes), this.colors);
-          } else if (img.colors == 4 && img.MAP[imgStart+wImgBytes+imgXOffBytes+3] == 255) {
-            System.arraycopy(img.MAP, imgStart+wImgBytes+imgXOffBytes, this.MAP, thisStart+wThisBytes+(XBytes), this.colors);
+          } else if (this.colors == 4 && this.MAP[thisXPos+3] == 0) {
+            System.arraycopy(img.MAP, imgXPos, this.MAP, thisXPos, this.colors);
+          } else if (img.colors == 4 && img.MAP[imgXPos+3] == 255) {
+            System.arraycopy(img.MAP, imgXPos, this.MAP, thisXPos, this.colors);
           } else {
-            Color c = img.getPixel((wImgBytes+imgXOffBytes)/img.colors, h-y+imgYOff);
+            Color c = img.getPixel((w+imgXOff), imgYPos);
             Color c2 = this.getPixel(w+x, h);
             c2.merge(c);
             this.setPixel(w+x, h, c2);
