@@ -1,8 +1,11 @@
 package org.java_lcw.jil;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.java_lcw.jil.Image.ImageException;
 
 public class Draw {
   private static final int sigmaD = 2;

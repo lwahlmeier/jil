@@ -27,6 +27,7 @@ public class AlphaWithMergePasteTests extends PasteTests {
   @Override
   public void biggerPasteImage() throws Exception {
     super.biggerPasteImage();
+    img.save("/tmp/test.png");
     assertEquals("6fcad6c545c1c4726dd048edfde9651541ec63d296e310da77f7a0a0e1babf2d", ImageTest.hashByteArray(img.getArray()));
   }
   

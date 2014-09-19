@@ -418,13 +418,6 @@ public class ImageTest {
     assertEquals("54e9c46019df5ef9e02a82c22f2b4c950d20c6cfa27e790a72c4b41255e96077", hashByteArray(newImg.getArray()));
   }  
   
-  @Test(expected=ImageException.class)
-  public void badCutImageTest() throws ImageException, IOException, NoSuchAlgorithmException {
-    String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
-    Image img = Image.open(filename);
-    img.cut(0, 0, img.getWidth()+10, img.getHeight()+10);
-  }  
-  
   @Test
   public void copyImageTest() throws ImageException, IOException, NoSuchAlgorithmException {
     String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();

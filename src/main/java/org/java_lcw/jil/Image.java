@@ -609,6 +609,9 @@ public class Image {
     if (! alphaMerge && img.getBPP() != this.getBPP()) {
       img = img.changeMode(this.getBPP());
     }
+    if(alphaMerge && this.getBPP() < 4 && img.getBPP() < 4) {
+      alphaMerge = false;
+    }
 
     int imgXOff = 0;
     int imgYOff = 0;
@@ -634,19 +637,21 @@ public class Image {
       if(! alphaMerge) {
         System.arraycopy(img.MAP, imgStart+(imgXOffBytes), this.MAP, thisStart+(XBytes), Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes)));
       } else {
-        int maxWidth = Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes));
-        for(int w = 0; w < maxWidth; w+=4) {
-          if(img.MAP[imgStart+w+imgXOffBytes+3] == 0) {
+        int maxWidth = Math.min((imgLineWidth-(imgXOffBytes))/img.colors, (thisLineWidth-XBytes)/this.colors);
+        for(int w = 0; w <maxWidth; w++) {
+          int wImgBytes = w*img.colors;
+          int wThisBytes = w*this.colors;
+          if(img.colors == 4 && img.MAP[imgStart+wImgBytes+imgXOffBytes+3] == 0) {
             continue;
-          } else if (this.colors == 4 && this.MAP[thisStart+w+3] == 0) {
-            System.arraycopy(img.MAP, imgStart+w+imgXOffBytes, this.MAP, thisStart+w+(XBytes), this.colors);
-          } else if (img.MAP[imgStart+imgXOffBytes+3] == 255) {
-            System.arraycopy(img.MAP, imgStart+w+imgXOffBytes, this.MAP, thisStart+w+(XBytes), this.colors);
+          } else if (this.colors == 4 && this.MAP[thisStart+XBytes+wThisBytes+3] == 0) {
+            System.arraycopy(img.MAP, imgStart+wImgBytes+imgXOffBytes, this.MAP, thisStart+wThisBytes+(XBytes), this.colors);
+          } else if (img.colors == 4 && img.MAP[imgStart+wImgBytes+imgXOffBytes+3] == 255) {
+            System.arraycopy(img.MAP, imgStart+wImgBytes+imgXOffBytes, this.MAP, thisStart+wThisBytes+(XBytes), this.colors);
           } else {
-            Color c = img.getPixel((w+imgXOffBytes)/img.colors, h-y+imgYOff);
-            Color c2 = this.getPixel((w/this.colors)+x, h);
+            Color c = img.getPixel((wImgBytes+imgXOffBytes)/img.colors, h-y+imgYOff);
+            Color c2 = this.getPixel(w+x, h);
             c2.merge(c);
-            this.setPixel((w/this.colors)+x, h, c2);
+            this.setPixel(w+x, h, c2);
           }
         }
       }
