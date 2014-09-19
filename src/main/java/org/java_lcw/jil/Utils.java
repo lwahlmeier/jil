@@ -74,14 +74,14 @@ public class Utils {
       int runWidth = width;
       int runHeight = height;
       if(orig.getWidth() > width) {
-        runWidth = orig.getWidth()-(orig.getWidth()/scaleFactor); 
+        runWidth = orig.getWidth()-Math.max(1, (orig.getWidth()/scaleFactor)); 
         if(runWidth < width) {
           runWidth = width;
         }
       }
       
       if(orig.getHeight() > height) {
-        runHeight = orig.getHeight()-(orig.getHeight()/scaleFactor); 
+        runHeight = orig.getHeight()-Math.max(1, (orig.getHeight()/scaleFactor)); 
         if(runHeight < height) {
           runHeight = height;
         }

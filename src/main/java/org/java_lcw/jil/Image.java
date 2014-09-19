@@ -606,63 +606,55 @@ public class Image {
     if (img.width+x < 0 || x >= this.width) {
       return;
     }
-    
-    int maxW = img.getWidth()*this.colors;
-    int maxRows = img.getHeight();
-    int Xoffset = 0;
-    if(x < 0) {
-      Xoffset = Math.abs(x)*this.colors;
-    }
-    
-    int Yoffset = 0;
-    if(y < 0) {
-      Yoffset = Math.abs(y);
-    }
-    int yStart = Math.max(0, y);
-    int xStart = Math.max(0, x)*(this.colors);
-    
-    if (this.getWidth()*this.colors - xStart < maxW) {
-      maxW = (this.getWidth()*this.colors - xStart);
-    }
-    if (this.getHeight() - yStart < maxRows) {
-      maxRows = this.getHeight() - yStart;
-    }
-    
     if (! alphaMerge && img.getBPP() != this.getBPP()) {
       img = img.changeMode(this.getBPP());
     }
-    
+    if(alphaMerge && this.getBPP() < 4 && img.getBPP() < 4) {
+      alphaMerge = false;
+    }
 
-    if (! alphaMerge || img.colors < 4) {
-      int origRowSize = this.width * this.colors;
-      int newRowSize = (img.width * this.colors);
-      for(int row = 0; row<maxRows-Yoffset; row++) {
-        int origRow = (origRowSize*row) + (origRowSize*yStart);
-        int newRow = (newRowSize*row) + (newRowSize*Yoffset);
-        newRow += Xoffset;
-        System.arraycopy(img.MAP, newRow, this.MAP, origRow+xStart, maxW-Xoffset);
+    int imgXOff = 0;
+    int imgYOff = 0;
+    if(x < 0) {
+      imgXOff = Math.abs(x);
+      x=0;
+    }
+    if(y < 0) {
+      imgYOff = Math.abs(y);
+      y=0;
+    }
+    
+    int thisLineWidth = this.width * this.colors;
+    int imgLineWidth = img.width * img.colors;
+    int imgXOffBytes = imgXOff * img.colors;
+    int XBytes = x*this.colors;
+    for(int h=y; h < this.height; h++) {
+      int imgYPos = h-y+imgYOff;
+      if( imgYPos >= img.height) {
+        break;
       }
-    } else {
-      maxW = (maxW/this.colors);
-      for(int h = 0; h<maxRows; h++) {
-        for(int w = 0; w<maxW; w++) {
-          if(w+x >= 0 && h+y >= 0) {
-            if(img.colors == 4) {
-              int cpos = ((h*img.width)+w)*img.colors;
-              int npos = (((h+y)*this.width)+w+x)*this.colors;
-              if(img.MAP[cpos+3] == 0) {
-                continue;
-              } else if (this.colors == 4 && this.MAP[npos+3] == 0) {
-                System.arraycopy(img.MAP, cpos, this.MAP, npos, 4);
-              } else if (img.MAP[cpos+3] == 255) {
-                System.arraycopy(img.MAP, cpos, this.MAP, npos, this.colors);
-              } else {
-                Color c = img.getPixel(w, h);
-                Color c2 = this.getPixel(w+x, h+y);
-                c2.merge(c);
-                this.setPixel(w+x, h+y, c2);
-              }
-            }
+      int thisStart = thisLineWidth*h;
+      int imgStart = imgLineWidth*(imgYPos);
+      if(! alphaMerge) {
+        System.arraycopy(img.MAP, imgStart+(imgXOffBytes), this.MAP, thisStart+(XBytes), Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes)));
+      } else {
+        int maxWidth = Math.min((img.width-(imgXOff)), (this.width-x));
+        for(int w = 0; w < maxWidth; w++) {
+          int wImgBytes = w*img.colors;
+          int wThisBytes = w*this.colors;
+          int imgXPos = imgStart+wImgBytes+imgXOffBytes;
+          int thisXPos = thisStart+XBytes+wThisBytes;
+          if(img.colors == 4 && img.MAP[imgXPos+3] == 0) {
+            continue;
+          } else if (this.colors == 4 && this.MAP[thisXPos+3] == 0) {
+            System.arraycopy(img.MAP, imgXPos, this.MAP, thisXPos, this.colors);
+          } else if (img.colors == 4 && img.MAP[imgXPos+3] == 255) {
+            System.arraycopy(img.MAP, imgXPos, this.MAP, thisXPos, this.colors);
+          } else {
+            Color c = img.getPixel((w+imgXOff), imgYPos);
+            Color c2 = this.getPixel(w+x, h);
+            c2.merge(c);
+            this.setPixel(w+x, h, c2);
           }
         }
       }
@@ -675,10 +667,7 @@ public class Image {
     return newImage;
   }
   
-  public Image cut(int x, int y, int width, int height) throws ImageException {
-    if( (x + width) > this.getWidth() || (y + height) > this.getHeight()) {
-      throw new ImageException("Can not cut over the current Image Size!!");
-    }
+  public Image cut(int x, int y, int width, int height) {
     Image newImage = Image.create(this.bpp, width, height);
     
       for(int yy = 0; yy< height; yy++) {
