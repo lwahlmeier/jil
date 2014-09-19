@@ -634,7 +634,8 @@ public class Image {
       if(! alphaMerge) {
         System.arraycopy(img.MAP, imgStart+(imgXOffBytes), this.MAP, thisStart+(XBytes), Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes)));
       } else {
-        for(int w = 0; w < Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes)); w+=4) {
+        int maxWidth = Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes));
+        for(int w = 0; w < maxWidth; w+=4) {
           if(img.MAP[imgStart+w+imgXOffBytes+3] == 0) {
             continue;
           } else if (this.colors == 4 && this.MAP[thisStart+w+3] == 0) {
