@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.java_lcw.jil.Image.ImageException;
+import org.java_lcw.jil.ImageException;
 
 public class TiffFile {
   
@@ -115,14 +115,14 @@ public class TiffFile {
   }
     
   
-  public static Image open(String filename) throws IOException, ImageException{
+  public static JavaImage open(String filename) throws IOException, ImageException{
     RandomAccessFile file = new RandomAccessFile(filename, "r");
     Endianness bt = getType(file);
     TiffDirectory td = getTiffDirectory(bt, file);
     file.seek(td.getImageOffset());
     byte[] data = new byte[td.getHeight()*td.getWidth()*3];
     file.read(data);
-    return Image.fromByteArray(Image.MODE_RGB, td.getWidth(), td.getHeight(), data);
+    return JavaImage.fromByteArray(JavaImage.MODE_RGB, td.getWidth(), td.getHeight(), data);
   }
   
   public static void save(String saveTo, Image image) throws IOException, ImageException {

@@ -6,12 +6,91 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.java_lcw.jil.Image.ImageType;
 
 public class Utils {
+  
+  public static List<int[]> lineToList(int x, int y, int x2, int y2) {
+    List<int[]> list = new ArrayList<int[]>();
+    int w = x2 - x ;
+    int h = y2 - y ;
+    int dx1 = 0;
+    int dy1 = 0;
+    int dx2 = 0;
+    int dy2 = 0 ;
+    if (w<0) { 
+      dx1 = -1;
+    } else if (w>0) {
+      dx1 = 1 ;
+    }
+    if (h<0) {
+      dy1 = -1;
+    } else if (h>0) { 
+      dy1 = 1 ;
+    }
+    if (w<0) {
+      dx2 = -1;
+    } else if (w>0) {
+      dx2 = 1 ;
+    }
+    int longest = Math.abs(w) ;
+    int shortest = Math.abs(h) ;
+    if (!(longest>shortest)) {
+      longest = Math.abs(h) ;
+      shortest = Math.abs(w) ;
+      if (h<0) {
+        dy2 = -1 ;
+      } else if (h>0) {
+        dy2 = 1 ;
+      }
+      dx2 = 0 ;            
+    }
+    int numerator = longest >> 1;
+      for (int i=0;i<=longest;i++) {
+        list.add(new int[]{x, y});
+        numerator += shortest ;
+        if (!(numerator<longest)) {
+          numerator -= longest ;
+          x += dx1 ;
+          y += dy1 ;
+        } else {
+          x += dx2 ;
+          y += dy2 ;
+        }
+      }
+      return list;
+  }
+  
+  public static ImageType getImageType(File file) throws ImageException {
+    return getImageType(file.getAbsolutePath());
+  }
+  public static ImageType getImageType(String filename) throws ImageException {
+    String ext = filename.substring(filename.lastIndexOf('.')+1).toLowerCase();
+    if (ext.equals("tiff") || ext.equals("tif")) {
+      return ImageType.TIFF;
+    } else if (ext.equals("png")) {
+      return ImageType.PNG;
+    } else if (ext.equals("jpg") || ext.equals("jpeg")){
+      return ImageType.JPEG;
+    }
+    throw new ImageException("Could not determen file type");
+  }
+  
+  public static java.awt.Color toAWTColor(Color c) {
+    return new java.awt.Color( c.getRed()&0xff, c.getGreen()&0xff, c.getBlue()&0xff, c.getAlpha()&0xff);
+  }
+  
+  public static Color toJILColor(java.awt.Color c) {
+    return new Color( (byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
+  }
 
-  private static BufferedImage toBufferedForScaling(Image img) {
-    if(img.getBPP() == Image.MODE_RGB){
+  private static BufferedImage toBufferedForScaling(JavaImage img) {
+    if(img.getBPP() == JavaImage.MODE_RGB){
       //NOTE: this ends up in the wrong color space, but since it does not matter for scaling we use it because its faster.
       BufferedImage BB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
       byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
@@ -27,11 +106,11 @@ public class Utils {
       byte[] test = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
       return test;
     } else {
-      return Image.fromBufferedImage(img).getArray();
+      return JavaImage.fromBufferedImage(img).getArray();
     }
   }
   
-  public static Image drawSmoothCircle(int diameter, Color color) {
+  public static JavaImage drawSmoothCircle(int diameter, Color color) {
     BufferedImage bufferedImage = new BufferedImage(diameter+2, diameter+2, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g2d = bufferedImage.createGraphics();
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -43,7 +122,7 @@ public class Utils {
     g2d.setPaint(new java.awt.Color(color.getRed()&0xff, color.getGreen()&0xff,color.getBlue()&0xff, color.getAlpha()&0xff));
     g2d.fillOval(1, 1, diameter, diameter);
     g2d.dispose();
-    Image circle = Image.fromBufferedImage(bufferedImage);
+    JavaImage circle = JavaImage.fromBufferedImage(bufferedImage);
     return circle;
     //ImageIO.write(bufferedImage, "png", new File("/tmp/newimage.png"));
   }
@@ -62,7 +141,7 @@ public class Utils {
   }
   
   
-  public static byte[] awtResizeDownSmoothly(Image img, int width, int height) {
+  public static byte[] awtResizeDownSmoothly(JavaImage img, int width, int height) {
     if(width > img.getWidth() || height > img.getHeight()) {
       throw new RuntimeException("width and height must be less then the current image!!");
     }
@@ -102,7 +181,7 @@ public class Utils {
   }
   
   
-  public static byte[] awtResizeBiCubic(Image img, int width, int height) {
+  public static byte[] awtResizeBiCubic(JavaImage img, int width, int height) {
     BufferedImage orig = toBufferedForScaling(img); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
@@ -112,7 +191,7 @@ public class Utils {
     return fromBufferedForScaling(resizedImage);
   }
   
-  public static byte[] awtResizeLiner(Image img, int width, int height) {
+  public static byte[] awtResizeLiner(JavaImage img, int width, int height) {
     BufferedImage orig = toBufferedForScaling(img); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();
@@ -123,7 +202,7 @@ public class Utils {
     return fromBufferedForScaling(resizedImage);
   }
   
-  public static byte[] awtResizeNN(Image img, int width, int height) {
+  public static byte[] awtResizeNN(JavaImage img, int width, int height) {
     BufferedImage orig = toBufferedForScaling(img); 
     BufferedImage resizedImage = new BufferedImage(width, height, orig.getType());
     Graphics2D g = resizedImage.createGraphics();

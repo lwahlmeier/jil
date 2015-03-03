@@ -1,17 +1,17 @@
 package org.java_lcw.jil.scalers;
 
-import org.java_lcw.jil.Image;
+import org.java_lcw.jil.JavaImage;
 
 public class BiLinearScaler {
-  private Image srcImage;
+  private JavaImage srcImage;
   private BiLinearScaler() {
   }
   
-  public static Image scale(Image srcImage, int newWidth, int newHeight) {
+  public static JavaImage scale(JavaImage srcImage, int newWidth, int newHeight) {
     final BiLinearScaler tmp = new BiLinearScaler();
     tmp.srcImage = srcImage;
     
-    Image newImage = Image.create(srcImage.getBPP(), newWidth, newHeight);
+    JavaImage newImage = JavaImage.create(srcImage.getBPP(), newWidth, newHeight);
     final float x_ratio = ((float)(srcImage.getWidth()))/newWidth ;
     final float y_ratio = ((float)(srcImage.getHeight()))/newHeight ;
     float x_diff, y_diff;
