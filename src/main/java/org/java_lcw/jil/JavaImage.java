@@ -384,14 +384,6 @@ public class JavaImage implements Image {
     }
   }
   
-  @Override
-  public void mergePixel(int x, int y, Color c) {
-    Color cc = this.getPixel(x, y);
-    cc.merge(c);
-    setPixel(x, y, cc);
-  }
-
-  
   public void setPixelInChannel(int x, int y, byte c, byte p) {
     int POS = ((y*this.getWidth())+x)*(this.colors)+c;
     MAP[POS] = p;

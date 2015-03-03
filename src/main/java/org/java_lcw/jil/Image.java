@@ -138,8 +138,6 @@ public interface Image {
    */
   public void setPixel(int x, int y, Color c);
   
-  public void mergePixel(int x, int y, Color c);
-  
   /**
    * The a color for a given pixel
    * @param x X position of the pixel

@@ -15,14 +15,14 @@ import java.util.ArrayDeque;
 import javax.imageio.ImageIO;
 
 public class AWTImage implements Image{
-  
+
   private final int width;
   private final int height;
   private final byte bpp;
   private final byte colors;
   private final BufferedImage bi;
-  
-  
+
+
   private AWTImage(byte mode, int width, int height) {
     colors = (byte) (mode/8);
     this.width = width;
@@ -36,7 +36,7 @@ public class AWTImage implements Image{
       bi = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
     }
   }
-  
+
   private AWTImage(byte mode, int width, int height, BufferedImage cbi) {
     colors = (byte) (mode/8);
     this.width = width;
@@ -44,19 +44,19 @@ public class AWTImage implements Image{
     this.bpp = mode;
     bi = cbi;
   }
-  
+
   private AWTImage(BufferedImage cbi, byte mode) {
     this(mode, cbi.getWidth(), cbi.getHeight(), cbi);
   }
-  
+
   public static AWTImage create(byte mode, int width, int height) {
     return new AWTImage(mode, width, height);
   }
-  
+
   public static AWTImage fromJavaImage(JavaImage ji) {
     return new AWTImage(ji.getBPP(), ji.getWidth(), ji.getHeight(), ji.toBufferedImage());
   }
-  
+
   public static AWTImage fromBufferedImage(BufferedImage bi) {
     switch(bi.getType()) {
     case BufferedImage.TYPE_BYTE_BINARY:
@@ -84,7 +84,7 @@ public class AWTImage implements Image{
     case BufferedImage.TYPE_4BYTE_ABGR: {
       return new AWTImage(Image.MODE_RGBA, bi.getWidth(), bi.getHeight(), bi);
     }
-    
+
     case BufferedImage.TYPE_4BYTE_ABGR_PRE:
     case BufferedImage.TYPE_INT_ARGB:
     case BufferedImage.TYPE_INT_ARGB_PRE:
@@ -93,10 +93,10 @@ public class AWTImage implements Image{
       nbi.getGraphics().drawImage(bi, 0, 0, null);
       return new AWTImage(Image.MODE_RGBA, nbi.getWidth(), nbi.getHeight(), nbi);
     }
-      
+
     }
   }
-  
+
   public static AWTImage open(String filename) throws ImageException, IOException {
     try {
       return open(filename, Utils.getImageType(filename));
@@ -110,7 +110,7 @@ public class AWTImage implements Image{
       throw new ImageException("Could not figure out image type!");
     }
   }
-  
+
   public static AWTImage open(String filename, ImageType type) throws IOException, ImageException {
     switch(type) {
     case TIFF:
@@ -121,6 +121,10 @@ public class AWTImage implements Image{
     default:
       throw new ImageException("Could not determen filetype");
     }
+  }
+
+  public BufferedImage getBufferedImage() {
+    return bi;
   }
 
   @Override
@@ -156,7 +160,7 @@ public class AWTImage implements Image{
       break;
     }
   }
-  
+
 
   @Override
   public JavaImage toJavaImage() {
@@ -235,13 +239,6 @@ public class AWTImage implements Image{
   }
 
   @Override
-  public void mergePixel(int x, int y, Color c) {
-    Color c2 = getPixel(x, y);
-    c2.merge(c);
-    setPixel(x, y, c2);
-  }
-
-  @Override
   public Color getPixel(int x, int y) {
     return Utils.toJILColor(new java.awt.Color(bi.getRGB(x, y)));
   }
@@ -282,7 +279,7 @@ public class AWTImage implements Image{
     Graphics g = b.getGraphics();
     g.drawImage(bi, 0, 0, null);
     g.dispose();
-    
+
     return new AWTImage(b, this.bpp);
   }
 
@@ -290,7 +287,7 @@ public class AWTImage implements Image{
   public AWTImage cut(int x, int y, int w, int h) {
     BufferedImage bi2 = new BufferedImage(w, h, bi.getType());
     Graphics2D gi2 = bi2.createGraphics();
-    gi2.drawImage(bi, x, y, w, h, null);
+    gi2.drawImage(bi, 0, 0, x+w, y+h, null);
     gi2.dispose();
     return new AWTImage(bi2, this.bpp);
   }
@@ -348,10 +345,10 @@ public class AWTImage implements Image{
   public AWTDraw getImageDrawer() {
     return new AWTDraw(this);
   }
-  
+
   public static class AWTDraw implements Draw {
     private final AWTImage ai;
-    
+
     public AWTDraw(AWTImage ai) {
       this.ai = ai;
     }
@@ -361,7 +358,7 @@ public class AWTImage implements Image{
     @Override
     public void floodFill(int x, int y, Color c) {
       floodFill( x, y, c, null, false);
-      
+
     }
 
     @Override
@@ -417,7 +414,7 @@ public class AWTImage implements Image{
             nc.setAlpha(tmpC.getAlpha());
           }
           if(!tmpC.equals(edge) && !tmpC.equals(nc)) {
-            
+
             ai.setPixel(ce[0], ce[1], nc);
             if(ce[0]+1 < ai.getWidth()) {
               pl.add(new Integer[]{ce[0]+1, ce[1]});
@@ -440,7 +437,7 @@ public class AWTImage implements Image{
     public void fillColor(int x, int y, Color c) {
       floodFill(x, y, c, null, false);
     }
-    
+
     @Override
     public void drawRect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
       Graphics2D graph = ai.bi.createGraphics();
@@ -485,6 +482,6 @@ public class AWTImage implements Image{
       graph.drawLine(startX, startY, endX, endY);
       graph.dispose();
     }
-    
+
   }
 }
