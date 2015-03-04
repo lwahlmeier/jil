@@ -1,5 +1,7 @@
 package org.java_lcw.jil;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,13 +65,31 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()*2.55), (int)(imgRGBA.getHeight()*4.55), true, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()*2.55), (int)(imgRGB.getHeight()*4.55), true, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()*2.55), (int)(imgL.getHeight()*4.55), true, scaleType);
+    double aspect = imgRGBA.getWidth()/imgRGBA.getHeight();
+    double aspect2 = subImgRGBA.getWidth()/subImgRGBA.getHeight();
+    assertTrue(aspect == aspect2);
+    aspect = imgRGB.getWidth()/imgRGB.getHeight();
+    aspect2 = subImgRGB.getWidth()/subImgRGB.getHeight();
+    assertTrue(aspect == aspect2);
+    aspect = imgL.getWidth()/imgL.getHeight();
+    aspect2 = subImgL.getWidth()/subImgL.getHeight();
+    assertTrue(aspect == aspect2);
   }
   
   @Test
   public void AspectScaleDown() throws Exception {
-    subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()/2.55), (int)(imgRGBA.getHeight()/4.55), true, Image.ScaleType.NN);
-    subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()/2.55), (int)(imgRGB.getHeight()/4.55), true, Image.ScaleType.NN);
-    subImgL = imgL.resize((int)(imgL.getWidth()/2.55), (int)(imgL.getHeight()/4.55), true, Image.ScaleType.NN);
+    subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()/2.55), (int)(imgRGBA.getHeight()/4.55), true, scaleType);
+    subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()/2.55), (int)(imgRGB.getHeight()/4.55), true, scaleType);
+    subImgL = imgL.resize((int)(imgL.getWidth()/2.55), (int)(imgL.getHeight()/4.55), true, scaleType);
+    double aspect = imgRGBA.getWidth()/imgRGBA.getHeight();
+    double aspect2 = subImgRGBA.getWidth()/subImgRGBA.getHeight();
+    assertTrue(aspect == aspect2);
+    aspect = imgRGB.getWidth()/imgRGB.getHeight();
+    aspect2 = subImgRGB.getWidth()/subImgRGB.getHeight();
+    assertTrue(aspect == aspect2);
+    aspect = imgL.getWidth()/imgL.getHeight();
+    aspect2 = subImgL.getWidth()/subImgL.getHeight();
+    assertTrue(aspect == aspect2);
   }
   
   @Test
@@ -77,6 +97,15 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()/2.55), (int)(imgRGBA.getHeight()*4.55), true, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()/2.55), (int)(imgRGB.getHeight()*4.55), true, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()/2.55), (int)(imgL.getHeight()*4.55), true, scaleType);
+    double aspect = imgRGBA.getWidth()/imgRGBA.getHeight();
+    double aspect2 = subImgRGBA.getWidth()/subImgRGBA.getHeight();
+    assertTrue(aspect == aspect2);
+    aspect = imgRGB.getWidth()/imgRGB.getHeight();
+    aspect2 = subImgRGB.getWidth()/subImgRGB.getHeight();
+    assertTrue(aspect == aspect2);
+    aspect = imgL.getWidth()/imgL.getHeight();
+    aspect2 = subImgL.getWidth()/subImgL.getHeight();
+    assertTrue(aspect == aspect2);
   }
   
   @Test
@@ -84,5 +113,14 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()*2.55), (int)(imgRGBA.getHeight()/4.55), true, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()*2.55), (int)(imgRGB.getHeight()/4.55), true, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()*2.55), (int)(imgL.getHeight()/4.55), true, scaleType);
+    double aspect = imgRGBA.getWidth()/imgRGBA.getHeight();
+    double aspect2 = subImgRGBA.getWidth()/subImgRGBA.getHeight();
+    assertTrue(aspect == aspect2);
+    aspect = imgRGB.getWidth()/imgRGB.getHeight();
+    aspect2 = subImgRGB.getWidth()/subImgRGB.getHeight();
+    assertTrue(aspect == aspect2);
+    aspect = imgL.getWidth()/imgL.getHeight();
+    aspect2 = subImgL.getWidth()/subImgL.getHeight();
+    assertTrue(aspect == aspect2);
   }
 }

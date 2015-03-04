@@ -197,7 +197,7 @@ public class AWTImage implements Image{
     AWTImage nimg;
     BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, bi.getType());
     Graphics2D g = resizedImage.createGraphics();
-    
+
     switch(st) {
     case LINER:{
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -354,12 +354,9 @@ public class AWTImage implements Image{
       this.ai = ai;
     }
 
-
-
     @Override
     public void floodFill(int x, int y, Color c) {
       floodFill( x, y, c, null, false);
-
     }
 
     @Override

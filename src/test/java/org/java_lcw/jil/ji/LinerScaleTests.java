@@ -2,6 +2,7 @@ package org.java_lcw.jil.ji;
 
 import static org.junit.Assert.assertEquals;
 
+import org.java_lcw.jil.Color;
 import org.java_lcw.jil.Image;
 import org.java_lcw.jil.JavaImage;
 import org.java_lcw.jil.ResizeTests;
@@ -12,74 +13,77 @@ public class LinerScaleTests extends ResizeTests {
   @Override
   public void start() throws Exception {
     scaleType = Image.ScaleType.LINER;
-    imgRGBA = JavaImage.open(filename).changeMode(Image.MODE_RGBA);
-    imgRGB = JavaImage.open(filename).changeMode(Image.MODE_RGB);
-    imgL = JavaImage.open(filename).changeMode(Image.MODE_L);
+    imgRGBA = JavaImage.create(Image.MODE_RGBA, 200, 200);
+    imgRGBA.fillImageWithColor(Color.WHITE);
+    imgRGBA.getImageDrawer().drawCircle(0, 0, 50, Color.GREEN, 3, false);
+    imgRGBA.getImageDrawer().drawLine(0, 0, 200, 200, Color.GREY, 5);
+    imgRGBA.getImageDrawer().drawRect(50, 50, 250, 250, Color.RED, 5, true);
+    imgRGBA.getImageDrawer().drawCircle(100, 100, 75, Color.BLACK, 3, true);
+    imgRGB = imgRGBA.changeMode(Image.MODE_RGB);
+    imgL = imgRGBA.changeMode(Image.MODE_L);
   }
   
   @Override
   public void NoAspectScaleUp() throws Exception {
     super.NoAspectScaleUp();
-    assertEquals("79bb767de925470c83dcb4f0aa698ec4b369c102a4b612b3dc1240b70ea08d5f", TestUtils.hashByteArray(subImgRGBA.getArray()));
-    assertEquals("946a65307637418fff3291b39d0c1615ddb7d4305ce74c1c2a3d2b467bf72fd4", TestUtils.hashByteArray(subImgRGB.getArray()));
-    assertEquals("f952f9dd0be86b3c4f5d8dd74fdd526eca8499dac182a075edb41e6a0547ab73", TestUtils.hashByteArray(subImgL.getArray()));
+    assertEquals("a83d657af0677f8857f6b48615c10abfc41bc23e0e39897ed058ffa2a08f276f", TestUtils.hashByteArray(subImgRGBA.getArray()));
+    assertEquals("b94d14376b0741fba067d1e98a94f30f310e166a3327bb09a81fa5640d95ef99", TestUtils.hashByteArray(subImgRGB.getArray()));
+    assertEquals("0c3cafa02fbd5ea986eab24f6814cb3203c9b4efb31a88f96d525a87bb956239", TestUtils.hashByteArray(subImgL.getArray()));
   }
   
   @Override
   public void NoAspectScaleDown() throws Exception {
     super.NoAspectScaleDown();
-    assertEquals("66beda25aa6b4630c7daa5ec13cabcae6a0bdc1a9f5b28a0526926748f491fc5", TestUtils.hashByteArray(subImgRGBA.getArray()));
-    assertEquals("e50de8fe44ed60f73ea35c3c991416524f37905b5502602ef7d4336d183836e7", TestUtils.hashByteArray(subImgRGB.getArray()));
-    assertEquals("3bd423bfed62c7478a2093e3ac60e17c8d8c3725045b27344703bd87d21e169b", TestUtils.hashByteArray(subImgL.getArray()));
+    assertEquals("1729cd1ba3fb2f511e6831574af2af8a5d4debbbe9f162f793064e871eb40c2c", TestUtils.hashByteArray(subImgRGBA.getArray()));
+    assertEquals("54f024804ddd0ee535161f8b210a987f9bebddd389f9a0bc5597a486b62a6b9c", TestUtils.hashByteArray(subImgRGB.getArray()));
+    assertEquals("7e987527a78dd9e576e99e6b78b2340dea88e28990c2d1e64145d3b67d126e4d", TestUtils.hashByteArray(subImgL.getArray()));
   }
   
   @Override
   public void NoAspectUpHeight() throws Exception {
     super.NoAspectUpHeight();
-
-    assertEquals("89064b90f13b0f3a03227959b21d93f82d3f609d8c33fef8cbd48be4826a8831", TestUtils.hashByteArray(subImgRGBA.getArray()));
-    assertEquals("0a79ce6c3ad5f69826885aee0e561ba4ae29ee18c4259ed9c092ad4c9f98a8bb", TestUtils.hashByteArray(subImgRGB.getArray()));
-    assertEquals("f4e90210cd3f73596f1fcfd24f99e683bda9f33ae654901a34d2750b5200db74", TestUtils.hashByteArray(subImgL.getArray()));
+    assertEquals("f4c72819487a207ac573646e00d268594519a1196b59d8781c0ea045faa3d235", TestUtils.hashByteArray(subImgRGBA.getArray()));
+    assertEquals("6686713d2d44852116016b7cb01b4d5b31c7b0ff4647cc86df554b94dbe3c5ce", TestUtils.hashByteArray(subImgRGB.getArray()));
+    assertEquals("865cf9870a105ccf1bea21b15ecc57268bfe9200c3d6cd9b0cbf4f05c802d530", TestUtils.hashByteArray(subImgL.getArray()));
   }
   
   @Override
   public void NoAspectUpWidth() throws Exception {
     super.NoAspectUpWidth();
-    assertEquals("e80d19b755b010c95cc80c390cc900fe10ad9198b0d0bb60fe81f02dd4619df0", TestUtils.hashByteArray(subImgRGBA.getArray()));
-    assertEquals("8da6488d05645c85243ebd62ad2fb32f41c62ed17874aa4fa4a05ba16d450887", TestUtils.hashByteArray(subImgRGB.getArray()));
-    assertEquals("13cf505c607a12290719c2884eea73393e943600e789bf7270e3fa90df4f3bf7", TestUtils.hashByteArray(subImgL.getArray()));
+    assertEquals("964e5ecfc6215c1fc72cba5c98fb717758cfb02db0a8845680e0d0b85f1523f5", TestUtils.hashByteArray(subImgRGBA.getArray()));
+    assertEquals("e097b812104c2685cc9c087ad76fee94b7549f9a071582c5542a7124a7c20fb9", TestUtils.hashByteArray(subImgRGB.getArray()));
+    assertEquals("cf5b444c7c521deaaeaa88e30869fdffae499eaf04f48ce0ca8e5a36bcbc2895", TestUtils.hashByteArray(subImgL.getArray()));
   }
   
   @Override
   public void AspectScaleUp() throws Exception {
     super.AspectScaleUp();
-    assertEquals("1f3e198412c11f9e7210faba1be8001a835357bef0b15b74da9c4de7a5f2d219", TestUtils.hashByteArray(subImgRGBA.getArray()));
-    assertEquals("b98599e557d1b82956bbdd1d3eb1235a462b3cc1d6e2f13459742a4fd7baaf65", TestUtils.hashByteArray(subImgRGB.getArray()));
-    assertEquals("41b0de62589347abae7357088e66995ffd535f177a04b5eec90616797286ba21", TestUtils.hashByteArray(subImgL.getArray()));
+    assertEquals("321bdd044a455b06430a514c9b73b092e48eaa3e45a3f787752503305dbbcaf2", TestUtils.hashByteArray(subImgRGBA.getArray()));
+    assertEquals("060c992fa008d99233812071d841f7f651361a25bd9a58f83597c7dc4ae55934", TestUtils.hashByteArray(subImgRGB.getArray()));
+    assertEquals("dc3e5ef76de769fde71d45f26ca42dfa585662211ac56a68e5614d54af818b06", TestUtils.hashByteArray(subImgL.getArray()));
   }
   
   @Override
   public void AspectScaleDown() throws Exception {
     super.AspectScaleDown();
-    assertEquals("01c632fb3f62c68059966723be5ff7efa2220f2e91ff7ab39a60be3a603684e3", TestUtils.hashByteArray(subImgRGBA.getArray()));
-    assertEquals("08f1d1bd970a04017699513f0f9eb579918a3a76e0b2712af4a027809d580679", TestUtils.hashByteArray(subImgRGB.getArray()));
-    assertEquals("ab9ef274e64ad6042c0bb152334b0658d352894ecdc6111432d98b748a48e6c2", TestUtils.hashByteArray(subImgL.getArray()));
+    assertEquals("9bc4e50acaa071a41f1ccc68d37cbd3fd898cfe8323b471344131bb20409810b", TestUtils.hashByteArray(subImgRGBA.getArray()));
+    assertEquals("6c92a218858d34e2e9e842275cc435c6d10aaf26ded8fd707fd812e16051ee3b", TestUtils.hashByteArray(subImgRGB.getArray()));
+    assertEquals("5e454c8d9da191f5a3f181e4945020f1ac7c5ecee2a495796c3c7e0bc2262bb2", TestUtils.hashByteArray(subImgL.getArray()));
   }
   
   @Override
   public void AspectUpHeight() throws Exception {
     super.AspectUpHeight();
-
-    assertEquals("0a3adca651f7fb984dda5768ac0c0d4bc97f509f15ce2de8f5f4cdddeed712d8", TestUtils.hashByteArray(subImgRGBA.getArray()));
-    assertEquals("fcde8f29de0808ff356d84b927986829bf8e92737db938a38cb27230c9ffdad6", TestUtils.hashByteArray(subImgRGB.getArray()));
-    assertEquals("c67eaaf09e812236723b86ebcace264c21faa3f516e1b8bad8fe29c4300682bd", TestUtils.hashByteArray(subImgL.getArray()));
+    assertEquals("a160a7c1f9e67af35d1963c91cf95e8f0a58458e915a3f71d81a25888e7267fb", TestUtils.hashByteArray(subImgRGBA.getArray()));
+    assertEquals("e6600d843a5ce96b7a692b717ca7cbe9bc9abbd2ea930a71e15735bf9d7ce135", TestUtils.hashByteArray(subImgRGB.getArray()));
+    assertEquals("0ecbd45287cec6beff89089c67f1de16fc88d2a92ad6f9720b580775e91fb09b", TestUtils.hashByteArray(subImgL.getArray()));
   }
   
   @Override
   public void AspectUpWidth() throws Exception {
     super.AspectUpWidth();
-    assertEquals("0374c64553a291be14a63505ae8e9e08ee66be5b9e391b9df3b0bedc26430012", TestUtils.hashByteArray(subImgRGBA.getArray()));
-    assertEquals("24db249f0d0e062c8997e6846f9d0b9c5ba8bc3bbb6fdb77450059d578c1a58d", TestUtils.hashByteArray(subImgRGB.getArray()));
-    assertEquals("0db2b1626c8d2c96b26ef6972795a984f80134d6e017113d27cdef0fdd0437f2", TestUtils.hashByteArray(subImgL.getArray()));
+    assertEquals("9bc4e50acaa071a41f1ccc68d37cbd3fd898cfe8323b471344131bb20409810b", TestUtils.hashByteArray(subImgRGBA.getArray()));
+    assertEquals("6c92a218858d34e2e9e842275cc435c6d10aaf26ded8fd707fd812e16051ee3b", TestUtils.hashByteArray(subImgRGB.getArray()));
+    assertEquals("5e454c8d9da191f5a3f181e4945020f1ac7c5ecee2a495796c3c7e0bc2262bb2", TestUtils.hashByteArray(subImgL.getArray()));
   }
 }

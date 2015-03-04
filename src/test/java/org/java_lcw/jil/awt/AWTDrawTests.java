@@ -37,6 +37,63 @@ public class AWTDrawTests {
   }
   
   @Test
+  public void floodFillTest1() throws Exception {
+    Image img = AWTImage.create(Image.MODE_RGB, 200, 200);
+    img.fillImageWithColor(Color.WHITE);
+    img.getImageDrawer().drawRect(30, 30, 140, 140, Color.RED, 1, true);
+    img.getImageDrawer().drawRect(80, 80, 80, 80, Color.GREEN, 1, true);
+    assertEquals("63a715ea35d3509ade22d5c69f7a95077b04130e6384303f8ccd83c2578584a5", TestUtils.hashByteArray(img.getArray()));
+    //Doing this on red should not work
+    img.getImageDrawer().floodFill(78, 78, Color.BLUE, Color.RED, false);
+    assertEquals("63a715ea35d3509ade22d5c69f7a95077b04130e6384303f8ccd83c2578584a5", TestUtils.hashByteArray(img.getArray()));
+    //This changes the outside
+    img.getImageDrawer().floodFill(0, 0, Color.BLUE, Color.RED, false);
+    assertEquals("aa260abcfbe77d4a98d72c638771db8b691670510d508458ce36fabc41200ffa", TestUtils.hashByteArray(img.getArray()));
+    //Changes the inside
+    img.getImageDrawer().floodFill(81, 81, Color.BLUE, Color.RED, false);
+    assertEquals("1dee5a3950bcd1c313cc8f2b6d5e62c3a5415230236dfb33f0c8140e7b9df2ff", TestUtils.hashByteArray(img.getArray()));
+    //Change inside back
+    img.getImageDrawer().floodFill(81, 81, Color.GREEN, Color.RED, false);
+    assertEquals("aa260abcfbe77d4a98d72c638771db8b691670510d508458ce36fabc41200ffa", TestUtils.hashByteArray(img.getArray()));
+    //Change outside back to white
+    img.getImageDrawer().floodFill(0, 0, Color.WHITE, null, false);
+    assertEquals("63a715ea35d3509ade22d5c69f7a95077b04130e6384303f8ccd83c2578584a5", TestUtils.hashByteArray(img.getArray()));
+    //System.out.println(TestUtils.hashByteArray(img.getArray()));
+    //img.save("/tmp/test.png");
+  }
+  
+  @Test
+  public void floodFillTest2() throws Exception {
+    Image img = JavaImage.create(Image.MODE_RGBA, 200, 200);
+    img.fillImageWithColor(new Color(Color.MAX_BYTE, Color.MAX_BYTE, Color.MAX_BYTE, (byte)200));
+    img.getImageDrawer().drawRect(30, 30, 140, 140, Color.RED, 1, true);
+    img.getImageDrawer().drawRect(80, 80, 80, 80, Color.GREEN, 1, true);
+
+    assertEquals("e15dd57053d023c607ba264249b17897c6c918e0205a20edc1e5e245b330811e", TestUtils.hashByteArray(img.getArray()));
+    //Doing this on red should not work
+    img.getImageDrawer().floodFill(78, 78, Color.BLUE, Color.RED, true);
+
+    assertEquals("e15dd57053d023c607ba264249b17897c6c918e0205a20edc1e5e245b330811e", TestUtils.hashByteArray(img.getArray()));
+    //This changes the outside
+    img.getImageDrawer().floodFill(0, 0, Color.BLUE, Color.RED, true);
+
+    assertEquals("8a0e9327bbe083a1fbaad4f29b8df3aad0c186a11669daca5bb19e453a341a89", TestUtils.hashByteArray(img.getArray()));
+    //Changes the inside
+    img.getImageDrawer().floodFill(81, 81, Color.BLUE, Color.RED, true);
+
+    assertEquals("bcac8631c9b7f3cea4053e59ae24c7640f546a0e42f38d200766ec72c742d3d8", TestUtils.hashByteArray(img.getArray()));
+    //Change inside back
+    img.getImageDrawer().floodFill(81, 81, Color.GREEN, Color.RED, true);
+
+    assertEquals("8a0e9327bbe083a1fbaad4f29b8df3aad0c186a11669daca5bb19e453a341a89", TestUtils.hashByteArray(img.getArray()));
+    //Change outside back to white
+    img.getImageDrawer().floodFill(0, 0, Color.WHITE, null, true);
+    assertEquals("e15dd57053d023c607ba264249b17897c6c918e0205a20edc1e5e245b330811e", TestUtils.hashByteArray(img.getArray()));
+    //System.out.println(TestUtils.hashByteArray(img.getArray()));
+    //img.save("/tmp/test.png");
+  }
+  
+  @Test
   public void rectTest() throws ImageException, IOException, NoSuchAlgorithmException {
     img.getImageDrawer().drawRect(10, 10, 100, 10, Color.GREEN, 5, false);
     assertEquals("c99082a82740e9f35eddc9a582c3befd28389ab3759bf69e3d8b4e073f45a06f", TestUtils.hashByteArray(img.getArray()));

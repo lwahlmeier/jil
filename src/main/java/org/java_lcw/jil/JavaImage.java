@@ -592,10 +592,10 @@ public class JavaImage implements Image {
       int maxW = x+w;
       int maxH = y+h;
       if (ji.getWidth() < maxW) {
-        maxW = ji.getWidth() - x;
+        maxW = ji.getWidth() ;
       }
       if (ji.getHeight() < maxH) {
-        maxH = ji.getHeight() - y;
+        maxH = ji.getHeight();
       }
       if(x < 0) {
         x=0;
@@ -604,21 +604,21 @@ public class JavaImage implements Image {
         y=0;
       }
       for(int H = y; H<maxH; H++) {
-        for(int W = x;  W< maxW; W++) {
+        for(int W = x;  W<maxW; W++) {
           if(W <= (y+lineWidth)-1 || H <= (y+lineWidth)-1 || H >= maxH-lineWidth || W >= maxW-lineWidth) {
             ji.setPixel(W, H, c);
           } 
         }
       }
       if(fill) {
-        int tx = x+ w/2;
-        int ty = y+ h/2;
+        int tx = x+ lineWidth+1;
+        int ty = y+ lineWidth+1;
         floodFill(tx, ty, c, c, false);
       }
     }
     
     public void floodFill(int x, int y, Color c) {
-      floodFill( x, y, c, null, false);
+      floodFill( x, y, c, null);
     }
     
     public void floodFill(int x, int y, Color c, Color edge) {
@@ -692,7 +692,7 @@ public class JavaImage implements Image {
     }
 
     public void fillColor(int x, int y, Color c) {
-      floodFill(x,y,c, null, false);
+      floodFill(x,y,c);
     }
 
     public void drawCircle(int cx, int cy, int size, Color c, int lineWidth, boolean fill) {

@@ -1,13 +1,8 @@
 package org.java_lcw.jil;
 
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +87,7 @@ public class Utils {
   
   public static Image biCubicSmooth(Image img, int width, int height) {
     if(width > img.getWidth() || height > img.getHeight()) {
-      throw new RuntimeException("Both width and height must be less then the current image!!");
+      throw new IllegalStateException("Both width and height must be less then the current image!!");
     }
     
     int scaleFactor = 7;
@@ -122,46 +117,6 @@ public class Utils {
     }
     return resizedImg;
   }
-  
-  /*
-  public static byte[] awtResizeDownSmoothly(JavaImage img, int width, int height) {
-    if(width > img.getWidth() || height > img.getHeight()) {
-      throw new RuntimeException("width and height must be less then the current image!!");
-    }
-    
-    int scaleFactor = 7;
-    BufferedImage orig = toBufferedForScaling(img);
-    BufferedImage resizedImage;
-    while(true) {
-      int runWidth = width;
-      int runHeight = height;
-      if(orig.getWidth() > width) {
-        runWidth = orig.getWidth()-Math.max(1, (orig.getWidth()/scaleFactor)); 
-        if(runWidth < width) {
-          runWidth = width;
-        }
-      }
-      
-      if(orig.getHeight() > height) {
-        runHeight = orig.getHeight()-Math.max(1, (orig.getHeight()/scaleFactor)); 
-        if(runHeight < height) {
-          runHeight = height;
-        }
-      }
-      
-      resizedImage = new BufferedImage(runWidth, runHeight, orig.getType());
-      Graphics2D g = resizedImage.createGraphics();
-      g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-      g.drawImage(orig, 0, 0, runWidth, runHeight, null);
-      g.dispose();
-      orig.flush();
-      orig = resizedImage;
-      if(orig.getWidth() == width && orig.getHeight() == height) {
-        break;
-      }
-    }
-    return fromBufferedForScaling(resizedImage);
-  }*/
 
   public static byte[] bufferedImageToByteArray(BufferedImage bufferedImage) {
     if(bufferedImage.getType() == BufferedImage.TYPE_BYTE_GRAY) {
