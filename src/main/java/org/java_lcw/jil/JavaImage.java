@@ -68,7 +68,7 @@ public class JavaImage implements Image {
    */
   public static JavaImage create(byte mode, int width, int height, Color color) {
     JavaImage i = new JavaImage((byte)(mode), width, height);
-    i.fillColor(color);
+    i.fillImageWithColor(color);
     return i;
   }
   
@@ -301,16 +301,6 @@ public class JavaImage implements Image {
   }
   
   @Override
-  public JavaImage resize(int width, int height) {
-    return resize(width, height, true, ScaleType.NN);
-  }
-  
-  @Override
-  public JavaImage resize(int width, int height, boolean keepAspect) {
-    return resize(width, height, keepAspect, ScaleType.NN);
-  }
-  
-  @Override
   public JavaImage resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
       int[] aspect = Utils.getAspectSize(this.width, this.height, newWidth, newHeight);
@@ -325,27 +315,16 @@ public class JavaImage implements Image {
     case CUBIC:
       tmp = BiCubicScaler.scale(this, newWidth, newHeight);
       break;
+    case CUBIC_SMOOTH:
+      tmp = (JavaImage)Utils.biCubicSmooth(this, newWidth, newHeight);
     default:
       tmp = NearestNeighborScaler.scale(this, newWidth, newHeight);
     }
-    
-    /*
-     * 
-    case AWT_NN:
-      tmp = JavaImage.fromByteArray(this.bpp, newWidth, newHeight, Utils.awtResizeNN(this, newWidth, newHeight));
-      break;
-    case AWT_LINER:
-      tmp = JavaImage.fromByteArray(this.bpp, newWidth, newHeight,Utils.awtResizeLiner(this, newWidth, newHeight));
-      break;
-    case AWT_CUBIC:
-      tmp = JavaImage.fromByteArray(this.bpp, newWidth, newHeight,Utils.awtResizeBiCubic(this, newWidth, newHeight));
-      break;
-     */
     return tmp;
   }
   
   @Override
-  public void fillColor(Color c) {
+  public void fillImageWithColor(Color c) {
     if (this.bpp == 8){
       Arrays.fill(MAP, c.getGrey());
     } else if (this.bpp >= 24){

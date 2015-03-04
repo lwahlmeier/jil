@@ -188,45 +188,47 @@ public class AWTImage implements Image{
   }
 
   @Override
-  public AWTImage resize(int w, int h) {
-    return resize(w, h, true);
-  }
-
-  @Override
-  public AWTImage resize(int w, int h, boolean keepAspect) {
-    return resize(w,h,keepAspect, ScaleType.NN);
-  }
-
-  @Override
   public AWTImage resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
       int[] aspect = Utils.getAspectSize(this.width, this.height, newWidth, newHeight);
       newWidth = aspect[0];
       newHeight = aspect[1];
     }
+    AWTImage nimg;
     BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, bi.getType());
     Graphics2D g = resizedImage.createGraphics();
+    
     switch(st) {
     case LINER:{
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
       g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+      g.drawImage(bi, 0, 0, newWidth, newHeight, null);
+      g.dispose();
+      nimg = new AWTImage(resizedImage, bpp);
     } break;      
     case CUBIC:{
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+      g.drawImage(bi, 0, 0, newWidth, newHeight, null);
+      g.dispose();
+      nimg = new AWTImage(resizedImage, bpp);
     } break;
+    case CUBIC_SMOOTH:
+      nimg = (AWTImage)Utils.biCubicSmooth(this, newWidth, newHeight);
     default:{
       g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
       g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
       g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+      g.drawImage(bi, 0, 0, newWidth, newHeight, null);
+      g.dispose();
+      nimg = new AWTImage(resizedImage, bpp);
     }break;
     }
-    g.drawImage(bi, 0, 0, newWidth, newHeight, null);
-    g.dispose();
-    return new AWTImage(resizedImage, bpp);
+
+    return nimg;
   }
 
   @Override
-  public void fillColor(Color c) {
+  public void fillImageWithColor(Color c) {
     Graphics2D graphics = bi.createGraphics();
     graphics.setPaint(Utils.toAWTColor(c));
     graphics.fillRect(0, 0, width, height);
@@ -279,7 +281,6 @@ public class AWTImage implements Image{
     Graphics g = b.getGraphics();
     g.drawImage(bi, 0, 0, null);
     g.dispose();
-
     return new AWTImage(b, this.bpp);
   }
 
@@ -287,7 +288,7 @@ public class AWTImage implements Image{
   public AWTImage cut(int x, int y, int w, int h) {
     BufferedImage bi2 = new BufferedImage(w, h, bi.getType());
     Graphics2D gi2 = bi2.createGraphics();
-    gi2.drawImage(bi, 0, 0, x+w, y+h, null);
+    gi2.drawImage(bi.getSubimage(x, y, w, h), 0, 0, null);
     gi2.dispose();
     return new AWTImage(bi2, this.bpp);
   }

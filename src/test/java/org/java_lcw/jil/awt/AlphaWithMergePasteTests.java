@@ -22,7 +22,8 @@ public class AlphaWithMergePasteTests extends PasteTests {
     subImg = AWTImage.open(filename2);
     img = img.changeMode(Image.MODE_RGBA);
     subImg = subImg.changeMode(Image.MODE_RGBA);
-    subImg = subImg.toJavaImage().resize(300, 300);
+    //We move to javaImage here because we want the exact same Image used in both tests.  This is not scale/resize testing.
+    subImg = AWTImage.fromJavaImage(subImg.toJavaImage().resize(300, 300, true, Image.ScaleType.NN));
     addAlphaToImage((byte)100, subImg);
 
   }
@@ -30,7 +31,7 @@ public class AlphaWithMergePasteTests extends PasteTests {
   @Override
   public void biggerPasteImage() throws Exception {
     subImg2 = AWTImage.create(Image.MODE_RGBA, 4304, 4024).toJavaImage();
-    subImg2.fillColor(Color.BLACK);
+    subImg2.fillImageWithColor(Color.BLACK);
     addAlphaToImage((byte)100, subImg2);
     super.biggerPasteImage();
     

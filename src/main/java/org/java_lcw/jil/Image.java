@@ -34,7 +34,7 @@ public interface Image {
    * @author lcw - Luke Wahlmeier
    *
    */
-  public enum ScaleType {NN, LINER, CUBIC};
+  public enum ScaleType {NN, LINER, CUBIC, CUBIC_SMOOTH};
   
   
   /**
@@ -96,23 +96,6 @@ public interface Image {
   public Image resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st);
   
   /**
-   * This resizes the Image, uses the Nearest Neighbor scaler, and keeps aspect ratio
-   * @param width new Width
-   * @param height new Height
-   * @return new Image object of the given size
-   */
-  public Image resize(int width, int height);
-  
-  /**
-   * This resizes the Image, uses the Nearest Neighbor scaler, and keeps aspect ratio
-   * @param width new Width
-   * @param height new Height
-   * @param keepAspect boolean, true means keep aspect, false means dont keep the aspect
-   * @return new Image object of the given size
-   */
-  public Image resize(int width, int height, boolean keepAspect);
-  
-  /**
    * This resizes the Image
    * @param newWidth new Width
    * @param newHeight new Height
@@ -126,7 +109,7 @@ public interface Image {
    * Fill current Image with this color
    * @param c
    */
-  public void fillColor(Color c);
+  public void fillImageWithColor(Color c);
   
   
   /**

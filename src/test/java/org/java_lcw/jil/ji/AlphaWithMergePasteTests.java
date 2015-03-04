@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 
 import org.java_lcw.jil.Color;
+import org.java_lcw.jil.Image;
 import org.java_lcw.jil.JavaImage;
 import org.java_lcw.jil.ImageException;
 import org.java_lcw.jil.PasteTests;
@@ -19,17 +20,17 @@ public class AlphaWithMergePasteTests extends PasteTests {
     alpha = true;
     img = JavaImage.open(filename);
     subImg = JavaImage.open(filename2);
-    img = img.changeMode(JavaImage.MODE_RGBA);
-    subImg = subImg.changeMode(JavaImage.MODE_RGBA);
-    subImg = subImg.resize(300, 300);
+    img = img.changeMode(Image.MODE_RGBA);
+    subImg = subImg.changeMode(Image.MODE_RGBA);
+    subImg = subImg.resize(300, 300, true, Image.ScaleType.NN);
     addAlphaToImage((byte)100, subImg);
 
   }
   
   @Override
   public void biggerPasteImage() throws Exception {
-    subImg2 = JavaImage.create(JavaImage.MODE_RGBA, 4304, 4024);
-    subImg2.fillColor(Color.BLACK);
+    subImg2 = JavaImage.create(Image.MODE_RGBA, 4304, 4024);
+    subImg2.fillImageWithColor(Color.BLACK);
     addAlphaToImage((byte)100, subImg2);
     super.biggerPasteImage();
     assertEquals("6fcad6c545c1c4726dd048edfde9651541ec63d296e310da77f7a0a0e1babf2d", TestUtils.hashByteArray(img.getArray()));
