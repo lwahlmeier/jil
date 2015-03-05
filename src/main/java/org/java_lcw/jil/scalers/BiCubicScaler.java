@@ -1,25 +1,25 @@
 package org.java_lcw.jil.scalers;
 
 import org.java_lcw.jil.Color;
-import org.java_lcw.jil.JavaImage;
+import org.java_lcw.jil.JilImage;
 
 public class BiCubicScaler {
-  private JavaImage srcImage;
+  private JilImage srcImage;
   private byte[] srcImageArray;
     
   private BiCubicScaler() {
     
   }
   
-  public static JavaImage scale(JavaImage srcImage, int newWidth, int newHeight) {
+  public static JilImage scale(JilImage srcImage, int newWidth, int newHeight) {
     BiCubicScaler tmp = new BiCubicScaler();
     tmp.srcImage = srcImage;
     tmp.srcImageArray = srcImage.getArray();
     return tmp.doScale(newWidth, newHeight);
   }
   
-  private JavaImage doScale(int newWidth, int newHeight){
-    JavaImage newImage = JavaImage.create(srcImage.getBPP(), newWidth, newHeight);
+  private JilImage doScale(int newWidth, int newHeight){
+    JilImage newImage = JilImage.create(srcImage.getBPP(), newWidth, newHeight);
     float x_ratio = ((float)(srcImage.getWidth()))/newWidth ;
     float y_ratio = ((float)(srcImage.getHeight()))/newHeight ;
     float x_diff, y_diff;

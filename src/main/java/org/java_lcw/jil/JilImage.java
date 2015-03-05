@@ -20,7 +20,7 @@ import org.java_lcw.jil.scalers.NearestNeighborScaler;
  * 
  * @author lcw - Luke Wahlmeier
  */
-public class JavaImage implements Image {
+public class JilImage implements Image {
   
   private final int width;
   private final int height;
@@ -28,7 +28,7 @@ public class JavaImage implements Image {
   private final byte colors;
   protected byte[] MAP;
   
-  private JavaImage(byte mode, int width, int height) {
+  private JilImage(byte mode, int width, int height) {
     colors = (byte) (mode/8);
     int size = colors*width*height;
     MAP = new byte[size];
@@ -37,7 +37,7 @@ public class JavaImage implements Image {
     this.bpp = mode;
   }
   
-  private JavaImage(byte mode, int width, int height, byte[] map) {
+  private JilImage(byte mode, int width, int height, byte[] map) {
     colors = (byte) (mode/8);
     MAP = map;
     this.width = width;
@@ -53,8 +53,8 @@ public class JavaImage implements Image {
    * @param height How high the Image should be in pixels
    * @return Returns an Image object
    */
-  public static JavaImage create(byte mode, int width, int height) {
-    return new JavaImage((byte)(mode), width, height);
+  public static JilImage create(byte mode, int width, int height) {
+    return new JilImage((byte)(mode), width, height);
   }
   
   /**
@@ -66,8 +66,8 @@ public class JavaImage implements Image {
    * @param color default color to set for the image
    * @return Returns an Image object
    */
-  public static JavaImage create(byte mode, int width, int height, Color color) {
-    JavaImage i = new JavaImage((byte)(mode), width, height);
+  public static JilImage create(byte mode, int width, int height, Color color) {
+    JilImage i = new JilImage((byte)(mode), width, height);
     i.fillImageWithColor(color);
     return i;
   }
@@ -83,13 +83,13 @@ public class JavaImage implements Image {
    * @return Returns an Image object with the provided byte[] set in it
    * @throws ImageException This happens if the data provided is to large or to small for the (mode/8)*width*height
    */
-  public static JavaImage fromByteArray(byte mode, int width, int height, byte[] data) {
+  public static JilImage fromByteArray(byte mode, int width, int height, byte[] data) {
     
     byte cBytes = (byte)(mode/8);
     if(data.length != (width*height*cBytes)){
       throw new RuntimeException("Incorrect number of bytes to make an image of that type");
     }
-    JavaImage image = new JavaImage(mode, width, height, data);
+    JilImage image = new JilImage(mode, width, height, data);
     return image;
   }
   
@@ -100,7 +100,7 @@ public class JavaImage implements Image {
    * @throws ImageException This can happen if we do not know the type of file we where asked to open.
    * @throws IOException This happens when we can not access the file.
    */
-  public static JavaImage open(String filename) throws ImageException, IOException {
+  public static JilImage open(String filename) throws ImageException, IOException {
     try {
       return open(filename, Utils.getImageType(filename));
     } catch(ImageException e) {
@@ -123,8 +123,8 @@ public class JavaImage implements Image {
    * @throws IOException This happens when we can not access the file.
    * 
    */
-  public static JavaImage open(String filename, ImageType type) throws IOException, ImageException {
-    JavaImage image;
+  public static JilImage open(String filename, ImageType type) throws IOException, ImageException {
+    JilImage image;
     switch(type) {
     case TIFF:
       image = TiffFile.open(filename);
@@ -147,16 +147,16 @@ public class JavaImage implements Image {
    * @return returns an Image object based from the BufferedImage
    * @throws ImageException This happens if there is something wrong with the BufferedImage
    */
-  public static JavaImage fromBufferedImage(BufferedImage BI) {
-    JavaImage img;
+  public static JilImage fromBufferedImage(BufferedImage BI) {
+    JilImage img;
     if (BI.getType() == BufferedImage.TYPE_BYTE_GRAY) {
-      img = JavaImage.fromByteArray(MODE_L, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+      img = JilImage.fromByteArray(MODE_L, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
     } else if(BI.getType() == BufferedImage.TYPE_4BYTE_ABGR) {
-      img = JavaImage.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+      img = JilImage.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
     } else if(BI.getType() == BufferedImage.TYPE_3BYTE_BGR) {
-      img = JavaImage.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI)).changeMode(MODE_RGB);
+      img = JilImage.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI)).changeMode(MODE_RGB);
     } else {
-      img = JavaImage.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
+      img = JilImage.fromByteArray(MODE_RGBA, BI.getWidth(), BI.getHeight(), Utils.bufferedImageToByteArray(BI));
     }
     return img;
   }
@@ -232,11 +232,11 @@ public class JavaImage implements Image {
   }
 
   @Override
-  public JavaImage changeMode(byte MODE) {
+  public JilImage changeMode(byte MODE) {
     if (MODE == this.bpp) {
       return this;
     } 
-    JavaImage image = JavaImage.create(MODE, width, height);      
+    JilImage image = JilImage.create(MODE, width, height);      
     if (MODE == 8) {
       int avg;
       for (int x = 0; x < image.MAP.length; x++){
@@ -284,10 +284,10 @@ public class JavaImage implements Image {
   }
   
   @Override
-  public JavaImage resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st) {
-    JavaImage ib = JavaImage.create(this.bpp, bWidth, bHeight, borderColor);
+  public JilImage resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st) {
+    JilImage ib = JilImage.create(this.bpp, bWidth, bHeight, borderColor);
     
-    JavaImage newI = resize(bWidth, bHeight, true, st);
+    JilImage newI = resize(bWidth, bHeight, true, st);
     
     if(newI.getHeight() == ib.getHeight()) {
       int pos = (ib.getWidth()/2) - (newI.getWidth()/2);
@@ -301,13 +301,13 @@ public class JavaImage implements Image {
   }
   
   @Override
-  public JavaImage resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
+  public JilImage resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
       int[] aspect = Utils.getAspectSize(this.width, this.height, newWidth, newHeight);
       newWidth = aspect[0];
       newHeight = aspect[1];
     }
-    JavaImage tmp;
+    JilImage tmp;
     switch(st) {
     case LINER:
       tmp = BiLinearScaler.scale(this, newWidth, newHeight);
@@ -316,7 +316,7 @@ public class JavaImage implements Image {
       tmp = BiCubicScaler.scale(this, newWidth, newHeight);
       break;
     case CUBIC_SMOOTH:
-      tmp = (JavaImage)Utils.biCubicSmooth(this, newWidth, newHeight);
+      tmp = (JilImage)Utils.biCubicSmooth(this, newWidth, newHeight);
     default:
       tmp = NearestNeighborScaler.scale(this, newWidth, newHeight);
     }
@@ -493,15 +493,15 @@ public class JavaImage implements Image {
   
   
   @Override
-  public JavaImage copy() {
-    JavaImage newImage = JavaImage.create(this.bpp, width, height);
+  public JilImage copy() {
+    JilImage newImage = JilImage.create(this.bpp, width, height);
     System.arraycopy(MAP, 0, newImage.MAP, 0, MAP.length);
     return newImage;
   }
   
   @Override
-  public JavaImage cut(int x, int y, int width, int height) {
-    JavaImage newImage = JavaImage.create(this.bpp, width, height);
+  public JilImage cut(int x, int y, int width, int height) {
+    JilImage newImage = JilImage.create(this.bpp, width, height);
     
       for(int yy = 0; yy< height; yy++) {
         int startPos = (((y+yy)*this.width)+x)*(this.colors);
@@ -548,7 +548,7 @@ public class JavaImage implements Image {
   }
   
   @Override
-  public JavaImage toJavaImage() {
+  public JilImage toJavaImage() {
     return this;
   }
 
@@ -580,9 +580,9 @@ public class JavaImage implements Image {
         gaussSimilarity[i] = Math.exp(-((i) / twoSigmaRSquared));
       }
     }
-    private final JavaImage ji;
+    private final JilImage ji;
     
-    public JavaDraw(JavaImage ji) {
+    public JavaDraw(JilImage ji) {
       this.ji = ji;
     }
 
@@ -625,6 +625,7 @@ public class JavaImage implements Image {
       floodFill( x, y, c, edge, false);
     }
 
+    @Override
     public void floodFill(int x, int y, Color c, Color edge, boolean keepAlpha) {
       if(x < 0 || x >= ji.getWidth()) {
         return;
@@ -691,10 +692,12 @@ public class JavaImage implements Image {
       }
     }
 
+    @Override
     public void fillColor(int x, int y, Color c) {
       floodFill(x,y,c);
     }
 
+    @Override
     public void drawCircle(int cx, int cy, int size, Color c, int lineWidth, boolean fill) {
       int r = size/2;
       int points = Math.max(r/16, 5);
@@ -715,20 +718,17 @@ public class JavaImage implements Image {
         drawCircle(cx, cy, size, c, 1, false);
       }
     }
-    
-    public void drawLine(int startX, int startY, int endX, int endY, Color c, int lineWidth) {
-      drawLine(startX, startY, endX, endY, c, lineWidth, false);
-    }
 
+    @Override
     public void drawLine(int x, int y, int x2, int y2, Color c, int lineWidth, boolean alphaMerge) {
       List<int[]> pxlist = Utils.lineToList(x, y, x2, y2);
-      JavaImage newImg = ji;
-      JavaImage circle = null;
+      JilImage newImg = ji;
+      JilImage circle = null;
       
       if(lineWidth > 1) {
-        newImg = JavaImage.create(JavaImage.MODE_RGBA, ji.getWidth(), ji.getHeight());  
+        newImg = JilImage.create(JilImage.MODE_RGBA, ji.getWidth(), ji.getHeight());  
         if(circle == null) {
-          circle = JavaImage.create(JavaImage.MODE_RGBA, lineWidth+1, lineWidth+1);
+          circle = JilImage.create(JilImage.MODE_RGBA, lineWidth+1, lineWidth+1);
           circle.getImageDrawer().drawCircle((lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
         }
       }

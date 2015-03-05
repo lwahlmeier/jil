@@ -9,7 +9,7 @@ import org.java_lcw.jil.AWTImage;
 import org.java_lcw.jil.Color;
 import org.java_lcw.jil.Image;
 import org.java_lcw.jil.ImageException;
-import org.java_lcw.jil.JavaImage;
+import org.java_lcw.jil.JilImage;
 import org.java_lcw.jil.TestUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -26,9 +26,9 @@ public class AWTDrawTests {
   @Before
   public void start() throws ImageException, IOException {
     img = AWTImage.open(filename);
-    img200 = AWTImage.create(JavaImage.MODE_RGB, 200, 200);
-    img400 = AWTImage.create(JavaImage.MODE_RGB, 400, 400);
-    img400a = AWTImage.create(JavaImage.MODE_RGBA, 400, 400);
+    img200 = AWTImage.create(JilImage.MODE_RGB, 200, 200);
+    img400 = AWTImage.create(JilImage.MODE_RGB, 400, 400);
+    img400a = AWTImage.create(JilImage.MODE_RGBA, 400, 400);
   }
   
   @After
@@ -64,7 +64,7 @@ public class AWTDrawTests {
   
   @Test
   public void floodFillTest2() throws Exception {
-    Image img = JavaImage.create(Image.MODE_RGBA, 200, 200);
+    Image img = JilImage.create(Image.MODE_RGBA, 200, 200);
     img.fillImageWithColor(new Color(Color.MAX_BYTE, Color.MAX_BYTE, Color.MAX_BYTE, (byte)200));
     img.getImageDrawer().drawRect(30, 30, 140, 140, Color.RED, 1, true);
     img.getImageDrawer().drawRect(80, 80, 80, 80, Color.GREEN, 1, true);
@@ -143,19 +143,19 @@ public class AWTDrawTests {
     
     //Horizontal line all the way through
     c = new Color((byte)200,(byte)12,(byte)100);
-    img400.getImageDrawer().drawLine(-100, 200, 500, 200, c, 5);
+    img400.getImageDrawer().drawLine(-100, 200, 500, 200, c, 5, false);
     
     //Vertical line all the way through
     c = new Color((byte)142,(byte)114,(byte)176);
-    img400.getImageDrawer().drawLine(200, -100, 200, 500, c, 5);
+    img400.getImageDrawer().drawLine(200, -100, 200, 500, c, 5, false);
     
     //left to right line all the way through
     c = new Color((byte)44,(byte)214,(byte)55);
-    img400.getImageDrawer().drawLine(-100, -100, 500, 500, c, 5);
+    img400.getImageDrawer().drawLine(-100, -100, 500, 500, c, 5, false);
     
     //right to left line all the way through
     c = new Color((byte)144,(byte)114,(byte)55);
-    img400.getImageDrawer().drawLine( 500, -100, -100, 500, c, 5);
+    img400.getImageDrawer().drawLine( 500, -100, -100, 500, c, 5, false);
     //System.out.println(TestUtils.hashByteArray(img400.getArray()));
     assertEquals("afd9aa1ebd1fd64ede7cb78887cff1785fb454c3b4c2cf69f442f49469770160", TestUtils.hashByteArray(img400.getArray()));
   }

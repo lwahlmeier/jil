@@ -115,14 +115,14 @@ public class TiffFile {
   }
     
   
-  public static JavaImage open(String filename) throws IOException, ImageException{
+  public static JilImage open(String filename) throws IOException, ImageException{
     RandomAccessFile file = new RandomAccessFile(filename, "r");
     Endianness bt = getType(file);
     TiffDirectory td = getTiffDirectory(bt, file);
     file.seek(td.getImageOffset());
     byte[] data = new byte[td.getHeight()*td.getWidth()*3];
     file.read(data);
-    return JavaImage.fromByteArray(JavaImage.MODE_RGB, td.getWidth(), td.getHeight(), data);
+    return JilImage.fromByteArray(JilImage.MODE_RGB, td.getWidth(), td.getHeight(), data);
   }
   
   public static void save(String saveTo, Image image) throws IOException, ImageException {

@@ -1,13 +1,13 @@
 package org.java_lcw.jil.scalers;
 
-import org.java_lcw.jil.JavaImage;
+import org.java_lcw.jil.JilImage;
 
 public class NearestNeighborScaler {
   private NearestNeighborScaler() {
   }
   
-  public static JavaImage scale(JavaImage srcImage, int newWidth, int newHeight) {
-    JavaImage newImage = JavaImage.create(srcImage.getBPP(), newWidth, newHeight);
+  public static JilImage scale(JilImage srcImage, int newWidth, int newHeight) {
+    JilImage newImage = JilImage.create(srcImage.getBPP(), newWidth, newHeight);
     float x_ratio = srcImage.getWidth()/(float)newWidth;
     float y_ratio = srcImage.getHeight()/(float)newHeight;
     int px = 0;

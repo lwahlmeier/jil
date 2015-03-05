@@ -14,7 +14,6 @@ import org.java_lcw.jil.AWTImage;
 import org.java_lcw.jil.Color;
 import org.java_lcw.jil.Image;
 import org.java_lcw.jil.ImageException;
-import org.java_lcw.jil.JavaImage;
 import org.java_lcw.jil.TestUtils;
 import org.junit.Test;
 

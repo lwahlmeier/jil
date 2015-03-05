@@ -14,14 +14,14 @@ public class PngFile {
   private PngFile(){
   }
   
-  public static JavaImage open(InputStream is) throws IOException, ImageException {
+  public static JilImage open(InputStream is) throws IOException, ImageException {
     BufferedImage bi = ImageIO.read(is);
-    return JavaImage.fromBufferedImage(bi);
+    return JilImage.fromBufferedImage(bi);
   }
   
-  public static JavaImage open(String filename) throws IOException, ImageException {
+  public static JilImage open(String filename) throws IOException, ImageException {
     File file = new File(filename);
-    return JavaImage.fromBufferedImage(ImageIO.read(file));    
+    return JilImage.fromBufferedImage(ImageIO.read(file));    
   }
   
   public static void save(String saveTo, Image image) throws IOException, ImageException {

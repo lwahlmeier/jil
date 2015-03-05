@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Random;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +55,7 @@ public abstract class CutAndCopyTests {
     subImg = img.copy();
     subImg2 = subImg.cut(200, 200, 200, 200);
     assertTrue(Arrays.equals(img.getArray(), subImg.getArray()));
-    img.getImageDrawer().drawLine(0, 0, 200, 200, Color.BLACK, 5);
+    img.getImageDrawer().drawLine(0, 0, 200, 200, Color.BLACK, 5, false);
     assertTrue(!Arrays.equals(img.getArray(), subImg.getArray()));
   }
 

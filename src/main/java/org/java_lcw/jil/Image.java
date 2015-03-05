@@ -71,7 +71,7 @@ public interface Image {
    */
   public void save(String filename, ImageType type) throws IOException, ImageException;
   
-  public JavaImage toJavaImage();
+  public JilImage toJavaImage();
   
   /**
    * Change the MODE of the current Image. Use the static MODE_ types

@@ -16,7 +16,7 @@ public class NNScaleTests extends ResizeTests{
     imgRGBA = AWTImage.create(Image.MODE_RGBA, 200, 200);
     imgRGBA.fillImageWithColor(Color.WHITE);
     imgRGBA.getImageDrawer().drawCircle(0, 0, 50, Color.GREEN, 3, false);
-    imgRGBA.getImageDrawer().drawLine(0, 0, 200, 200, Color.GREY, 5);
+    imgRGBA.getImageDrawer().drawLine(0, 0, 200, 200, Color.GREY, 5, false);
     imgRGBA.getImageDrawer().drawRect(50, 50, 250, 250, Color.RED, 5, true);
     imgRGBA.getImageDrawer().drawCircle(100, 100, 75, Color.BLACK, 3, true);
     imgRGB = imgRGBA.changeMode(Image.MODE_RGB);

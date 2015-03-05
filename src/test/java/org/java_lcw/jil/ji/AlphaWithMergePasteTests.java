@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.java_lcw.jil.Color;
 import org.java_lcw.jil.Image;
-import org.java_lcw.jil.JavaImage;
+import org.java_lcw.jil.JilImage;
 import org.java_lcw.jil.ImageException;
 import org.java_lcw.jil.PasteTests;
 import org.java_lcw.jil.TestUtils;
@@ -18,8 +18,8 @@ public class AlphaWithMergePasteTests extends PasteTests {
   @Before
   public void start() throws ImageException, IOException{
     alpha = true;
-    img = JavaImage.open(filename);
-    subImg = JavaImage.open(filename2);
+    img = JilImage.open(filename);
+    subImg = JilImage.open(filename2);
     img = img.changeMode(Image.MODE_RGBA);
     subImg = subImg.changeMode(Image.MODE_RGBA);
     subImg = subImg.resize(300, 300, true, Image.ScaleType.NN);
@@ -29,7 +29,7 @@ public class AlphaWithMergePasteTests extends PasteTests {
   
   @Override
   public void biggerPasteImage() throws Exception {
-    subImg2 = JavaImage.create(Image.MODE_RGBA, 4304, 4024);
+    subImg2 = JilImage.create(Image.MODE_RGBA, 4304, 4024);
     subImg2.fillImageWithColor(Color.BLACK);
     addAlphaToImage((byte)100, subImg2);
     super.biggerPasteImage();

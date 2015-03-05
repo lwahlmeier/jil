@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.java_lcw.jil.Color;
 import org.java_lcw.jil.Image;
-import org.java_lcw.jil.JavaImage;
+import org.java_lcw.jil.JilImage;
 import org.java_lcw.jil.ResizeTests;
 import org.java_lcw.jil.TestUtils;
 
@@ -13,10 +13,10 @@ public class CubicScaleTests extends ResizeTests{
   @Override
   public void start() throws Exception {
     scaleType = Image.ScaleType.CUBIC;
-    imgRGBA = JavaImage.create(Image.MODE_RGBA, 200, 200);
+    imgRGBA = JilImage.create(Image.MODE_RGBA, 200, 200);
     imgRGBA.fillImageWithColor(Color.WHITE);
     imgRGBA.getImageDrawer().drawCircle(0, 0, 50, Color.GREEN, 3, false);
-    imgRGBA.getImageDrawer().drawLine(0, 0, 200, 200, Color.GREY, 5);
+    imgRGBA.getImageDrawer().drawLine(0, 0, 200, 200, Color.GREY, 5, false);
     imgRGBA.getImageDrawer().drawRect(50, 50, 250, 250, Color.RED, 5, true);
     imgRGBA.getImageDrawer().drawCircle(100, 100, 75, Color.BLACK, 3, true);
     imgRGB = imgRGBA.changeMode(Image.MODE_RGB);
