@@ -7,13 +7,13 @@ import org.junit.Test;
 
 
 public abstract class PasteTests {
-  Random rnd = new Random();
-  Image img;
-  Image subImg;
-  Image subImg2;
-  boolean alpha = false;
-  String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
-  String filename2 = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
+  public Random rnd = new Random();
+  public Image img;
+  public Image subImg;
+  public Image subImg2;
+  public boolean alpha = false;
+  public String filename = ClassLoader.getSystemClassLoader().getResource("resources/testImage3.png").getFile();
+  public String filename2 = ClassLoader.getSystemClassLoader().getResource("resources/testImage2.png").getFile();
   
   public abstract void start() throws Exception;
   
@@ -34,42 +34,74 @@ public abstract class PasteTests {
   
   @Test
   public void normal() throws Exception {
-    img.paste(100, 100, subImg, alpha);
+    if(alpha) {
+      img.merge(100, 100, subImg);
+    } else {
+      img.paste(100, 100, subImg);
+    }
   }
   
   @Test
   public void biggerPasteImage() throws Exception {
-    img.paste(-1280, -50, subImg2, alpha);
+    if(alpha) {
+      img.merge(-1280, -50, subImg2);
+    } else {
+      img.paste(-1280, -50, subImg2);
+    }
   }
   
   @Test
   public void underShootY() throws Exception {
-    img.paste(100, -100, subImg, alpha);
+    if(alpha) {
+      img.merge(100, -100, subImg);
+    } else {
+      img.paste(100, -100, subImg);
+    }
   }
   
   @Test
   public void underShootX() throws Exception {
-    img.paste(-100, 100, subImg, alpha);
+    if(alpha) {
+      img.merge(-100, 100, subImg);
+    } else {
+      img.paste(-100, 100, subImg);
+    }
   }
   
   @Test
   public void overShootX() throws Exception {
-    img.paste(1100, 100, subImg, alpha);
+    if(alpha) {
+      img.merge(1100, 100, subImg);
+    } else {
+      img.paste(1100, 100, subImg);
+    }
   }
   
   @Test
   public void overShootY() throws Exception {
-    img.paste(100, 750, subImg, alpha);
+    if(alpha) {
+      img.merge(100, 750, subImg);
+    } else {
+      img.paste(100, 750, subImg);
+    }
   }
   
   @Test
   public void overShootBoth() throws Exception {
-    img.paste(1100, 750, subImg, alpha);
+    if(alpha) {
+      img.merge(1100, 750, subImg);
+    } else {
+      img.paste(1100, 750, subImg);
+    }
   }
   
   @Test
   public void underShootBoth() throws Exception {
-    img.paste(-100, -100, subImg, alpha);
+    if(alpha) {
+      img.merge(-100, -100, subImg);
+    } else {
+      img.paste(-100, -100, subImg);
+    }
   }
   
   

@@ -7,29 +7,27 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
-import org.java_lcw.jil.Image.ImageException;
+import org.java_lcw.jil.ImageException;
 
 public class JpegFile {
   private JpegFile(){
   }
   
-  public static Image open(InputStream is) throws IOException, ImageException {
+  public static JilImage open(InputStream is) throws IOException, ImageException {
     BufferedImage bi = ImageIO.read(is);
-    return Image.fromBufferedImage(bi);
+    return JilImage.fromBufferedImage(bi);
   }
   
-  public static Image open(String filename) throws IOException, ImageException {
+  public static JilImage open(String filename) throws IOException, ImageException {
     File file = new File(filename);
-    return Image.fromBufferedImage(ImageIO.read(file));    
+    return JilImage.fromBufferedImage(ImageIO.read(file));    
   }
   
   public static void save(String saveTo, Image image) throws IOException, ImageException {
     File file = new File(saveTo);
     //Have to convert Image to an RGB only
     BufferedImage tmp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-    tmp.getGraphics().drawImage(image.toBufferedImage(), 0, 0, null);
+    tmp.getGraphics().drawImage(image.toJavaImage().toBufferedImage(), 0, 0, null);
     ImageIO.write(tmp, "jpeg", file);
   }
-  
-
 }

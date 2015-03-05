@@ -7,8 +7,8 @@ package org.java_lcw.jil;
  *
  */
 public class Color implements Comparable<Color> {
-  private static final byte MAX_BYTE = (byte)255;
-  private static final byte EMPTY_BYTE = (byte)0;
+  public static final byte MAX_BYTE = (byte)255;
+  public static final byte EMPTY_BYTE = (byte)0;
   
   public static final Color BLACK = new Color(EMPTY_BYTE);
   public static final Color WHITE = new Color(MAX_BYTE);
