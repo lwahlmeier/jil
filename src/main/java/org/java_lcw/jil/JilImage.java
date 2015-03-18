@@ -81,7 +81,6 @@ public class JilImage implements Image {
    * @param height How high the Image should be in pixels
    * @param data byte[] to use to loading the data
    * @return Returns an Image object with the provided byte[] set in it
-   * @throws ImageException This happens if the data provided is to large or to small for the (mode/8)*width*height
    */
   public static JilImage fromByteArray(byte mode, int width, int height, byte[] data) {
     
@@ -145,7 +144,6 @@ public class JilImage implements Image {
    * Create an Image from a BufferedImage from AWT - The new Image will always be RGBA type
    * @param BI BufferedImage to use to make the Image object
    * @return returns an Image object based from the BufferedImage
-   * @throws ImageException This happens if there is something wrong with the BufferedImage
    */
   public static JilImage fromBufferedImage(BufferedImage BI) {
     JilImage img;
@@ -195,8 +193,7 @@ public class JilImage implements Image {
 
   /**
    * Take the current Image object and make a BufferedImage out of it.  This is always of TYPE_INT_ARGB. 
-   * @return BufferedImage
-   * @throws ImageException
+   * @return BufferedImage the JILImage as a BufferedImage.
    */
   public BufferedImage toBufferedImage() {
     if(this.bpp == 8) {
