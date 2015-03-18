@@ -26,37 +26,32 @@ public class Color implements Comparable<Color> {
 
   /**
    * Construct the color with RGB values set
-   * @param red
-   * @param green
-   * @param blue
+   * @param red red color level
+   * @param green green color level
+   * @param blue blue color level
    */
   public Color(byte red, byte green, byte blue) {
     setRGB((byte) red, (byte) green, (byte) blue);
   }
   /**
    * Construct the color with RGBA values set
-   * @param red
-   * @param green
-   * @param blue
-   * @param alpha
+   * @param red red color level
+   * @param green green color level
+   * @param blue blue color level
+   * @param alpha alpha level
    */
   public Color(byte red, byte green, byte blue, byte alpha) {
     setRGBA((byte) red, (byte) green, (byte) blue, (byte)alpha);
   }
-  
-  /**
-   * Construct the color object with an int thats ARGB
-   * @param color
-   */
-
 
   /**
    * Construct the color with grey values set
-   * @param grey
+   * @param grey grey color level.
    */
   public Color(byte grey) {
     setL((byte) grey);
   }
+  
   /**
    * Construct a Color object with no colors set (everything is 0)
    */
@@ -110,7 +105,7 @@ public class Color implements Comparable<Color> {
 
   /**
    * Set the blue value on this color object
-   * @param b
+   * @param b blue color level to set
    */
   public void setBlue(byte b) {
     blue = b;
@@ -122,7 +117,7 @@ public class Color implements Comparable<Color> {
 
   /**
    * Set the Red value on this color object
-   * @param r
+   * @param r red color level to set
    */
   public void setRed(byte r) {
     red = r;
@@ -134,7 +129,7 @@ public class Color implements Comparable<Color> {
 
   /**
    * Set the green value on this color object
-   * @param g
+   * @param g green color level to set
    */
   public void setGreen(byte g) {
     green = g;
@@ -146,7 +141,7 @@ public class Color implements Comparable<Color> {
 
   /**
    * Set the alpha value on this color object
-   * @param a
+   * @param a alpha level to set
    */
   public void setAlpha(byte a) {
     alpha = a;
@@ -157,9 +152,9 @@ public class Color implements Comparable<Color> {
   }
   /**
    * Set the RGB Value on this Color Object
-   * @param r
-   * @param g
-   * @param b
+   * @param r red color level to set
+   * @param g green color level to set
+   * @param b blue color level to set
    */
   public void setRGB(byte r, byte g, byte b) {
     red = r;
@@ -171,10 +166,10 @@ public class Color implements Comparable<Color> {
   
   /**
    * Set the RGBA Value on this Color Object
-   * @param r
-   * @param g
-   * @param b
-   * @param a
+   * @param r red color level to set
+   * @param g green color level to set
+   * @param b blue color level to set
+   * @param a alpha level to set
    */
   public void setRGBA(byte r, byte g, byte b, byte a) {
     red = r;
@@ -186,7 +181,7 @@ public class Color implements Comparable<Color> {
 
   /**
    * Set the Grey value on this Color Object
-   * @param g
+   * @param g grey level to set
    */
   public void setGrey(byte g) {
     setL(g);
@@ -205,7 +200,7 @@ public class Color implements Comparable<Color> {
   
   /**
    * Set the grey value on this color object(overrides all rgb values)
-   * @param g
+   * @param g grey level to set
    */
   public void setL(byte g) {
     red = g;

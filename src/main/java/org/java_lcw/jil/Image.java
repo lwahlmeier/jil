@@ -30,7 +30,7 @@ public interface Image {
    * NN      - Nearest Neighbor - Very fast but kind somewhat noticeable scaler (Default).
    * LINER   - This is BiLiner, its very fast and descent quality.
    * CUBIC   - This is BiCubic, its looks very good in most situations but is a little slower.
-   * LANCZOS - This one has the highest Quality but is pretty slow. 
+   * CUBIC_SMOOTH - This is only for downscaling but has the highest Quality but is pretty slow. 
    * @author lcw - Luke Wahlmeier
    *
    */
@@ -43,7 +43,7 @@ public interface Image {
    * @throws IOException This happens if we can not save/open that file
    * @throws ImageException This happens if we can not figure out the type you want use to save as 
    */
-  public void save(String file) throws IOException, ImageException;
+  public void save(String filename) throws IOException, ImageException;
   
   /**
    * Save the image to the given file name.  We determine the type based on the file extension (required) 
@@ -82,34 +82,34 @@ public interface Image {
    * @param MODE Sets the Image.MODE_ to change to 
    * @return Returns a new Image Object in that mode (Caution current Image object should be discarded
    * as changes to it could effect the new Image Object 
-   * @throws ImageException
    */
   public Image changeMode(byte MODE);
   
   /**
    * This resizes the Image keeping its aspect then adds a border to it if it is not the set width/height
-   * @param bWidth new Width
-   * @param bHeight new Height
-   * @param borderColor new Height
+   * @param bWidth new Width.
+   * @param bHeight new Height.
+   * @param borderColor new Height.
+   * @param scaleType the type of scaling to do.
    * @return new Image object of the given size
    */
-  public Image resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st);
+  public Image resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType scaleType);
   
   /**
    * This resizes the Image
    * @param newWidth new Width
    * @param newHeight new Height
    * @param keepAspect boolean, true means keep aspect, false means dont keep the aspect
-   * @param st ScaleType to use (see Image.ScaleTypes)
+   * @param scaleType ScaleType to use (see Image.ScaleTypes)
    * @return new Image object of the given size
    */
-  public Image resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st);
+  public Image resize(int newWidth, int newHeight, boolean keepAspect, ScaleType scaleType);
   
   /**
    * Fill current Image with this color
-   * @param c
+   * @param color color to set the image to.
    */
-  public void fillImageWithColor(Color c);
+  public void fillImageWithColor(Color color);
   
   
   /**
@@ -136,7 +136,6 @@ public interface Image {
    * @param x X position to start the merge
    * @param y Y position to start the merge
    * @param img Image object to merge
-   * @throws ImageException
    */
   public void paste(int x, int y, Image img);
   
@@ -147,12 +146,23 @@ public interface Image {
    * @param x X position to start the merge
    * @param y Y position to start the merge
    * @param img Image object to merge
-   * @throws ImageException
    */
   public void merge(int x, int y, Image img);
   
+  /**
+   * Copies the image.  This image object will be unique from the original.
+   * @return the new Image object.
+   */
   public Image copy();
   
+  /**
+   * Cuts a section of the image to a new image.  Modifications to the new image will not apply to the old one.
+   * @param x the x position to start at
+   * @param y the y position to start at
+   * @param width the width of the cut
+   * @param height the height of the cut
+   * @return the new Image
+   */
   public Image cut(int x, int y, int width, int height);
   
   /**
@@ -186,5 +196,10 @@ public interface Image {
    */  
   public int getHeight();
   
+  /**
+   * Gets the Draw Object for this image.
+   * 
+   * @return new Draw object for this image.
+   */
   public Draw getImageDrawer();
 }

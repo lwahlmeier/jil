@@ -15,6 +15,7 @@ public interface Draw {
    * @param fill boolean to set if the rectangle should be filled or not.
    */
   public void drawRect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill);
+  
   /**
    * Flood fill from the specified positions.  All other colors matching the color of the position at that time will be filled.
    * @param x the x position to start filling.
