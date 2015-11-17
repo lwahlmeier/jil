@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import me.lcw.jil.Color;
 import me.lcw.jil.BaseImage;
+import me.lcw.jil.Color;
 import me.lcw.jil.ImageException;
 import me.lcw.jil.JilImage;
 import me.lcw.jil.TestUtils;
@@ -189,8 +189,7 @@ public class JavaImageDrawTests {
     c = new Color((byte)144,(byte)114,(byte)55, (byte)100);
     img400a.getImageDrawer().drawLine(400, 0, 0, 400, c, 5, true);
 
-    //System.out.println(ImageTest.hashByteArray(aimg.getArray()));
-    assertEquals("47cc9e85cf826f57ff25539b9813b822003cc1fde5e1d32972fd695f6c626fbd", TestUtils.hashByteArray(img400a.getArray()));
+    assertEquals("c8b7fb4575b1d695c06615b03423cbacb70a760b58f9beaeba6df4f882a499c0", TestUtils.hashByteArray(img400a.getArray()));
   }
   
 }

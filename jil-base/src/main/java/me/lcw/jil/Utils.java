@@ -13,51 +13,18 @@ public class Utils {
   }
   
   public static Color mergeColors(Color first, Color second) {
-    byte nr;
-    byte ng;
-    byte nb;
-    byte na;
-
-    double pct = ((second.getAlpha() & 0xff) / 255.0);
-    
-    if (pct == 1.0) {
-      return second;
-    } else if (pct == 0) {
-      return first;
-    }else {
-      double epct = 1.0-pct;
-      //System.out.println(pct+":"+epct);
-      double srcA = ((first.getAlpha() & 0xff) / 255.0);
-      //System.out.println(srcA);
-      double newApct = (((srcA + ((first.getAlpha() & 0xff) * epct))))/100;
-      //System.out.println(newApct);  
-      int tmp = (int) ((first.getAlpha() & 0xff) * newApct);
-      //System.out.println(tmp);  
-      if (tmp > 255) {
-        na = Color.MAX_BYTE;
-      }else {
-        na = (byte)tmp;
-      }
-      tmp = (int) (((second.getRed()&0xff)*pct)+(first.getRed() & 0xff)*epct);
-      if (tmp> 255) {
-        nr = Color.MAX_BYTE;
-      } else {
-        nr = (byte)tmp;
-      }
-      tmp = (int) (((second.getGreen() & 0xff)*pct)+(first.getGreen() & 0xff)*epct);
-      if (tmp > 255) {
-        ng = Color.MAX_BYTE;
-      } else {
-        ng = (byte)tmp;
-      }
-      tmp = (int) (((second.getBlue() & 0xff)*pct)+(first.getBlue() & 0xff)*epct);
-      if (tmp> 255) {
-        nb = Color.MAX_BYTE;
-      }else {
-        nb = (byte)tmp;
-      }
-      return new Color(nr, ng, nb, na);
-    }
+    double napct = (second.getAlphaPct()+(first.getAlphaPct()*(1-second.getAlphaPct())));
+    byte na = (byte) Math.round(napct*255);
+    byte nr = (byte) Math.round(((second.getRedPct()*second.getAlphaPct() + 
+        first.getRedPct()*first.getAlphaPct()*(1-second.getAlphaPct()))/napct)*255);
+    byte nb = (byte) Math.round(((second.getBluePct()*second.getAlphaPct() + 
+        first.getBluePct()*first.getAlphaPct()*(1-second.getAlphaPct()))/napct)*255);
+    byte ng = (byte) Math.round(((second.getGreenPct()*second.getAlphaPct() + 
+        first.getGreenPct()*first.getAlphaPct()*(1-second.getAlphaPct()))/napct)*255);
+    Color nC = new Color(nr, ng, nb, na);
+//    System.out.println((srpct*spct + frpct*fpct*(1-spct))/napct);
+//    System.out.println(nC);
+    return nC;
   }
   
   public static List<int[]> lineToList(int x, int y, int x2, int y2) {

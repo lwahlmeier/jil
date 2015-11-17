@@ -82,6 +82,10 @@ public class Color implements Comparable<Color> {
   public byte getBlue() {
     return blue;
   }
+  
+  public double getBluePct() {
+    return (blue & 0xff)/255.0;
+  }
 
   /**
    * Creates a duplicate of this color with the RedChannel changed.
@@ -98,6 +102,10 @@ public class Color implements Comparable<Color> {
    */
   public byte getRed() {
     return red;
+  }
+  
+  public double getRedPct() {
+    return (red & 0xff)/255.0;
   }
 
   /**
@@ -116,6 +124,10 @@ public class Color implements Comparable<Color> {
   public byte getGreen() {
     return green;
   }
+  
+  public double getGreenPct() {
+    return (green & 0xff)/255.0;
+  }
 
   /**
    * Creates a duplicate of this color with the AlphaChannel changed.
@@ -133,6 +145,10 @@ public class Color implements Comparable<Color> {
   public byte getAlpha() {
     return alpha;
   }
+  
+  public double getAlphaPct() {
+    return (alpha & 0xff)/255.0;
+  }
 
   /**
    * Creates a duplicate of this color with the GreyChannel changed.
@@ -149,6 +165,10 @@ public class Color implements Comparable<Color> {
    */
   public byte getGrey() {
     return grey;
+  }
+  
+  public double getGreyPct() {
+    return (grey & 0xff)/255.0;
   }
   
   public int getARGB() {

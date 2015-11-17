@@ -19,69 +19,63 @@ public class AlphaWithMergePasteTests extends PasteTests {
   public void start() throws ImageException, IOException{
     alpha = true;
     img = AWTImage.fromBaseImage(TestUtils.RGBAImageGenerator());
-    subImg = AWTImage.fromBaseImage(TestUtils.RGBImageGenerator());
-    img = img.changeMode(BaseImage.MODE.RGBA);
-    subImg = subImg.changeMode(BaseImage.MODE.RGBA);
-    //We move to javaImage here because we want the exact same Image used in both tests.  This is not scale/resize testing.
-    subImg = AWTImage.fromBaseImage(subImg.toJilImage().resize(300, 300, true, BaseImage.ScaleType.NN));
+    subImg = AWTImage.fromBaseImage(TestUtils.RGBImageGenerator().changeMode(BaseImage.MODE.RGBA).resize(300, 300, true, BaseImage.ScaleType.NN));
     addAlphaToImage((byte)100, subImg);
 
   }
   
   @Override
   public void biggerPasteImage() throws Exception {
-    subImg2 = AWTImage.create(BaseImage.MODE.RGBA, 4304, 4024).toJilImage();
+    subImg2 = AWTImage.create(BaseImage.MODE.RGBA, 554, 371);
     subImg2.fillImageWithColor(Color.BLACK);
-    addAlphaToImage((byte)100, subImg2);
-    img.save("/tmp/awt-test2.png");
+    addAlphaToImage((byte)10, subImg2);
     super.biggerPasteImage();
-    img.save("/tmp/awt-test.png");
-    assertEquals("dadbd550a8a00a252fc8166e4d3397ad7c8fcb3ea3ca553adde94d30021ef065", TestUtils.hashByteArray(img.getArray()));
+    assertEquals("6783219f3be8d0f85b97f71d126cc01408850f72fe686046c9c5ad40a7ada87c", TestUtils.hashByteArray(img.getArray()));
   }
   
   @Override
   public void normal() throws Exception {
     super.normal();
-    assertEquals("dabbc970c258b116e2e9eed31c9fdbf7dc13c1f3e4e31556f737d3ed3ea814de", TestUtils.hashByteArray(img.getArray()));
+    assertEquals("0458cab7b3b7e3fcd18777f184db955a5ddb4beeb708629b71b6862e9536e9d9", TestUtils.hashByteArray(img.getArray()));
   }
   
   @Override
   public void underShootY() throws Exception {
     super.underShootY();
     
-    assertEquals("016bb8150b2921ae54f16b4487844fed9add93f2a75319d3c25f81ae582b6eca", TestUtils.hashByteArray(img.getArray()));
+    assertEquals("39463b9b6903a5f921c49abf21718b471840a5fa0d3fd68a18ba7b2c4bc7ae74", TestUtils.hashByteArray(img.getArray()));
   }
   
   @Override
   public void underShootX() throws Exception {
     super.underShootX();
     
-    assertEquals("f4f059c6482ef41039c238a1d2218a155ada95db5e3508497f817bc8960cb6ac", TestUtils.hashByteArray(img.getArray()));
+    assertEquals("9341c9e0a73709cbecd6f8bef979f39b648a815a2c740992447c4fe80b427c15", TestUtils.hashByteArray(img.getArray()));
   }
   
   public void overShootX() throws Exception {
     super.overShootX();
     
-    assertEquals("f8fd6282953b75e6ac0ee294d5d272eeaa44bcd6e44540f13a335906efb6b445", TestUtils.hashByteArray(img.getArray()));
+    assertEquals("f20978529684c1882eca78adb3cbc7b060c21ee5e19e3f168fc3cd4ac9548ff0", TestUtils.hashByteArray(img.getArray()));
   }
   
   @Override
   public void overShootY() throws Exception {
     super.overShootY();
     
-    assertEquals("48625556c8307a91d532beeb88547b79ab182db0c9a5468e2ef3c1aad0ec63b1", TestUtils.hashByteArray(img.getArray()));
+    assertEquals("875facd6b6f4990900401dfe0ce9722e7a49b2152e6eac222d1d671692558962", TestUtils.hashByteArray(img.getArray()));
   }
   
   @Override
   public void overShootBoth() throws Exception {
     super.overShootBoth();
     
-    assertEquals("6b1bac5a53f69eb6cfbe30746613648b53958e9aada7b288a5bc241b6c031959", TestUtils.hashByteArray(img.getArray()));
+    assertEquals("20b8aab90bad42b1e830a59f57e6496896448eb97d26b769c59e8e2e16959fe6", TestUtils.hashByteArray(img.getArray()));
   }
   
   @Override
   public void underShootBoth() throws Exception {
     super.underShootBoth();
-    assertEquals("1a8ef51a204e9914e3426a7dd012e048eb9b8b41015b0cacb0e08187126fbdde", TestUtils.hashByteArray(img.getArray()));
+    assertEquals("b9034014485e55edd85b20975b55cd06d46fa73e62b26860ad55d4f1c8d58d72", TestUtils.hashByteArray(img.getArray()));
   }
 }
