@@ -399,15 +399,6 @@ public class JilImage implements BaseImage {
           continue;
         } else if (mode == MODE.RGBA && this.MAP[thisXPos+3] == 0) {
           System.arraycopy(img.getArray(), imgXPos, this.MAP, thisXPos, getColors());
-          /*
-            try{
-              System.arraycopy(img.getArray(), imgXPos, this.MAP, thisXPos, this.colors);
-            } catch (Exception e){
-              System.out.println(img);
-              System.out.println((w+x)+":"+h+":"+img.getWidth()+":"+img.getHeight()+":"+img.getBPP());
-              System.out.println(img.getArray().length+":"+imgXPos+":"+this.MAP.length+":"+thisXPos+":"+this.colors);
-            }*/
-
         } else if (img.getMode() == MODE.RGBA && img.getArray()[imgXPos+3] == 255) {
           System.arraycopy(img.getArray(), imgXPos, this.MAP, thisXPos, getColors());
         } else {

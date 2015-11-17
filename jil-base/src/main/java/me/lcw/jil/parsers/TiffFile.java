@@ -82,7 +82,6 @@ public class TiffFile {
       int entry = getShort(bt, tmp);
       int type = getShort(bt, data.readShort());
       getInt(bt, data.readInt()); //size, dont care
-      //System.out.println("ENTRY:"+entry+" TYPE:"+type+" SIZE:"+size);
       if (entry == 0x100) {
         if (type == 3) {
           td.setWidth(getShort(bt,data.readShort()));
@@ -116,7 +115,7 @@ public class TiffFile {
           data.readShort();
           data.readShort();
         } else {
-          //System.out.println("unknown:"+getInt(bt, data.readInt()));
+
         }
       }
     }

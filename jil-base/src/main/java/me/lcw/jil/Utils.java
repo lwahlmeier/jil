@@ -22,8 +22,6 @@ public class Utils {
     byte ng = (byte) Math.round(((second.getGreenPct()*second.getAlphaPct() + 
         first.getGreenPct()*first.getAlphaPct()*(1-second.getAlphaPct()))/napct)*255);
     Color nC = new Color(nr, ng, nb, na);
-//    System.out.println((srpct*spct + frpct*fpct*(1-spct))/napct);
-//    System.out.println(nC);
     return nC;
   }
   
