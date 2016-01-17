@@ -1,1 +1,1 @@
-include 'jil-base', 'jil-awt'
+include 'jil-base', 'jil-awt', 'jil-native'

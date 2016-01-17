@@ -233,6 +233,6 @@ public interface BaseImage {
    * 
    * @return new Draw object for this image.
    */
-  public Draw getImageDrawer();
+  public Draw draw();
   
 }

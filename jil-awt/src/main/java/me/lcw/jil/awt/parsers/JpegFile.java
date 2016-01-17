@@ -1,4 +1,4 @@
-package me.lcw.jil.awt;
+package me.lcw.jil.awt.parsers;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 
 import me.lcw.jil.BaseImage;
 import me.lcw.jil.ImageException;
+import me.lcw.jil.awt.AWTImage;
 
 public class JpegFile {
   private JpegFile(){

@@ -19,7 +19,9 @@ import me.lcw.jil.Draw;
 import me.lcw.jil.BaseImage;
 import me.lcw.jil.ImageException;
 import me.lcw.jil.JilImage;
-import me.lcw.jil.Utils;
+import me.lcw.jil.JilUtils;
+import me.lcw.jil.awt.parsers.JpegFile;
+import me.lcw.jil.awt.parsers.PngFile;
 import me.lcw.jil.parsers.TiffFile;
 
 public class AWTImage implements BaseImage{
@@ -148,7 +150,7 @@ public class AWTImage implements BaseImage{
 
   public static AWTImage open(String filename) throws ImageException, IOException {
     try {
-      return open(filename, Utils.getImageType(filename));
+      return open(filename, JilUtils.getImageType(filename));
     } catch(ImageException e) {
       for(ImageType t: ImageType.values()) {
         try {
@@ -178,13 +180,13 @@ public class AWTImage implements BaseImage{
 
   @Override
   public void save(File file) throws IOException, ImageException {
-    ImageType t = Utils.getImageType(file);
+    ImageType t = JilUtils.getImageType(file);
     save(file, t);
   }
 
   @Override
   public void save(String file) throws IOException, ImageException {
-    ImageType t = Utils.getImageType(file);
+    ImageType t = JilUtils.getImageType(file);
     save(file, t);
   }
 
@@ -244,7 +246,7 @@ public class AWTImage implements BaseImage{
   @Override
   public AWTImage resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
-      int[] aspect = Utils.getAspectSize(this.width, this.height, newWidth, newHeight);
+      int[] aspect = JilUtils.getAspectSize(this.width, this.height, newWidth, newHeight);
       newWidth = aspect[0];
       newHeight = aspect[1];
     }
@@ -265,7 +267,7 @@ public class AWTImage implements BaseImage{
         nimg = new AWTImage(resizedImage, mode);
       } break;
       case CUBIC_SMOOTH:
-        nimg = (AWTImage)Utils.biCubicSmooth(this, newWidth, newHeight);
+        nimg = (AWTImage)JilUtils.biCubicSmooth(this, newWidth, newHeight);
       default:{
         g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
@@ -285,7 +287,7 @@ public class AWTImage implements BaseImage{
   public void fillImageWithColor(Color c) {
     Graphics2D graphics = bi.createGraphics();
     try {
-      graphics.setPaint(Utils.toAWTColor(c));
+      graphics.setPaint(JilUtils.toAWTColor(c));
       graphics.fillRect(0, 0, width, height);
     } finally {
       graphics.dispose();
@@ -294,12 +296,12 @@ public class AWTImage implements BaseImage{
 
   @Override
   public void setPixel(int x, int y, Color c) {
-    bi.setRGB(x, y, Utils.toAWTColor(c).getRGB());
+    bi.setRGB(x, y, JilUtils.toAWTColor(c).getRGB());
   }
 
   @Override
   public Color getPixel(int x, int y) {
-    return Utils.toJILColor(new java.awt.Color(bi.getRGB(x, y)));
+    return JilUtils.toJILColor(new java.awt.Color(bi.getRGB(x, y)));
   }
 
   @Override
@@ -414,7 +416,7 @@ public class AWTImage implements BaseImage{
   }
 
   @Override
-  public AWTDraw getImageDrawer() {
+  public AWTDraw draw() {
     return new AWTDraw(this);
   }
 
@@ -500,7 +502,7 @@ public class AWTImage implements BaseImage{
     public void drawRect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
       Graphics2D graph = ai.bi.createGraphics();
       try{
-        graph.setColor(Utils.toAWTColor(c));
+        graph.setColor(JilUtils.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
         int offset = (lineWidth/2);
         if(fill) {
@@ -517,7 +519,7 @@ public class AWTImage implements BaseImage{
     public void drawCircle(int cx, int cy, int size, Color c, int lineWidth, boolean fill) {
       Graphics2D graph = ai.bi.createGraphics();
       try {
-        graph.setColor(Utils.toAWTColor(c));
+        graph.setColor(JilUtils.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
         if(fill) {
           graph.fillOval(cx-(size/2), cy-(size/2), size, size);
@@ -533,7 +535,7 @@ public class AWTImage implements BaseImage{
     public void drawLine(int startX, int startY, int endX, int endY, Color c, int lineWidth, boolean alphaMerge) {
       Graphics2D graph = ai.bi.createGraphics();
       try {
-        java.awt.Color awt_c = Utils.toAWTColor(c);
+        java.awt.Color awt_c = JilUtils.toAWTColor(c);
         if(!alphaMerge) {
           awt_c = new java.awt.Color(c.getRed()&0xff, c.getGreen()&0xff, c.getBlue()&0xff); 
         }

@@ -1,4 +1,4 @@
-package me.lcw.jil.awt;
+package me.lcw.jil.awt.parsers;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 
 import me.lcw.jil.ImageException;
+import me.lcw.jil.awt.AWTImage;
 
 public class PngFile {
   

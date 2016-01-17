@@ -63,7 +63,7 @@ public class Color implements Comparable<Color> {
     this.green = green;
     this.blue = blue;
     this.alpha = alpha;
-    this.grey = Utils.colorsToGrey(red, green, blue);
+    this.grey = JilUtils.colorsToGrey(red, green, blue);
   }
 
   /**

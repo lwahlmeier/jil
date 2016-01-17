@@ -6,7 +6,7 @@ import java.util.List;
 
 import me.lcw.jil.BaseImage.ImageType;
 
-public class Utils {
+public class JilUtils {
   
   public static byte colorsToGrey(byte red, byte green, byte blue) {
     return (byte) (((red&0xff)+(green&0xff)+(blue&0xff))/3);

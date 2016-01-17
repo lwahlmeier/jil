@@ -95,7 +95,7 @@ public class JilImage implements BaseImage {
    */
   public static JilImage open(String filename) throws ImageException, IOException {
     try {
-      return open(filename, Utils.getImageType(filename));
+      return open(filename, JilUtils.getImageType(filename));
     } catch(ImageException e) {
       for(ImageType t: ImageType.values()) {
         try {
@@ -142,7 +142,7 @@ public class JilImage implements BaseImage {
 
   @Override
   public void save(String filename) throws IOException, ImageException {
-    ImageType type = Utils.getImageType(filename);
+    ImageType type = JilUtils.getImageType(filename);
     save(filename, type);
   }
 
@@ -228,7 +228,7 @@ public class JilImage implements BaseImage {
   @Override
   public JilImage resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
-      int[] aspect = Utils.getAspectSize(this.width, this.height, newWidth, newHeight);
+      int[] aspect = JilUtils.getAspectSize(this.width, this.height, newWidth, newHeight);
       newWidth = aspect[0];
       newHeight = aspect[1];
     }
@@ -241,7 +241,7 @@ public class JilImage implements BaseImage {
       tmp = BiCubicScaler.scale(this, newWidth, newHeight);
       break;
     case CUBIC_SMOOTH:
-      tmp = (JilImage)Utils.biCubicSmooth(this, newWidth, newHeight);
+      tmp = (JilImage)JilUtils.biCubicSmooth(this, newWidth, newHeight);
     default:
       tmp = NearestNeighborScaler.scale(this, newWidth, newHeight);
     }
@@ -404,7 +404,7 @@ public class JilImage implements BaseImage {
         } else {
           Color c = img.getPixel((w+imgXOff), imgYPos);
           Color c2 = this.getPixel(w+x, h);
-          Color ncolor = Utils.mergeColors(c2, c);
+          Color ncolor = JilUtils.mergeColors(c2, c);
           this.setPixel(w+x, h, ncolor);
         }
       }
@@ -473,33 +473,12 @@ public class JilImage implements BaseImage {
   }
 
   @Override
-  public JavaDraw getImageDrawer() {
+  public JavaDraw draw() {
     return new JavaDraw(this);
   }
 
   public static class JavaDraw implements Draw {
-    private static final int sigmaD = 2;
-    private static final int sigmaR = 2;
-    private static final double sigmaMax = Math.max(sigmaD, sigmaR);
-    private static final int kernelRadius = (int)Math.ceil(2 * sigmaMax);
-    private static final double twoSigmaRSquared = 2 * sigmaR * sigmaR;
-    private static final int kernelSize = kernelRadius * 2 + 1;
-    private static final int center = (kernelSize - 1) / 2;
-    private static final double[][] kernelD = new double[kernelSize][kernelSize];
-    private static final double gaussSimilarity[] = new double[256];
-    static {
 
-      for (int x = -center; x < -center + kernelSize; x++) {
-        for (int y = -center; y < -center + kernelSize; y++) {
-          kernelD[x + center][y + center] = Math.exp(-((x * x + y * y) / (2 * sigmaD * sigmaD)));
-        }
-      }
-
-
-      for (int i = 0; i < 256; i++) {
-        gaussSimilarity[i] = Math.exp(-((i) / twoSigmaRSquared));
-      }
-    }
     private final JilImage ji;
 
     public JavaDraw(JilImage ji) {
@@ -641,7 +620,7 @@ public class JilImage implements BaseImage {
 
     @Override
     public void drawLine(int x, int y, int x2, int y2, Color c, int lineWidth, boolean alphaMerge) {
-      List<int[]> pxlist = Utils.lineToList(x, y, x2, y2);
+      List<int[]> pxlist = JilUtils.lineToList(x, y, x2, y2);
       JilImage newImg = ji;
       JilImage circle = null;
 
@@ -649,7 +628,7 @@ public class JilImage implements BaseImage {
         newImg = JilImage.create(BaseImage.MODE.RGBA, ji.getWidth(), ji.getHeight());  
         if(circle == null) {
           circle = JilImage.create(BaseImage.MODE.RGBA, lineWidth+1, lineWidth+1);
-          circle.getImageDrawer().drawCircle((lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
+          circle.draw().drawCircle((lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
         }
       }
 
@@ -666,7 +645,7 @@ public class JilImage implements BaseImage {
           int[] tmp = pxlist.remove(0);
           Color pc = newImg.getPixel(tmp[0], tmp[1]);
           if(pc != null) {
-            newImg.getImageDrawer().floodFill(tmp[0], tmp[1], c, Color.ALPHA, false);
+            newImg.draw().floodFill(tmp[0], tmp[1], c, Color.ALPHA, false);
             break;
           }
         }

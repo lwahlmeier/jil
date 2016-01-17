@@ -3,7 +3,7 @@ package me.lcw.jil.awt;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
-import me.lcw.jil.Utils;
+import me.lcw.jil.JilUtils;
 
 public class AWTUtils {
 
@@ -12,7 +12,7 @@ public class AWTUtils {
     if(bufferedImage.getType() == BufferedImage.TYPE_BYTE_GRAY) {
       return ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
     }
-    return Utils.intsToBytes(bufferedImage.getRGB(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), null , 0, bufferedImage.getWidth()), (byte) 32);
+    return JilUtils.intsToBytes(bufferedImage.getRGB(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), null , 0, bufferedImage.getWidth()), (byte) 32);
   }
 
 //  public static JilImage fromBufferedImage(BufferedImage BI) {
