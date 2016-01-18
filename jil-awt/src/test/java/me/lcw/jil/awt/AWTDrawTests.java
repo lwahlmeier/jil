@@ -183,7 +183,7 @@ public class AWTDrawTests {
     c = new Color((byte)144,(byte)114,(byte)55, (byte)100);
 
     //System.out.println(TestUtils.hashByteArray(img400a.getArray()));
-    assertEquals("54819a9895c105476805252f8af725cacc33b5a870dda073a2bcb4ea6558eb2e", TestUtils.hashByteArray(img400a.getArray()));
+    assertEquals("95df8420fb458b5120f6be9e2e7cbda3c7f6d6baa70bd1b304a33ccdde71d5b2", TestUtils.hashByteArray(img400a.getArray()));
   }
   
 }
