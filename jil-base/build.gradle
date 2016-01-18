@@ -24,6 +24,24 @@ dependencies {
 
 }
 
+task createPom  {
+    pom {
+        project {
+            groupId 'me.lcw'
+            artifactId 'jil'
+            version "${version}"
+  
+            licenses {
+                license {
+                    name 'MIT License (MIT)'
+                    url 'https://opensource.org/licenses/MIT'
+                }
+            }
+        }
+    }.writeTo("pom.xml")
+}
+
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
   classifier = 'javadoc'
   from 'build/docs/javadoc'

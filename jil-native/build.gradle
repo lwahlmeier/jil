@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
+group 'me.lcw'
 version="0.6."+"git rev-list HEAD --count".execute().in.text.trim()
 
 sourceCompatibility = 1.6
@@ -12,12 +13,6 @@ repositories {
   maven {url 'https://swt-repo.googlecode.com/svn/repo/' }
 }
 
-compileTestJava.dependsOn tasks.getByPath(':jil-base:testClasses')
-
-println "---------------------------------"
-println project(":jil-base").sourceSets.test.output
-println "---------------------------------"
-
 
 dependencies {
   compile ( 
@@ -25,27 +20,9 @@ dependencies {
   )
 
   testCompile (
-    project(":jil-base").sourceSets.test.output,
-    'junit:junit:4.11'
+  'junit:junit:4.11'
   )
 
-}
-
-task createPom  {
-    pom {
-        project {
-            groupId 'me.lcw.jil'
-            artifactId 'awt'
-            version "${version}"
-
-            licenses {
-                license {
-                    name 'MIT License (MIT)'
-                    url 'https://opensource.org/licenses/MIT'
-                }
-            }
-        }
-    }.writeTo("pom.xml")
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -63,7 +40,7 @@ javadoc {
 }
 
 jar {
-  baseName = 'jil-awt'
+  baseName = 'jil-native'
 }
 
 task sourcesJar(type: Jar) {
