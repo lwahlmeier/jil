@@ -10,12 +10,8 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
 import me.lcw.jil.BaseImage;
-import me.lcw.jil.Color;
-import me.lcw.jil.JilImage;
 import me.lcw.jil.BaseImage.MODE;
 import me.lcw.jil.parsers.png.PNGConstants.PNG_COLOR_TYPE;
-
-import org.junit.Test;
 
 public class PNGEncoder {
 
@@ -111,24 +107,6 @@ public class PNGEncoder {
     finalBB.putInt((int)crc.getValue());
     crc.reset();
     finalBB.put(PNGConstants.IEND_FOOTER);
-    System.out.println(crc.getValue());
-    System.out.println(finalBB);
     return finalBA;
    }
-  
-  
-  @Test
-  public void test() throws IOException {
-    JilImage ji = JilImage.create(MODE.RGBA, 1920, 1080);
-    ji.fillImageWithColor(Color.WHITE);
-    ji.draw().drawLine(0, 0, 1920, 1080, Color.GREEN, 4, false);
-    ji.draw().drawCircle(400, 400, 100, Color.BLACK, 20, true);
-    byte[] ba = encode(7, ji.changeMode(MODE.GREY));
-    new File("/tmp/test.png").delete();
-    RandomAccessFile raf = new RandomAccessFile("/tmp/test.png", "rw");
-    raf.write(ba);
-    raf.close();    
-    System.out.println(Color.WHITE.getGrey());
-  }
-  
 }

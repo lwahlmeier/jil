@@ -1,25 +1,13 @@
 package me.lcw.jil;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.lcw.jil.BaseImage.ImageType;
 import me.lcw.jil.BaseImage.MODE;
-import me.lcw.jil.awt.AWTImage;
 
 public class JilUtils {
-  
-  public static void main(String args[]) throws ImageException, IOException {
-    JilImage ji = AWTImage.open("/tmp/loadscreen.jpg").toJilImage();
-    ji = JilImage.create(MODE.RGB, 100, 100);
-    ji.fillImageWithColor(Color.BLACK);
-    ji = ji.changeMode(MODE.YUV);
-    System.out.println(ji.getMode());
-    //ji = ji.changeMode(MODE.RGB);
-    AWTImage.fromBaseImage(ji).save("/tmp/test.png");
-  }
 
   public static JilImage convertMode(JilImage image, MODE toMode) {
     switch(image.getMode()) {
