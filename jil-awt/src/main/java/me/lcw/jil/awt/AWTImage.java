@@ -67,10 +67,16 @@ public class AWTImage implements BaseImage{
       byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
       System.arraycopy(img.getArray(), 0, test, 0, test.length);
 
-    } else if(img.getMode() == MODE.RGB) {
-      BB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+    } else if(img.getMode() == MODE.RGB || img.getMode() == MODE.YUV) {
+      BaseImage nbi;
+      if(img.getMode() == MODE.YUV) {
+        nbi = img;//.changeMode(MODE.RGB);
+      } else {
+        nbi = img;
+      }
+      BB = new BufferedImage(nbi.getWidth(), nbi.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
       byte[] array = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
-      byte[] MAP = img.getArray();
+      byte[] MAP = nbi.getArray();
       for(int i=0; i<array.length/3; i++) {
         int pos = i*3;
         array[pos] = MAP[pos+2];

@@ -1,13 +1,15 @@
 package me.lcw.jil;
 
 import static org.junit.Assert.assertTrue;
-import me.lcw.jil.BaseImage;
+
+import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public abstract class ResizeTests {
+  public static final boolean saveFiles = false;
   public BaseImage imgRGBA;
   public BaseImage imgRGB;
   public BaseImage imgL;
@@ -15,7 +17,6 @@ public abstract class ResizeTests {
   public BaseImage subImgRGB;
   public BaseImage subImgL;
   public BaseImage.ScaleType scaleType;
-  
   
   @Before
   public abstract void start() throws Exception;
@@ -36,6 +37,13 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()*2.55), (int)(imgRGBA.getHeight()*4.55), false, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()*2.55), (int)(imgRGB.getHeight()*4.55), false, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()*2.55), (int)(imgL.getHeight()*4.55), false, scaleType);
+    if(saveFiles) {
+      class Local {};
+      String name = Local.class.getEnclosingMethod().getName();
+      subImgRGBA.save(new File("/tmp/"+name+"-RGBA.png"));
+      subImgRGB.save(new File("/tmp/"+name+"-RGB.png"));
+      subImgL.save(new File("/tmp/"+name+"-L.png"));
+    }
   }
   
   @Test
@@ -43,6 +51,13 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()/2.55), (int)(imgRGBA.getHeight()/4.55), false, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()/2.55), (int)(imgRGB.getHeight()/4.55), false, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()/2.55), (int)(imgL.getHeight()/4.55), false, scaleType);
+    if(saveFiles) {
+      class Local {};
+      String name = Local.class.getEnclosingMethod().getName();
+      subImgRGBA.save(new File("/tmp/"+name+"-RGBA.png"));
+      subImgRGB.save(new File("/tmp/"+name+"-RGB.png"));
+      subImgL.save(new File("/tmp/"+name+"-L.png"));
+    }
   }
   
   @Test
@@ -50,6 +65,13 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()/2.55), (int)(imgRGBA.getHeight()*4.55), false, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()/2.55), (int)(imgRGB.getHeight()*4.55), false, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()/2.55), (int)(imgL.getHeight()*4.55), false, scaleType);
+    if(saveFiles) {
+      class Local {};
+      String name = Local.class.getEnclosingMethod().getName();
+      subImgRGBA.save(new File("/tmp/"+name+"-RGBA.png"));
+      subImgRGB.save(new File("/tmp/"+name+"-RGB.png"));
+      subImgL.save(new File("/tmp/"+name+"-L.png"));
+    }
   }
   
   @Test
@@ -57,6 +79,13 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()*2.55), (int)(imgRGBA.getHeight()/4.55), false, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()*2.55), (int)(imgRGB.getHeight()/4.55), false, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()*2.55), (int)(imgL.getHeight()/4.55), false, scaleType);
+    if(saveFiles) {
+      class Local {};
+      String name = Local.class.getEnclosingMethod().getName();
+      subImgRGBA.save(new File("/tmp/"+name+"-RGBA.png"));
+      subImgRGB.save(new File("/tmp/"+name+"-RGB.png"));
+      subImgL.save(new File("/tmp/"+name+"-L.png"));
+    }
   }
   
   @Test
@@ -64,6 +93,13 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()*2.55), (int)(imgRGBA.getHeight()*4.55), true, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()*2.55), (int)(imgRGB.getHeight()*4.55), true, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()*2.55), (int)(imgL.getHeight()*4.55), true, scaleType);
+    if(saveFiles) {
+      class Local {};
+      String name = Local.class.getEnclosingMethod().getName();
+      subImgRGBA.save(new File("/tmp/"+name+"-RGBA.png"));
+      subImgRGB.save(new File("/tmp/"+name+"-RGB.png"));
+      subImgL.save(new File("/tmp/"+name+"-L.png"));
+    }
     double aspect = imgRGBA.getWidth()/imgRGBA.getHeight();
     double aspect2 = subImgRGBA.getWidth()/subImgRGBA.getHeight();
     assertTrue(aspect == aspect2);
@@ -73,6 +109,7 @@ public abstract class ResizeTests {
     aspect = imgL.getWidth()/imgL.getHeight();
     aspect2 = subImgL.getWidth()/subImgL.getHeight();
     assertTrue(aspect == aspect2);
+    
   }
   
   @Test
@@ -80,6 +117,13 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()/2.55), (int)(imgRGBA.getHeight()/4.55), true, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()/2.55), (int)(imgRGB.getHeight()/4.55), true, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()/2.55), (int)(imgL.getHeight()/4.55), true, scaleType);
+    if(saveFiles) {
+      class Local {};
+      String name = Local.class.getEnclosingMethod().getName();
+      subImgRGBA.save(new File("/tmp/"+name+"-RGBA.png"));
+      subImgRGB.save(new File("/tmp/"+name+"-RGB.png"));
+      subImgL.save(new File("/tmp/"+name+"-L.png"));
+    }
     double aspect = imgRGBA.getWidth()/imgRGBA.getHeight();
     double aspect2 = subImgRGBA.getWidth()/subImgRGBA.getHeight();
     assertTrue(aspect == aspect2);
@@ -96,6 +140,13 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()/2.55), (int)(imgRGBA.getHeight()*4.55), true, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()/2.55), (int)(imgRGB.getHeight()*4.55), true, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()/2.55), (int)(imgL.getHeight()*4.55), true, scaleType);
+    if(saveFiles) {
+      class Local {};
+      String name = Local.class.getEnclosingMethod().getName();
+      subImgRGBA.save(new File("/tmp/"+name+"-RGBA.png"));
+      subImgRGB.save(new File("/tmp/"+name+"-RGB.png"));
+      subImgL.save(new File("/tmp/"+name+"-L.png"));
+    }
     double aspect = imgRGBA.getWidth()/imgRGBA.getHeight();
     double aspect2 = subImgRGBA.getWidth()/subImgRGBA.getHeight();
     assertTrue(aspect == aspect2);
@@ -112,6 +163,13 @@ public abstract class ResizeTests {
     subImgRGBA = imgRGBA.resize((int)(imgRGBA.getWidth()*2.55), (int)(imgRGBA.getHeight()/4.55), true, scaleType);
     subImgRGB = imgRGB.resize((int)(imgRGB.getWidth()*2.55), (int)(imgRGB.getHeight()/4.55), true, scaleType);
     subImgL = imgL.resize((int)(imgL.getWidth()*2.55), (int)(imgL.getHeight()/4.55), true, scaleType);
+    if(saveFiles) {
+      class Local {};
+      String name = Local.class.getEnclosingMethod().getName();
+      subImgRGBA.save(new File("/tmp/"+name+"-RGBA.png"));
+      subImgRGB.save(new File("/tmp/"+name+"-RGB.png"));
+      subImgL.save(new File("/tmp/"+name+"-L.png"));
+    }
     double aspect = imgRGBA.getWidth()/imgRGBA.getHeight();
     double aspect2 = subImgRGBA.getWidth()/subImgRGBA.getHeight();
     assertTrue(aspect == aspect2);

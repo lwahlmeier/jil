@@ -12,7 +12,7 @@ import java.io.IOException;
 public interface BaseImage {
   
   public static enum MODE {
-    GREY(8), RGB(24), RGBA(32);
+    GREY(8), RGB(24), YUV(24), RGBA(32);
   
     private final int bitsPerPixel;
     private final int colors;

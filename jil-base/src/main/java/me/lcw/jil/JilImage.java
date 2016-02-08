@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import me.lcw.jil.parsers.TiffFile;
+import me.lcw.jil.parsers.png.PNGEncoder;
 import me.lcw.jil.scalers.BiCubicScaler;
 import me.lcw.jil.scalers.BiLinearScaler;
 import me.lcw.jil.scalers.NearestNeighborScaler;
@@ -151,6 +152,9 @@ public class JilImage implements BaseImage {
     case TIFF:
       TiffFile.save(filename, this);
       break;
+    case PNG:
+      PNGEncoder.encodeToFile(9, this, new File(filename));
+      break;
     default:
       throw new ImageException("Could not determen file type");
     }
@@ -158,54 +162,7 @@ public class JilImage implements BaseImage {
 
   @Override
   public JilImage changeMode(MODE nmode) {
-    if (nmode == this.mode) {
-      return this;
-    } 
-    JilImage image = JilImage.create(nmode, width, height);      
-    if (nmode == MODE.GREY) {
-      int avg;
-      for (int x = 0; x < image.MAP.length; x++){
-        int pos = x*this.getColors(); 
-        avg = ((MAP[pos]&0xff) + (MAP[pos+1]&0xff) + (MAP[pos+2]&0xff))/3;
-        image.MAP[x] = (byte) avg;
-      }
-      return image;
-    }
-
-    if (nmode == MODE.RGB && mode == MODE.RGBA) {
-      for(int i=0; i< image.MAP.length/3; i++) {
-        int npos = i*3;
-        int opos = i*4;
-        image.MAP[npos] = MAP[opos];
-        image.MAP[npos+1] = MAP[opos+1];
-        image.MAP[npos+2] = MAP[opos+2];
-      }
-    } else if (nmode == MODE.RGB && mode == MODE.GREY) {
-      for(int i=0; i<MAP.length; i++) {
-        int pos = i*3;
-        image.MAP[pos] = MAP[i];
-        image.MAP[pos+1] = MAP[i];
-        image.MAP[pos+2] = MAP[i];
-      }
-    } else if (nmode == MODE.RGBA && mode == MODE.GREY) {
-      for(int i=0; i<MAP.length; i++) {
-        int pos = i*4;
-        image.MAP[pos] = MAP[i];
-        image.MAP[pos+1] = MAP[i];
-        image.MAP[pos+2] = MAP[i];
-        image.MAP[pos+3] = (byte)255;
-      }
-    } else if (nmode == MODE.RGBA && mode == MODE.RGB) {
-      for(int i=0; i<(MAP.length/3); i++) {
-        int npos = i*4;
-        int opos = i*3;
-        image.MAP[npos] = MAP[opos];
-        image.MAP[npos+1] = MAP[opos+1];
-        image.MAP[npos+2] = MAP[opos+2];
-        image.MAP[npos+3] = (byte)255;
-      }
-    }
-    return image;
+    return JilUtils.convertMode(this, nmode);
   }
 
   @Override
