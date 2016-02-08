@@ -7,8 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import me.lcw.jil.parsers.TiffFile;
 import me.lcw.jil.parsers.png.PNGEncoder;
+import me.lcw.jil.parsers.tiff.TIFFDecoder;
+import me.lcw.jil.parsers.tiff.TIFFEncoder;
 import me.lcw.jil.scalers.BiCubicScaler;
 import me.lcw.jil.scalers.BiLinearScaler;
 import me.lcw.jil.scalers.NearestNeighborScaler;
@@ -121,7 +122,7 @@ public class JilImage implements BaseImage {
     JilImage image;
     switch(type) {
     case TIFF:
-      image = TiffFile.open(filename);
+      image = TIFFDecoder.decodeFromFile(new File(filename));
       break;
     case PNG:
     case JPEG:
@@ -150,10 +151,10 @@ public class JilImage implements BaseImage {
   public void save(String filename, ImageType type) throws IOException, ImageException{
     switch(type) {
     case TIFF:
-      TiffFile.save(filename, this);
+      TIFFEncoder.encodeToFile(this, new File(filename));
       break;
     case PNG:
-      PNGEncoder.encodeToFile(9, this, new File(filename));
+      PNGEncoder.encodeToFile(this, new File(filename));
       break;
     default:
       throw new ImageException("Could not determen file type");

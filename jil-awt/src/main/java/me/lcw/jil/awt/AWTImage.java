@@ -14,15 +14,16 @@ import java.util.ArrayDeque;
 
 import javax.imageio.ImageIO;
 
+import me.lcw.jil.BaseImage;
 import me.lcw.jil.Color;
 import me.lcw.jil.Draw;
-import me.lcw.jil.BaseImage;
 import me.lcw.jil.ImageException;
 import me.lcw.jil.JilImage;
 import me.lcw.jil.JilUtils;
 import me.lcw.jil.awt.parsers.JpegFile;
 import me.lcw.jil.awt.parsers.PngFile;
-import me.lcw.jil.parsers.TiffFile;
+import me.lcw.jil.parsers.tiff.TIFFDecoder;
+import me.lcw.jil.parsers.tiff.TIFFEncoder;
 
 public class AWTImage implements BaseImage{
 
@@ -171,7 +172,7 @@ public class AWTImage implements BaseImage{
   public static AWTImage open(String filename, ImageType type) throws IOException, ImageException {
     switch(type) {
     case TIFF:
-      return AWTImage.fromBaseImage(TiffFile.open(filename));
+      return AWTImage.fromBaseImage(TIFFDecoder.decodeFromFile(new File(filename)));
     case PNG:
     case JPEG:
       return AWTImage.fromBufferedImage(ImageIO.read(new File(filename)));
@@ -211,7 +212,7 @@ public class AWTImage implements BaseImage{
       PngFile.save(filename, this);
     } break;
     case TIFF: {
-      TiffFile.save(filename, this);
+      TIFFEncoder.encodeToFile(this, new File(filename));
     } break;
     default:
       break;

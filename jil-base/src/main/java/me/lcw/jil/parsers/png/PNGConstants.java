@@ -1,6 +1,7 @@
 package me.lcw.jil.parsers.png;
 
 public class PNGConstants {
+  protected static int DEFAULT_COMPRESSION = 7;
   protected static final byte[] HEADER = new byte[] {
     (byte)0x89, (byte)0x50, (byte)0x4E, (byte)0x47, 
     (byte)0x0D, (byte)0x0A, (byte)0x1A, (byte)0x0A 
