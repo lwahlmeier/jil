@@ -445,7 +445,7 @@ public class JilImage implements BaseImage {
 
 
     @Override
-    public void drawRect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
+    public void rect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
       int maxW = x+w;
       int maxH = y+h;
       if (ji.getWidth() < maxW) {
@@ -555,7 +555,7 @@ public class JilImage implements BaseImage {
     }
 
     @Override
-    public void drawCircle(int cx, int cy, int size, Color c, int lineWidth, boolean fill) {
+    public void circle(int cx, int cy, int size, Color c, int lineWidth, boolean fill) {
       int r = size/2;
       int points = Math.max(r/16, 5);
       for(int i=0; i<360*points; i++) {
@@ -572,12 +572,12 @@ public class JilImage implements BaseImage {
 
       for(int l = 1; l<lineWidth; l++){
         size -=1;
-        drawCircle(cx, cy, size, c, 1, false);
+        circle(cx, cy, size, c, 1, false);
       }
     }
 
     @Override
-    public void drawLine(int x, int y, int x2, int y2, Color c, int lineWidth, boolean alphaMerge) {
+    public void line(int x, int y, int x2, int y2, Color c, int lineWidth, boolean alphaMerge) {
       List<int[]> pxlist = JilUtils.lineToList(x, y, x2, y2);
       JilImage newImg = ji;
       JilImage circle = null;
@@ -586,7 +586,7 @@ public class JilImage implements BaseImage {
         newImg = JilImage.create(BaseImage.MODE.RGBA, ji.getWidth(), ji.getHeight());  
         if(circle == null) {
           circle = JilImage.create(BaseImage.MODE.RGBA, lineWidth+1, lineWidth+1);
-          circle.draw().drawCircle((lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
+          circle.draw().circle((lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
         }
       }
 

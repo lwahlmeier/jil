@@ -17,7 +17,7 @@ public interface Draw {
    * @param lineWidth the width of the border of the rectangle, the rect will be of w/h and the lineWidth will be internal from there.
    * @param fill boolean to set if the rectangle should be filled or not.
    */
-  public void drawRect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill);
+  public void rect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill);
   
   /**
    * Flood fill from the specified positions.  All other colors matching the color of the position at that time will be filled.
@@ -48,7 +48,7 @@ public interface Draw {
    * @param lineWidth the width of the edge of the circle. The diameter will stay at set size and lines will travel inwards.
    * @param fill set to fill the circle with set color.
    */
-  public void drawCircle(int cx, int cy, int size, Color c, int lineWidth, boolean fill);
+  public void circle(int cx, int cy, int size, Color c, int lineWidth, boolean fill);
   
   /**
    * Draws a line along specified path.
@@ -61,7 +61,7 @@ public interface Draw {
    * @param lineWidth the lines width.
    * @param alphaMerge set to merge the alpha changes of the lines color and the backing image.
    */
-  public void drawLine(int startX, int startY, int endX, int endY, Color c, int lineWidth, boolean alphaMerge);
+  public void line(int startX, int startY, int endX, int endY, Color c, int lineWidth, boolean alphaMerge);
   
 }
 

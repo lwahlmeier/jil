@@ -19,7 +19,7 @@ public class TestUtils {
       for(int i=0; i<1080; i++) {
         double pct = i/1080.0;
         byte tmp = (byte)(256*pct);
-        img.draw().drawLine(0, i, 480, i, new Color(tmp), 0, false);
+        img.draw().line(0, i, 480, i, new Color(tmp), 0, false);
       }
     }
     return greyImage.copy();
@@ -29,28 +29,28 @@ public class TestUtils {
       JilImage img = JilImage.create(BaseImage.MODE.RGBA, 480, 240);
       img.fillImageWithColor(Color.ALPHA);
       Color c = Color.RED.changeAlpha((byte) 50);
-      img.draw().drawRect(0, 0, 480, 20, c, 1, true);
+      img.draw().rect(0, 0, 480, 20, c, 1, true);
       c = Color.RED.changeAlpha((byte) 100);
-      img.draw().drawRect(0, 20, 480, 20, c, 1, true);
+      img.draw().rect(0, 20, 480, 20, c, 1, true);
       c = Color.RED.changeAlpha((byte) 200);
-      img.draw().drawRect(0, 20*2, 480, 20, c, 1, true);
-      img.draw().drawRect(0, 20*3, 480, 20, Color.RED, 1, true);
+      img.draw().rect(0, 20*2, 480, 20, c, 1, true);
+      img.draw().rect(0, 20*3, 480, 20, Color.RED, 1, true);
       
       c = Color.GREEN.changeAlpha((byte) 50);
-      img.draw().drawRect(0, 20*4, 480, 20, c, 1, true);
+      img.draw().rect(0, 20*4, 480, 20, c, 1, true);
       c = Color.GREEN.changeAlpha((byte) 100);
-      img.draw().drawRect(0, 20*5, 480, 20, c, 1, true);
+      img.draw().rect(0, 20*5, 480, 20, c, 1, true);
       c = Color.GREEN.changeAlpha((byte) 200);
-      img.draw().drawRect(0, 20*6, 480, 20, c, 1, true);
-      img.draw().drawRect(0, 20*7, 480, 20, Color.GREEN, 1, true);
+      img.draw().rect(0, 20*6, 480, 20, c, 1, true);
+      img.draw().rect(0, 20*7, 480, 20, Color.GREEN, 1, true);
       
       c = Color.BLUE.changeAlpha((byte) 50);
-      img.draw().drawRect(0, 20*8, 480, 20, c, 1, true);
+      img.draw().rect(0, 20*8, 480, 20, c, 1, true);
       c = Color.BLUE.changeAlpha((byte) 100);
-      img.draw().drawRect(0, 20*9, 480, 20, c, 1, true);
+      img.draw().rect(0, 20*9, 480, 20, c, 1, true);
       c = Color.BLUE.changeAlpha((byte) 200);
-      img.draw().drawRect(0, 20*10, 480, 20, c, 1, true);
-      img.draw().drawRect(0, 20*11, 480, 20, Color.BLUE, 1, true);
+      img.draw().rect(0, 20*10, 480, 20, c, 1, true);
+      img.draw().rect(0, 20*11, 480, 20, Color.BLUE, 1, true);
       rgbaImage = img;
     }
     return rgbaImage.copy();
@@ -65,7 +65,7 @@ public class TestUtils {
         byte g = (byte)(0xff* (pct*1));
         byte b = (byte)(0xff -(0xff* (pct*2)));
         Color c = new Color(r,g,b);
-        img.draw().drawLine(0, i, img.getWidth(), i, c, 0, false);
+        img.draw().line(0, i, img.getWidth(), i, c, 0, false);
       }
       rgbImage = img;
     }

@@ -51,7 +51,7 @@ public abstract class CutAndCopyTests {
     subImg = img.copy();
     subImg2 = subImg.cut(100, 100, 100, 100);
     assertTrue(Arrays.equals(img.getArray(), subImg.getArray()));
-    img.draw().drawLine(0, 0, 200, 200, Color.BLACK, 5, false);
+    img.draw().line(0, 0, 200, 200, Color.BLACK, 5, false);
     assertTrue(!Arrays.equals(img.getArray(), subImg.getArray()));
   }
 

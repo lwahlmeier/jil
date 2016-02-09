@@ -506,7 +506,7 @@ public class AWTImage implements BaseImage{
     }
 
     @Override
-    public void drawRect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
+    public void rect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
       Graphics2D graph = ai.bi.createGraphics();
       try{
         graph.setColor(JilUtils.toAWTColor(c));
@@ -523,7 +523,7 @@ public class AWTImage implements BaseImage{
     }
 
     @Override
-    public void drawCircle(int cx, int cy, int size, Color c, int lineWidth, boolean fill) {
+    public void circle(int cx, int cy, int size, Color c, int lineWidth, boolean fill) {
       Graphics2D graph = ai.bi.createGraphics();
       try {
         graph.setColor(JilUtils.toAWTColor(c));
@@ -539,7 +539,7 @@ public class AWTImage implements BaseImage{
     }
 
     @Override
-    public void drawLine(int startX, int startY, int endX, int endY, Color c, int lineWidth, boolean alphaMerge) {
+    public void line(int startX, int startY, int endX, int endY, Color c, int lineWidth, boolean alphaMerge) {
       Graphics2D graph = ai.bi.createGraphics();
       try {
         java.awt.Color awt_c = JilUtils.toAWTColor(c);

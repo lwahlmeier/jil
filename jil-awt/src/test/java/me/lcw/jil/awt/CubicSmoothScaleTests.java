@@ -15,10 +15,10 @@ public class CubicSmoothScaleTests extends ResizeTests{
     scaleType = BaseImage.ScaleType.CUBIC_SMOOTH;
     imgRGBA = AWTImage.create(BaseImage.MODE.RGBA, 200, 200);
     imgRGBA.fillImageWithColor(Color.WHITE);
-    imgRGBA.draw().drawCircle(0, 0, 50, Color.GREEN, 3, false);
-    imgRGBA.draw().drawLine(0, 0, 200, 200, Color.GREY, 5, false);
-    imgRGBA.draw().drawRect(50, 50, 250, 250, Color.RED, 5, true);
-    imgRGBA.draw().drawCircle(100, 100, 75, Color.BLACK, 3, true);
+    imgRGBA.draw().circle(0, 0, 50, Color.GREEN, 3, false);
+    imgRGBA.draw().line(0, 0, 200, 200, Color.GREY, 5, false);
+    imgRGBA.draw().rect(50, 50, 250, 250, Color.RED, 5, true);
+    imgRGBA.draw().circle(100, 100, 75, Color.BLACK, 3, true);
     imgRGB = imgRGBA.changeMode(BaseImage.MODE.RGB);
     imgL = imgRGBA.changeMode(BaseImage.MODE.GREY);
 
