@@ -3,3 +3,6 @@ bin
 build
 .project
 .settings/
+pom.xml
+*.swp
+.gradle

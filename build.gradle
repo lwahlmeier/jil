@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group 'me.lcw'
-version="0.6."+"git rev-list HEAD --count".execute().in.text.trim()
+version="0.9."+"git rev-list HEAD --count".execute().in.text.trim()
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -12,44 +12,3 @@ repositories {
   mavenCentral()
   maven {url 'https://swt-repo.googlecode.com/svn/repo/' }
 }
-
-dependencies {
-  compile ( 
-  )
-
-  testCompile (
-  'junit:junit:4.11'
-  )
-
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-  classifier = 'javadoc'
-  from 'build/docs/javadoc'
-}
-
-javadoc {
-  title = "JIL - Java Image Library"
-  exclude (
-  '**/*Scaler.java',
-  '**/*File.java'
-  )
-
-}
-
-jar {
-  baseName = 'jil'
-}
-
-task sourcesJar(type: Jar) {
-  from sourceSets.main.allSource
-  classifier = 'sources'
-}
-
-
-artifacts {
-  archives jar
-  archives javadocJar
-  archives sourcesJar
-}
-
