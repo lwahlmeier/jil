@@ -1,4 +1,4 @@
-#JIL
+#JIL - Java Image Library
 
 Is a library that allows for easy image manipulation in java. The goal is to wrap all the different java image implementations in a much simpler api.  Currently there are 2 main implementations, the pure java implementation (jil-base) and the awt implementation (jil-awt).  Plans are to add a native/jni implementation as well as an swt and android.
 
