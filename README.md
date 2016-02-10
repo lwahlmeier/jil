@@ -14,14 +14,14 @@ public static void main(String[] args) {
 }
 
 ```
-<img src="./examples/example1.png" style="width: 100px;"/>
+<img src="./examples/example1.png" width="100px"/>
 
 
 ###Image pasting/merging
 Here is an example of opening 2 png files one of the earth and one of a rocket, resizing the rocket and merging it onto the one of the earth.  This uses awt as currently only opening tiff files is supported in jil-base.
 
 Here are the source images:
-<img src="./examples/earth.png" style="width: 100px;"/><img src="./examples/rocket.png" style="height: 100px;"/>
+<img src="./examples/earth.png" width="100px"/><img src="./examples/rocket.png" height="100px"/>
 ```java
 public static void main(String[] args) {
     AWTImage img1 = AWTImage.open("./examples/earth.png");
@@ -31,12 +31,12 @@ public static void main(String[] args) {
     img1.save("/tmp/example2.png");
 }
 ```
-<img src="./examples/example2.png" style="width: 100px;"/>
+<img src="./examples/example2.png" width="100px"/>
 
 Doing a .merge merges the alpha channels so we dont endup with the rocket over the top of the earth.  If we called .paste it would override all the pixels in the source image with the new image and it would look like this:
-<img src="./examples/example3.png" style="width: 100px;"/>
+<img src="./examples/example3.png" width="100px"/>
 
 It's important to note that the img1 is an RGB image so the alpha channel is discarded on the paste.  If img1 was RGBA (easily coverted with "img1 = img1.changeMode(MODE.RGBA);")it would look like this:
-<img src="./examples/example4.png" style="width: 100px;"/>
+<img src="./examples/example4.png" width="100px"/>
 Even though it looks white its actually 100% transparent so its just the backgound of the webpage.
 
