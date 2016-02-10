@@ -35,6 +35,7 @@ public static void main(String[] args) {
 <img src="./examples/example2.png" width="100px"/>
 
 Doing a .merge merges the alpha channels so we dont endup with the rocket over the top of the earth.  If we called .paste it would override all the pixels in the source image with the new image and it would look like this:
+
 <img src="./examples/example3.png" width="100px"/>
 
 It's important to note that the img1 is an RGB image so the alpha channel is discarded on the paste.  If img1 was RGBA (easily coverted with "img1 = img1.changeMode(MODE.RGBA);")it would look like this:
