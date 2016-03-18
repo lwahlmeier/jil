@@ -15,6 +15,8 @@ import me.lcw.jil.parsers.png.PNGConstants.PNG_COLOR_TYPE;
 
 public class PNGEncoder {
 
+  private PNGEncoder() {}
+
   public static byte[] encode(BaseImage bi) throws IOException {
     return encode(PNGConstants.DEFAULT_COMPRESSION, bi);
   }
@@ -29,11 +31,11 @@ public class PNGEncoder {
     }
     return encode(bi.getWidth(), bi.getHeight(), compression, pct, bi.getArray());
   }
-  
+
   public static void encodeToFile(BaseImage bi, File file) throws IOException {
     encodeToFile(PNGConstants.DEFAULT_COMPRESSION, bi, file);
   }
-  
+
   public static void encodeToFile(int compression, BaseImage bi, File file) throws IOException {
     PNG_COLOR_TYPE pct; 
     if(bi.getMode() == MODE.GREY) {
@@ -45,7 +47,7 @@ public class PNGEncoder {
     }
     encodeToFile(bi.getWidth(), bi.getHeight(), compression, pct, bi.getArray(), file);
   }
-  
+
   private static byte[] makeHeader(int width, int height, byte bd, PNG_COLOR_TYPE colorType) {
     CRC32 crc = new CRC32();
     byte[] finalBA = new byte[PNGConstants.HEADER_SIZE];
@@ -64,11 +66,11 @@ public class PNGEncoder {
     finalBB.putInt((int)crc.getValue());
     return finalBA;
   }
-  
+
   private static byte[] compressArray(PNG_COLOR_TYPE pct, int width, int compression, byte[] data) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
     DeflaterOutputStream dos = new DeflaterOutputStream(baos, new Deflater(compression));
-    
+
     for(int i=0; i<data.length; i+=width*pct.getBPP()) {
       dos.write(0);
       dos.write(data, i, width*pct.getBPP());
@@ -98,7 +100,7 @@ public class PNGEncoder {
     raf.write(PNGConstants.IEND_FOOTER);
     raf.close();
   }
-  
+
   private static byte[] encode(int width, int height, int compression, PNG_COLOR_TYPE pct, byte[] data) throws IOException {
     CRC32 crc = new CRC32();
     byte[] cba = compressArray(pct, width, compression, data);
@@ -114,5 +116,5 @@ public class PNGEncoder {
     crc.reset();
     finalBB.put(PNGConstants.IEND_FOOTER);
     return finalBA;
-   }
+  }
 }

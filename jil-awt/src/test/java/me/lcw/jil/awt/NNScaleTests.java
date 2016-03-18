@@ -19,7 +19,6 @@ public class NNScaleTests extends ResizeTests{
     imgRGBA.draw().circle(100, 100, 75, Color.BLACK, 3, true);
     imgRGB = imgRGBA.changeMode(BaseImage.MODE.RGB);
     imgL = imgRGBA.changeMode(BaseImage.MODE.GREY);
-
   }
   
   @Override
