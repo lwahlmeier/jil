@@ -44,12 +44,12 @@ public class AWTImageTests {
 
   @Test
   public void openTiffFile() throws ImageException, IOException, NoSuchAlgorithmException {
+    File tmpFile = File.createTempFile("tmpTest", ".tiff");
     AWTImage img = AWTImage.fromBaseImage(TestUtils.RGBAImageGenerator());
-    img.save("/tmp/test.tiff");
-    img = AWTImage.open("/tmp/test.tiff");
+    img.save(tmpFile.getAbsolutePath());
+    img = AWTImage.open(tmpFile.getAbsolutePath());
     assertEquals("49b127058ff72aa6b6ba9fff6ef78d5cdc0453c09a378b57d25b051790dbc9f1", TestUtils.hashByteArray(img.getArray()));
-    File file = new File("/tmp/test.tiff");
-    file.delete();
+    tmpFile.delete();
   }
 
   @Test
