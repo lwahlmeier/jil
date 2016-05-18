@@ -47,6 +47,7 @@ public class AWTDrawTests {
     assertEquals("63a715ea35d3509ade22d5c69f7a95077b04130e6384303f8ccd83c2578584a5", TestUtils.hashByteArray(img.getArray()));
     //This changes the outside
     img.draw().floodFill(0, 0, Color.BLUE, Color.RED, false);
+    img.save("/tmp/fill/test.png");
     assertEquals("aa260abcfbe77d4a98d72c638771db8b691670510d508458ce36fabc41200ffa", TestUtils.hashByteArray(img.getArray()));
     //Changes the inside
     img.draw().floodFill(81, 81, Color.BLUE, Color.RED, false);
@@ -102,7 +103,9 @@ public class AWTDrawTests {
   public void fillColorTest() throws ImageException, IOException, NoSuchAlgorithmException {
     img200.draw().rect(10, 10, 10, 10, Color.GREY, 1, true);
     img200.draw().rect(50, 50, 10, 10, Color.WHITE, 1, false);
+    img200.save("/tmp/fill/test2.png");
     img200.draw().fillColor(0, 0, Color.RED);
+    img200.save("/tmp/fill/test.png");
     assertEquals("7b3b3952bf8e4af176dfddd92c2f275c023572e9751629a3de5b7c1a9698a991", TestUtils.hashByteArray(img200.getArray()));
   } 
   
