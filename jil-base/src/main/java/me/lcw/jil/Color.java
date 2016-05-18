@@ -233,6 +233,15 @@ public class Color implements Comparable<Color> {
     return 0;
   }
   
+  public static Color fromARGB(int c) {
+      byte alpha = (byte)(c >> 24);
+      byte red = (byte)(c >> 16 &0xff);
+      byte green = (byte)(c >> 8 &0xff);
+      byte blue = (byte)(c &0xff);
+    
+      return new Color(red, green, blue, alpha);
+  }
+  
 }
 
 

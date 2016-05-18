@@ -25,7 +25,7 @@ import me.lcw.jil.awt.parsers.PngFile;
 import me.lcw.jil.parsers.tiff.TIFFDecoder;
 import me.lcw.jil.parsers.tiff.TIFFEncoder;
 
-public class AWTImage implements BaseImage{
+public class AWTImage implements BaseImage {
 
   private final int width;
   private final int height;
@@ -60,6 +60,12 @@ public class AWTImage implements BaseImage{
   public static AWTImage create(MODE mode, int width, int height) {
     return new AWTImage(mode, width, height);
   }
+  
+  public static AWTImage create(MODE mode, int width, int height, Color c) {
+      AWTImage i = new AWTImage(mode, width, height);
+      i.fillImageWithColor(c);
+      return i;
+    }
 
   public static AWTImage fromBaseImage(BaseImage img) {
     BufferedImage BB;
@@ -244,10 +250,17 @@ public class AWTImage implements BaseImage{
   }
 
   @Override
-  public AWTImage resizeWithBorders(int bWidth, int bHeight, Color borderColor,
-      ScaleType st) {
-    //TOOD: no reason we cant so this with AWT.
-    throw new UnsupportedOperationException();
+  public AWTImage resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st) {
+    AWTImage aio = AWTImage.create(this.getMode(), bWidth, bHeight, borderColor);
+    AWTImage aii = resize(bWidth, bHeight, true, st);
+    if(aii.getHeight() == aii.getHeight()) {
+        int pos = (aio.getWidth()/2) - (aii.getWidth()/2);
+        aio.paste(pos, 0, aii);
+      } else {
+        int pos = (aio.getHeight()/2)  - (aii.getHeight()/2);
+        aio.paste(0, pos, aii);
+      }
+    return aio;
   }
 
   @Override
@@ -308,7 +321,8 @@ public class AWTImage implements BaseImage{
 
   @Override
   public Color getPixel(int x, int y) {
-    return JilUtils.toJILColor(new java.awt.Color(bi.getRGB(x, y)));
+    java.awt.Color ac = new java.awt.Color(bi.getRGB(x, y), true);
+    return JilUtils.toJILColor(ac);
   }
 
   @Override
@@ -544,7 +558,7 @@ public class AWTImage implements BaseImage{
       try {
         java.awt.Color awt_c = JilUtils.toAWTColor(c);
         if(!alphaMerge) {
-          awt_c = new java.awt.Color(c.getRed()&0xff, c.getGreen()&0xff, c.getBlue()&0xff); 
+            graph.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));  
         }
         graph.setColor(awt_c);
         graph.setStroke(new BasicStroke(lineWidth));
