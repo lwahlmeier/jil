@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import me.lcw.jil.Utils.ImageConvertUtils;
+import me.lcw.jil.Utils.JilUtils;
 import me.lcw.jil.parsers.png.PNGEncoder;
 import me.lcw.jil.parsers.tiff.TIFFDecoder;
 import me.lcw.jil.parsers.tiff.TIFFEncoder;
@@ -163,7 +165,7 @@ public class JilImage implements BaseImage {
 
   @Override
   public JilImage changeMode(MODE nmode) {
-    return JilUtils.convertMode(this, nmode);
+    return ImageConvertUtils.convertMode(this, nmode);
   }
 
   @Override
@@ -362,7 +364,7 @@ public class JilImage implements BaseImage {
         } else {
           Color c = img.getPixel((w+imgXOff), imgYPos);
           Color c2 = this.getPixel(w+x, h);
-          Color ncolor = JilUtils.mergeColors(c2, c);
+          Color ncolor = Color.mergeColors(c2, c);
           this.setPixel(w+x, h, ncolor);
         }
       }
