@@ -2,12 +2,12 @@ package me.lcw.jil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import me.lcw.jil.Utils.ImageConvertUtils;
+import me.lcw.jil.Utils.ImageFillUtils;
 import me.lcw.jil.Utils.JilUtils;
 import me.lcw.jil.parsers.png.PNGEncoder;
 import me.lcw.jil.parsers.tiff.TIFFDecoder;
@@ -25,6 +25,7 @@ import me.lcw.jil.scalers.NearestNeighborScaler;
  */
 public class JilImage implements BaseImage {
 
+  private final JilDraw draw = new JilDraw(this);
   private final int width;
   private final int height;
   private final MODE mode;
@@ -433,15 +434,15 @@ public class JilImage implements BaseImage {
   }
 
   @Override
-  public JavaDraw draw() {
-    return new JavaDraw(this);
+  public Draw draw() {
+    return draw;
   }
 
-  public static class JavaDraw implements Draw {
+  private static class JilDraw implements Draw {
 
     private final JilImage ji;
 
-    public JavaDraw(JilImage ji) {
+    public JilDraw (JilImage ji) {
       this.ji = ji;
     }
 
@@ -492,62 +493,10 @@ public class JilImage implements BaseImage {
       if(y <0 || y>=ji.getWidth()) {
         return;
       }
-      Integer[] ce = new Integer[] {x, y};
-      ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
-      pl.add(ce);
       if(edge == null) {
-        Color OC = ji.getPixel(x, y);
-        if(OC.equals(c)) {
-          return;
-        }
-        while(pl.size() > 0) {
-          ce = pl.poll();
-          Color tmpC = ji.getPixel(ce[0], ce[1]);
-          if(tmpC!=null && tmpC.equalsNoAlpha(OC)) {
-            Color nc = c;
-            if(keepAlpha) {
-              nc = c.changeAlpha(tmpC.getAlpha());
-            }
-            ji.setPixel(ce[0], ce[1], nc);
-            if(ce[0]+1 < ji.getWidth()) {
-              pl.add(new Integer[]{ce[0]+1, ce[1]});
-            }
-            if(ce[0]-1 >= 0) {
-              pl.add(new Integer[]{ce[0]-1, ce[1]});
-            }
-            if(ce[1]+1 < ji.getHeight()) {
-              pl.add(new Integer[]{ce[0], ce[1]+1});
-            }
-            if(ce[1]-1 >= 0) {
-              pl.add(new Integer[]{ce[0], ce[1]-1});
-            }
-          }
-        }
+        ImageFillUtils.noEdgeFill(ji, x, y, c, keepAlpha);
       } else {
-        while(pl.size() > 0) {
-          ce = pl.poll();
-          Color tmpC = ji.getPixel(ce[0], ce[1]);
-          Color nc = c;
-          if(keepAlpha) {
-            nc = c.changeAlpha(tmpC.getAlpha());
-          }
-          if(!tmpC.equals(edge) && !tmpC.equals(nc)) {
-
-            ji.setPixel(ce[0], ce[1], nc);
-            if(ce[0]+1 < ji.getWidth()) {
-              pl.add(new Integer[]{ce[0]+1, ce[1]});
-            }
-            if(ce[0] -1 >= 0) {
-              pl.add(new Integer[]{ce[0]-1, ce[1]});
-            }
-            if(ce[1]+1 < ji.getHeight()) {
-              pl.add(new Integer[]{ce[0], ce[1]+1});
-            }
-            if(ce[1] -1 >= 0) {
-              pl.add(new Integer[]{ce[0], ce[1]-1});
-            }
-          }
-        }
+        ImageFillUtils.edgeFill(ji, x, y, c, edge, keepAlpha);
       }
     }
 

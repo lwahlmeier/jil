@@ -27,6 +27,7 @@ import me.lcw.jil.parsers.tiff.TIFFEncoder;
 
 public class AWTImage implements BaseImage {
 
+  private final AWTDraw draw = new AWTDraw(this);
   private final int width;
   private final int height;
   private final MODE mode;
@@ -73,7 +74,6 @@ public class AWTImage implements BaseImage {
       BB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
       byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
       System.arraycopy(img.getArray(), 0, test, 0, test.length);
-
     } else if(img.getMode() == MODE.RGB || img.getMode() == MODE.YUV) {
       BaseImage nbi;
       if(img.getMode() == MODE.YUV) {
@@ -100,10 +100,13 @@ public class AWTImage implements BaseImage {
         array[pos+1] = MAP[pos+2];
         array[pos+2] = MAP[pos+1];
         array[pos+3] = MAP[pos];
-
       }
     }
     return new AWTImage(BB, img.getMode());
+  }
+  
+  public static AWTImage fromByteArray(MODE mode, int width, int height, byte[] ba){
+    return AWTImage.fromBaseImage(JilImage.fromByteArray(mode, width, height, ba));
   }
 
   public static AWTImage fromBufferedImage(BufferedImage bi) {
@@ -389,7 +392,6 @@ public class AWTImage implements BaseImage {
 
   @Override
   public byte[] getArray() {
-    //TODO: need to figure out if there are better ways to do this??
     if(bi.getType() == BufferedImage.TYPE_BYTE_GRAY) {
       return ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
     } else if (bi.getType() == BufferedImage.TYPE_3BYTE_BGR){
@@ -437,11 +439,11 @@ public class AWTImage implements BaseImage {
   }
 
   @Override
-  public AWTDraw draw() {
-    return new AWTDraw(this);
+  public Draw draw() {
+    return draw;
   }
 
-  public static class AWTDraw implements Draw {
+  private static class AWTDraw implements Draw {
     private final AWTImage ai;
 
     public AWTDraw(AWTImage ai) {
