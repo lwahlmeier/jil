@@ -1,6 +1,7 @@
 package me.lcw.jil.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +86,7 @@ public class JilUtils {
     int scaleFactor = 7;
     BaseImage nimg = img;
     BaseImage resizedImg;
+    int count = 0;
     while(true) {
       int runWidth = width;
       int runHeight = height;

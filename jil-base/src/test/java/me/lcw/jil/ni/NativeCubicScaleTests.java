@@ -1,18 +1,19 @@
-package me.lcw.jil.ji;
+package me.lcw.jil.ni;
 
 import static org.junit.Assert.assertEquals;
-import me.lcw.jil.Color;
+
 import me.lcw.jil.BaseImage;
-import me.lcw.jil.JilImage;
+import me.lcw.jil.Color;
+import me.lcw.jil.NativeImage;
 import me.lcw.jil.ResizeTests;
 import me.lcw.jil.TestUtils;
 
-public class CubicScaleTests extends ResizeTests{
+public class NativeCubicScaleTests extends ResizeTests{
   
   @Override
   public void start() throws Exception {
     scaleType = BaseImage.ScaleType.CUBIC;
-    imgRGBA = JilImage.create(BaseImage.MODE.RGBA, 200, 200);
+    imgRGBA = NativeImage.create(BaseImage.MODE.RGBA, 200, 200);
     imgRGBA.fillImageWithColor(Color.WHITE);
     imgRGBA.draw().circle(0, 0, 50, Color.GREEN, 3, false);
     imgRGBA.draw().line(0, 0, 200, 200, Color.GREY, 5, false);

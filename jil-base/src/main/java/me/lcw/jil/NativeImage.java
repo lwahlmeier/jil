@@ -2,7 +2,7 @@ package me.lcw.jil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Random;
 
@@ -15,6 +15,7 @@ import me.lcw.jil.parsers.tiff.TIFFEncoder;
 import me.lcw.jil.scalers.BiCubicScaler;
 import me.lcw.jil.scalers.BiLinearScaler;
 import me.lcw.jil.scalers.NearestNeighborScaler;
+import sun.misc.Unsafe;
 
 
 /**
@@ -23,27 +24,36 @@ import me.lcw.jil.scalers.NearestNeighborScaler;
  * 
  * @author lcw - Luke Wahlmeier
  */
-public class JilImage implements BaseImage {
+public class NativeImage implements BaseImage {
 
   private final JilDraw draw = new JilDraw(this);
   private final int width;
   private final int height;
   private final MODE mode;
-  protected byte[] MAP;
+  private final UnsafeByteArray data;
 
-  private JilImage(MODE mode, int width, int height) {
+  private NativeImage(MODE mode, int width, int height) {
     this.mode = mode;
     int size = mode.getColors()*width*height;
-    MAP = new byte[size];
+    data = new UnsafeByteArray(size);
     this.width = width;
     this.height = height;
   }
 
-  private JilImage(MODE mode, int width, int height, byte[] map) {
+  private NativeImage(MODE mode, int width, int height, byte[] map) {
     this.mode = mode;
-    MAP = map;
     this.width = width;
     this.height = height;
+
+    data = new UnsafeByteArray(mode.getColors()*width*height);
+    data.setArrayData(map, 0, 0, map.length);
+  }
+  
+  private NativeImage(MODE mode, int width, int height, UnsafeByteArray uba) {
+    this.mode = mode;
+    this.width = width;
+    this.height = height;
+    data = uba;
   }
 
   /**
@@ -54,8 +64,8 @@ public class JilImage implements BaseImage {
    * @param height How high the Image should be in pixels
    * @return Returns an Image object
    */
-  public static JilImage create(MODE mode, int width, int height) {
-    return new JilImage(mode, width, height);
+  public static NativeImage create(MODE mode, int width, int height) {
+    return new NativeImage(mode, width, height);
   }
 
   /**
@@ -67,8 +77,8 @@ public class JilImage implements BaseImage {
    * @param color default color to set for the image
    * @return Returns an Image object
    */
-  public static JilImage create(MODE mode, int width, int height, Color color) {
-    JilImage i = new JilImage(mode, width, height);
+  public static NativeImage create(MODE mode, int width, int height, Color color) {
+    NativeImage i = new NativeImage(mode, width, height);
     i.fillImageWithColor(color);
     return i;
   }
@@ -83,11 +93,11 @@ public class JilImage implements BaseImage {
    * @param data byte[] to use to loading the data
    * @return Returns an Image object with the provided byte[] set in it
    */
-  public static JilImage fromByteArray(MODE mode, int width, int height, byte[] data) {
+  public static NativeImage fromByteArray(MODE mode, int width, int height, byte[] data) {
     if(data.length != (width*height*mode.getColors())){
       throw new RuntimeException("Incorrect number of bytes to make an image of that type");
     }
-    JilImage image = new JilImage(mode, width, height, data);
+    NativeImage image = new NativeImage(mode, width, height, data);
     return image;
   }
 
@@ -98,7 +108,7 @@ public class JilImage implements BaseImage {
    * @throws ImageException This can happen if we do not know the type of file we where asked to open.
    * @throws IOException This happens when we can not access the file.
    */
-  public static JilImage open(String filename) throws ImageException, IOException {
+  public static NativeImage open(String filename) throws ImageException, IOException {
     try {
       return open(filename, JilUtils.getImageType(filename));
     } catch(ImageException e) {
@@ -112,6 +122,10 @@ public class JilImage implements BaseImage {
     }
   }
 
+  public static NativeImage fromJilImage(JilImage ji) {
+    return new NativeImage(ji.getMode(), ji.getWidth(), ji.getHeight(), ji.getArray());
+  }
+
   /**
    * Static Method that allows you to open a file, just pass in the path/filename. 
    * @param filename  Filename to attempt to open.
@@ -121,7 +135,7 @@ public class JilImage implements BaseImage {
    * @throws IOException This happens when we can not access the file.
    * 
    */
-  public static JilImage open(String filename, ImageType type) throws IOException, ImageException {
+  public static NativeImage open(String filename, ImageType type) throws IOException, ImageException {
     JilImage image;
     switch(type) {
     case TIFF:
@@ -132,7 +146,11 @@ public class JilImage implements BaseImage {
     default:
       throw new ImageException("Could not determen filetype");
     }
-    return image;
+    return fromJilImage(image);
+  }
+  
+  public UnsafeByteArray getUnsafeByteArray() {
+    return data;
   }
 
   @Override
@@ -165,15 +183,17 @@ public class JilImage implements BaseImage {
   }
 
   @Override
-  public JilImage changeMode(MODE nmode) {
-    return ImageConvertUtils.convertMode(this, nmode);
+  public NativeImage changeMode(MODE nmode) {
+    NativeImage nji = create(nmode, getWidth(), getHeight());
+    ImageConvertUtils.simpleModeConvert(this, nji);
+    return nji;
   }
 
   @Override
-  public JilImage resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st) {
-    JilImage ib = JilImage.create(mode, bWidth, bHeight, borderColor);
+  public NativeImage resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st) {
+    NativeImage ib = NativeImage.create(mode, bWidth, bHeight, borderColor);
 
-    JilImage newI = resize(bWidth, bHeight, true, st);
+    NativeImage newI = resize(bWidth, bHeight, true, st);
 
     if(newI.getHeight() == ib.getHeight()) {
       int pos = (ib.getWidth()/2) - (newI.getWidth()/2);
@@ -187,98 +207,85 @@ public class JilImage implements BaseImage {
   }
 
   @Override
-  public JilImage resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
+  public NativeImage resize(int newWidth, int newHeight, boolean keepAspect, ScaleType st) {
     if(keepAspect) {
       int[] aspect = JilUtils.getAspectSize(this.width, this.height, newWidth, newHeight);
       newWidth = aspect[0];
       newHeight = aspect[1];
     }
-    JilImage tmp;
     switch(st) {
-    case LINER:
-      tmp = BiLinearScaler.scale(this, newWidth, newHeight);
-//      tmp = JilImage.create(mode, newWidth, newHeight);
-//      BiLinearScaler.scaleGeneric(this, tmp);
-      break;
-    case CUBIC:
-      //tmp = BiCubicScaler.scale(this, newWidth, newHeight);
-    tmp = JilImage.create(mode, newWidth, newHeight);
-    BiCubicScaler.scaleGeneric(this, tmp);
-      break;
-    case CUBIC_SMOOTH:
-      tmp = (JilImage)JilUtils.biCubicSmooth(this, newWidth, newHeight);
-      break;
-    default:
-      //tmp = JilImage.create(mode, newWidth, newHeight);
-      //NearestNeighborScaler.scaleGeneric(this, tmp);
-      tmp = NearestNeighborScaler.scale(this, newWidth, newHeight);
+    case LINER: {
+      final NativeImage tmp = NativeImage.create(mode, newWidth, newHeight);
+      BiLinearScaler.scaleGeneric(this, tmp);
+      return tmp;
     }
-    return tmp;
+    case CUBIC: {
+      final NativeImage tmp = NativeImage.create(mode, newWidth, newHeight);
+      BiCubicScaler.scaleGeneric(this, tmp);
+      return tmp;
+    }
+    case CUBIC_SMOOTH:
+      return (NativeImage)JilUtils.biCubicSmooth(this, newWidth, newHeight);
+    default: {
+      final NativeImage tmp = NativeImage.create(mode, newWidth, newHeight);
+      NearestNeighborScaler.scaleNativeImage(this, tmp);
+      return tmp;
+    }
+    }
+
   }
 
   @Override
   public void fillImageWithColor(Color c) {
     if (mode == MODE.GREY){
-      Arrays.fill(MAP, c.getGrey());
+      this.data.setAll(c.getGrey());
     } else {
-      for(int i=0; i<MAP.length/getColors(); i++) {
-        int pos = i*getColors();
-        MAP[pos] = c.getRed();
-        MAP[pos+1] = c.getGreen();
-        MAP[pos+2] = c.getBlue();
-        if (mode == MODE.RGBA){
-          MAP[pos+3] = c.getAlpha();
+      if (mode == MODE.RGBA){
+        for(int i=0; i<width*height; i++) {
+          int pos = i*getColors();
+          data.setInt(pos, c.getRGBA());
         }
+      } else {
+        for(int i=0; i<(width*height); i++) {
+          int pos = i*getColors();
+          data.setByte(pos, c.getRed());
+          data.setByte(pos+1, c.getGreen());
+          data.setByte(pos+2, c.getBlue());
+        } 
       }
-
-
     } 
   }
 
   @Override
   public void setPixel(int x, int y, Color c) {
-    if(x<0 || x>=this.width) {
-      return;
-    }
-    if(y<0 || y>=this.height) {
-      return;
-    }
-    int pos = ((y*this.width)+x)*(getColors()); 
+    int pos = (y*getWidth() + x);
     if(mode == MODE.GREY) {
-      MAP[pos] = c.getGrey();
+      data.setByte(pos, c.getGrey());
+    } else if (mode == MODE.RGBA) {
+      pos*=4;
+      data.setInt(pos, c.getRGBA());
     } else {
-      MAP[pos] = c.getRed();
-      MAP[pos+1] = c.getGreen();
-      MAP[pos+2] = c.getBlue();
-      if(mode == MODE.RGBA) {
-        MAP[pos+3] = c.getAlpha();
-      }
+      pos*=3;
+      data.setByte(pos, c.getRed());
+      data.setByte(pos+1, c.getGreen());
+      data.setByte(pos+2, c.getBlue());
     }
-  }
-
-  public void setPixelInChannel(int x, int y, byte c, byte p) {
-    int POS = ((y*this.getWidth())+x)*(getColors())+c;
-    MAP[POS] = p;
   }
 
   @Override
   public Color getPixel(int x, int y) {
-    if(x < 0 || x >= width || y < 0 || y >= height) {
-      return null;
-    }
-    int POS = ((y*width)+x)*(getColors());
-    if (this.getMode() == MODE.RGBA) {
-      return new Color(MAP[POS], MAP[POS+1], MAP[POS+2], MAP[POS+3]);
-    } else if (this.getMode() == MODE.RGB) {
-      return new Color(MAP[POS], MAP[POS+1], MAP[POS+2]);
+    int pos = (y*getWidth() + x);
+    if(mode == MODE.GREY) {
+      return new Color(data.getByte(pos));
+    } else if (mode == MODE.RGBA) {
+      pos*=4;
+      return Color.fromRGBA(data.getInt(pos));
     } else {
-      return new Color(MAP[POS]);
+      pos*=3;
+      return new Color(data.getByte(pos),
+          data.getByte(pos+1),
+          data.getByte(pos+2));
     }
-  }
-
-  public byte getByteInChannel(int x, int y, byte c) {
-    int POS = ((y*this.getWidth())+x)*(getColors())+c;
-    return MAP[POS];
   }
 
   @Override
@@ -310,6 +317,8 @@ public class JilImage implements BaseImage {
     int imgXOffBytes = imgXOff * img.getColors();
     int XBytes = x * getColors();
 
+    byte[] iba = img.getArray();
+    
     for(int h=y; h < height; h++) {
       int imgYPos = h-y+imgYOff;
       if( imgYPos >= img.getHeight()) {
@@ -317,7 +326,7 @@ public class JilImage implements BaseImage {
       }
       int thisStart = thisLineWidth*h;
       int imgStart = imgLineWidth*(imgYPos);
-      System.arraycopy(img.getArray(), imgStart+(imgXOffBytes), this.MAP, thisStart+(XBytes), Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes)));
+      data.setArrayData(iba, imgStart+(imgXOffBytes), thisStart+(XBytes), Math.min(imgLineWidth-(imgXOffBytes), thisLineWidth-(XBytes)));
     }
   }
 
@@ -346,32 +355,24 @@ public class JilImage implements BaseImage {
       y=0;
     }
 
-    int thisLineWidth = this.width * getColors();
-    int imgLineWidth = img.getWidth() * img.getColors();
-    int imgXOffBytes = imgXOff * img.getColors();
-    int XBytes = x*getColors();
     for(int h=y; h < this.height; h++) {
       int imgYPos = h-y+imgYOff;
       if( imgYPos >= img.getHeight()) {
         break;
       }
-      int thisStart = thisLineWidth*h;
-      int imgStart = imgLineWidth*(imgYPos);
       int maxWidth = Math.min((img.getWidth()-(imgXOff)), (this.width-x));
       for(int w = 0; w < maxWidth; w++) {
-        int wImgBytes = w*img.getColors();
-        int wThisBytes = w*getColors();
-        int imgXPos = imgStart+wImgBytes+imgXOffBytes;
-        int thisXPos = thisStart+XBytes+wThisBytes;
-        if(img.getMode() == MODE.RGBA && img.getArray()[imgXPos+3] == 0) {
+
+        Color c = img.getPixel((w+imgXOff), imgYPos);
+        Color c2 = this.getPixel(w+x, h);
+        if(img.getMode() == MODE.RGBA && (c.getAlpha()) == 0) {
           continue;
-        } else if (mode == MODE.RGBA && this.MAP[thisXPos+3] == 0) {
-          System.arraycopy(img.getArray(), imgXPos, this.MAP, thisXPos, getColors());
-        } else if (img.getMode() == MODE.RGBA && img.getArray()[imgXPos+3] == 255) {
-          System.arraycopy(img.getArray(), imgXPos, this.MAP, thisXPos, getColors());
+        } else if (mode == MODE.RGBA && (c2.getAlpha()) == 0) {
+          this.setPixel(w+x, h, c);
+        } else if (img.getMode() == MODE.RGBA && c.getAlpha() == -1) {
+          this.setPixel(w+x, h, c);
         } else {
-          Color c = img.getPixel((w+imgXOff), imgYPos);
-          Color c2 = this.getPixel(w+x, h);
+          System.out.println(c);
           Color ncolor = Color.mergeColors(c2, c);
           this.setPixel(w+x, h, ncolor);
         }
@@ -381,21 +382,14 @@ public class JilImage implements BaseImage {
 
 
   @Override
-  public JilImage copy() {
-    JilImage newImage = JilImage.create(mode, width, height);
-    System.arraycopy(MAP, 0, newImage.MAP, 0, MAP.length);
-    return newImage;
+  public NativeImage copy() {
+    return new NativeImage(mode, width, height, data.copy());
   }
 
   @Override
-  public JilImage cut(int x, int y, int width, int height) {
-    JilImage newImage = JilImage.create(mode, width, height);
-
-    for(int yy = 0; yy< height; yy++) {
-      int startPos = (((y+yy)*this.width)+x)*(getColors());
-      System.arraycopy(this.MAP, startPos, newImage.MAP, (yy*width*(newImage.getColors())), width*(newImage.getColors()));
-    }
-    return newImage;
+  public NativeImage cut(int x, int y, int width, int height) {
+    //TODO:
+    return create(mode, width-x, height-y);
   }
 
   /**
@@ -403,16 +397,16 @@ public class JilImage implements BaseImage {
    */
   public void mkRandom() {
     Random r = new Random();
-    r.nextBytes(MAP);
-  }
-
-  protected void setArray(byte[] array){
-    this.MAP = array;
+    for(int i=0; i<((width*height*mode.getColors()))/4; i++){
+      data.setInt(i*4, r.nextInt());
+    }
   }
 
   @Override
   public byte[] getArray() {
-    return MAP;
+    byte[] ba = new byte[width*height*mode.getColors()];
+    data.getArrayData(ba, 0, 0, ba.length);
+    return ba;
   }
 
   @Override
@@ -437,7 +431,7 @@ public class JilImage implements BaseImage {
 
   @Override
   public JilImage toJilImage() {
-    return this;
+    return this.toJilImage();
   }
 
   @Override
@@ -447,10 +441,10 @@ public class JilImage implements BaseImage {
 
   private static class JilDraw implements Draw {
 
-    private final JilImage ji;
+    private final NativeImage ni;
 
-    public JilDraw (JilImage ji) {
-      this.ji = ji;
+    public JilDraw (NativeImage ni) {
+      this.ni = ni;
     }
 
 
@@ -458,11 +452,11 @@ public class JilImage implements BaseImage {
     public void rect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
       int maxW = x+w;
       int maxH = y+h;
-      if (ji.getWidth() < maxW) {
-        maxW = ji.getWidth() ;
+      if (ni.getWidth() < maxW) {
+        maxW = ni.getWidth() ;
       }
-      if (ji.getHeight() < maxH) {
-        maxH = ji.getHeight();
+      if (ni.getHeight() < maxH) {
+        maxH = ni.getHeight();
       }
       if(x < 0) {
         x=0;
@@ -473,7 +467,7 @@ public class JilImage implements BaseImage {
       for(int H = y; H<maxH; H++) {
         for(int W = x;  W<maxW; W++) {
           if(W <= (x+lineWidth)-1 || H <= (y+lineWidth)-1 || H >= maxH-lineWidth || W >= maxW-lineWidth) {
-            ji.setPixel(W, H, c);
+            ni.setPixel(W, H, c);
           } 
         }
       }
@@ -494,16 +488,16 @@ public class JilImage implements BaseImage {
 
     @Override
     public void floodFill(int x, int y, Color c, Color edge, boolean keepAlpha) {
-      if(x < 0 || x >= ji.getWidth()) {
+      if(x < 0 || x >= ni.getWidth()) {
         return;
       }
-      if(y <0 || y>=ji.getWidth()) {
+      if(y <0 || y>=ni.getWidth()) {
         return;
       }
       if(edge == null) {
-        ImageFillUtils.noEdgeFill(ji, x, y, c, keepAlpha);
+        ImageFillUtils.noEdgeFill(ni, x, y, c, keepAlpha);
       } else {
-        ImageFillUtils.edgeFill(ji, x, y, c, edge, keepAlpha);
+        ImageFillUtils.edgeFill(ni, x, y, c, edge, keepAlpha);
       }
     }
 
@@ -519,8 +513,8 @@ public class JilImage implements BaseImage {
       for(int i=0; i<360*points; i++) {
         int px = (int)Math.round(cx+Math.cos(i*Math.PI/180.0/points)*r);
         int py = (int)Math.round(cy+Math.sin(i*Math.PI/180.0/points)*r);
-        if(px >= 0 && py >= 0 && py < ji.getHeight() && px < ji.getWidth()) {
-          ji.setPixel(px, py, c);
+        if(px >= 0 && py >= 0 && py < ni.getHeight() && px < ni.getWidth()) {
+          ni.setPixel(px, py, c);
         }
       }
 
@@ -537,13 +531,13 @@ public class JilImage implements BaseImage {
     @Override
     public void line(int x, int y, int x2, int y2, Color c, int lineWidth, boolean alphaMerge) {
       List<int[]> pxlist = JilUtils.lineToList(x, y, x2, y2);
-      JilImage newImg = ji;
-      JilImage circle = null;
+      NativeImage newImg = ni;
+      NativeImage circle = null;
 
       if(lineWidth > 1) {
-        newImg = JilImage.create(BaseImage.MODE.RGBA, ji.getWidth(), ji.getHeight());  
+        newImg = NativeImage.create(BaseImage.MODE.RGBA, ni.getWidth(), ni.getHeight(), Color.ALPHA);  
         if(circle == null) {
-          circle = JilImage.create(BaseImage.MODE.RGBA, lineWidth+1, lineWidth+1);
+          circle = NativeImage.create(BaseImage.MODE.RGBA, lineWidth+1, lineWidth+1, Color.ALPHA);
           circle.draw().circle((lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
         }
       }
@@ -565,18 +559,120 @@ public class JilImage implements BaseImage {
             break;
           }
         }
-        ji.merge(0, 0, newImg);
+        
+        ni.merge(0, 0, newImg);
       }
     }
   }
 
   @Override
   public String toString() {
-    return "JilImage: width:"+width+": height"+height+": mode:"+mode.toString();
+    return "UnsafeJilImage: width:"+width+": height"+height+": mode:"+mode.toString();
+  }
+
+  
+  public static class UnsafeByteArray {
+    final long address;
+    final int size;
+    
+    public UnsafeByteArray(int size) {
+      this.size = size;
+      address = getUnsafe().allocateMemory(size);
+    }
+    
+    public void setArrayData(byte[] srcArray, int srcOff, int destOff, int length) {
+      getUnsafe().copyMemory(srcArray, Unsafe.ARRAY_BYTE_BASE_OFFSET+srcOff, null, address+destOff, length);
+    }
+    
+    public void getArrayData(byte[] dstArray, int dstOff, int srcOff, int length) {
+      getUnsafe().copyMemory(null, address+srcOff, dstArray, Unsafe.ARRAY_BYTE_BASE_OFFSET+srcOff, length);
+    }
+    
+    public void setFromUBA(UnsafeByteArray uba, int srcOff, int dstOff, int length) {
+      getUnsafe().copyMemory(uba.address+srcOff, address+dstOff, length);
+    }
+    
+    public void setByte(int offset, byte b) {
+      getUnsafe().putByte(address+offset, b);
+    }
+    
+    public byte getByte(int offset) {
+      return getUnsafe().getByte(address+offset);
+    }
+    
+    public int getInt(int offset) {
+      return little2big(getUnsafe().getInt(address+offset));
+    }
+    
+    public void setInt(int offset, int data) {
+      getUnsafe().putInt(address+offset, little2big(data));
+    }
+    
+    public int getSize() {
+      return size;
+    }
+    
+    public UnsafeByteArray copy() {
+      UnsafeByteArray uba = new UnsafeByteArray(size);
+      getUnsafe().copyMemory(address, uba.address, size);
+      return uba;
+    }
+    
+    public void setAll(byte b) {
+      getUnsafe().setMemory(address, size, b);
+    }
+
+    @Override
+    protected void finalize() {
+      getUnsafe().freeMemory(address);
+    }
   }
   
-  public static void main(String[] args) throws ImageException, IOException {
-    JilImage ji = JilImage.create(MODE.RGBA, 200, 200);
-    ji.resize(2000, 2000, true, ScaleType.NN).save("/tmp/jil/nn-test.png");
+  private static volatile Unsafe unsafe;
+  
+  public static Unsafe getUnsafe() {
+    if(unsafe == null) {
+      try {
+        Field singleoneInstanceField = Unsafe.class.getDeclaredField("theUnsafe");
+        singleoneInstanceField.setAccessible(true);
+        unsafe = (Unsafe) singleoneInstanceField.get(null);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      } 
+    }
+    return unsafe;
+
   }
+
+  public static long getAddressOfObject(Object obj) {
+    Object helperArray[]    = new Object[1];
+    helperArray[0]          = obj;
+    long baseOffset         = getUnsafe().arrayBaseOffset(Object[].class);
+    long addressOfObject    = getUnsafe().getLong(helperArray, baseOffset);      
+    return addressOfObject;
+  }
+  
+  public static void main(String[] args) throws InterruptedException {
+    NativeImage ni = NativeImage.fromJilImage(RGBImageGenerator());
+    ni.fillImageWithColor(Color.BLACK);
+    Thread.sleep(1000);
+  }
+  
+  public static JilImage RGBImageGenerator() {
+      JilImage img = JilImage.create(BaseImage.MODE.RGB, 480, 270);
+      for(int i=0; i<img.getHeight(); i++) {
+        double pct = i/(double)img.getHeight();
+        byte r = (byte)(0xff * (pct*2));
+        byte g = (byte)(0xff* (pct*1));
+        byte b = (byte)(0xff -(0xff* (pct*2)));
+        Color c = new Color(r,g,b);
+        img.draw().line(0, i, img.getWidth(), i, c, 0, false);
+      }
+    return img;
+  }
+  
+  private static int little2big(int i) {
+    return (i&0xff)<<24 | (i&0xff00)<<8 | (i&0xff0000)>>8 | (i>>24)&0xff;
 }
+}
+

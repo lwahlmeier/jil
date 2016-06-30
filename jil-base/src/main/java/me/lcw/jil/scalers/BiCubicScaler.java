@@ -1,24 +1,12 @@
 package me.lcw.jil.scalers;
 
+import me.lcw.jil.BaseImage;
 import me.lcw.jil.Color;
 import me.lcw.jil.JilImage;
 
 public class BiCubicScaler {
-  private JilImage srcImage;
-  private byte[] srcImageArray;
-    
-  private BiCubicScaler() {
-    
-  }
   
-  public static JilImage scale(JilImage srcImage, int newWidth, int newHeight) {
-    BiCubicScaler tmp = new BiCubicScaler();
-    tmp.srcImage = srcImage;
-    tmp.srcImageArray = srcImage.getArray();
-    return tmp.doScale(newWidth, newHeight);
-  }
-  
-  private JilImage doScale(int newWidth, int newHeight){
+  public static JilImage scale(JilImage srcImage, int newWidth, int newHeight){
     JilImage newImage = JilImage.create(srcImage.getMode(), newWidth, newHeight);
     float x_ratio = ((float)(srcImage.getWidth()))/newWidth ;
     float y_ratio = ((float)(srcImage.getHeight()))/newHeight ;
@@ -30,31 +18,31 @@ public class BiCubicScaler {
       for (int x = 0; x < newWidth; x++){
         px = (int)(x_ratio * x);
         x_diff = (x_ratio * x) - px;
-        newImage.setPixel(x, y, getInterpolatedPixel(px, py, x_diff, y_diff));
+        newImage.setPixel(x, y, getInterpolatedPixel(srcImage, srcImage.getArray(), px, py, x_diff, y_diff));
       }
     }
     return newImage;
   }
   
-  private int clampXPos(int x) {
-    if(x < 0) {
-      return 0;
-    } else if (x > (srcImage.getWidth()-1)) {
-      return (srcImage.getWidth()-1);
+  public static void scaleGeneric(final BaseImage srcImage, final BaseImage newImage) {
+    float x_ratio = ((float)(srcImage.getWidth()))/newImage.getWidth();
+    float y_ratio = ((float)(srcImage.getHeight()))/newImage.getHeight() ;
+    float x_diff, y_diff;
+    int px, py;
+    byte[] srcImageArray = srcImage.getArray();
+    for (int y = 0; y < newImage.getHeight(); y++){
+      py = (int)(y_ratio * y);
+      y_diff = (y_ratio * y) - py;
+      for (int x = 0; x < newImage.getWidth(); x++){
+        px = (int)(x_ratio * x);
+        x_diff = (x_ratio * x) - px;
+        newImage.setPixel(x, y, getInterpolatedPixel(srcImage, srcImageArray, px, py, x_diff, y_diff));
+      }
     }
-    return x;
   }
+
   
-  private int clampYPos(int y) {
-    if(y < 0) {
-      return 0;
-    } else if (y > (srcImage.getHeight()-1)) {
-      return (srcImage.getHeight()-1);
-    }
-    return y;
-  }
-  
-  private byte getInterpolatedValues(byte c0, byte c1, byte c2, byte c3, float t) {
+  private static byte getInterpolatedValues(byte c0, byte c1, byte c2, byte c3, float t) {
     int p0 = c0 & 0xff;
     int p1 = c1 & 0xff;
     int p2 = c2 & 0xff;
@@ -87,7 +75,7 @@ public class BiCubicScaler {
     return R;
   }
   
-  private Color getInterpolatedPixel(int x, int y, float tx, float ty){
+  private static Color getInterpolatedPixel(final BaseImage srcImage, final byte[] srcImageArray, final int x, final int y, final float tx, final float ty){
     int cX;
     int cY;
     int cSize = srcImage.getColors();
@@ -99,9 +87,9 @@ public class BiCubicScaler {
     }
     
     for(int newY = 0; newY<4; newY++){
-      cY = this.clampYPos(y+newY-1);
+      cY = clampYPos(srcImage, y+newY-1);
       for(int newX = 0; newX<4; newX++){
-        cX = this.clampXPos(x+newX-1);
+        cX = clampXPos(srcImage, x+newX-1);
         int cp = ((cY*srcImage.getWidth())+cX)*cSize;
         for(int i=0; i<cSize; i++){ 
           pixles[newX][i] = srcImageArray[cp+i];
@@ -130,5 +118,24 @@ public class BiCubicScaler {
           );
     }
     return last; 
+  }
+  
+  
+  private static int clampXPos(final BaseImage srcImage, final int x) {
+    if(x < 0) {
+      return 0;
+    } else if (x > (srcImage.getWidth()-1)) {
+      return (srcImage.getWidth()-1);
+    }
+    return x;
+  }
+  
+  private static int clampYPos(final BaseImage srcImage, final int y) {
+    if(y < 0) {
+      return 0;
+    } else if (y > (srcImage.getHeight()-1)) {
+      return (srcImage.getHeight()-1);
+    }
+    return y;
   }
 }

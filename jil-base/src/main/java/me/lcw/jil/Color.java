@@ -176,7 +176,7 @@ public class Color implements Comparable<Color> {
   }
   
   public int getRGBA() {
-    return red<<24 & 0xff000000 | green<<16 & 0xff0000 | blue<<8 & 0xff00 |alpha & 0xff;
+    return red<<24 & 0xff000000 | green<<16 & 0xff0000 | blue<<8 & 0xff00 | alpha & 0xff;
   }
   
   public int getRGB() {
@@ -241,6 +241,15 @@ public class Color implements Comparable<Color> {
     
       return new Color(red, green, blue, alpha);
   }
+  
+  public static Color fromRGBA(int c) {
+    byte red = (byte)(c >> 24 &0xff);
+    byte green = (byte)(c >> 16 &0xff);
+    byte blue = (byte)(c >> 8 &0xff);
+    byte alpha = (byte)(c &0xff);
+  
+    return new Color(red, green, blue, alpha);
+}
   
   public static java.awt.Color toAWTColor(Color c) {
     return new java.awt.Color( c.getRed()&0xff, c.getGreen()&0xff, c.getBlue()&0xff, c.getAlpha()&0xff);

@@ -9,7 +9,7 @@ public class ImageCompareUtils {
     if(biOrig.getWidth() != biNew.getWidth() || biOrig.getHeight() != biNew.getHeight()) {
       throw new IllegalStateException("Images must be the same width and height!");
     }
-    JilImage outImage = JilImage.create(biOrig.getMode(), biOrig.getWidth(), biOrig.getHeight());
+    JilImage outImage = JilImage.create(biOrig.getMode(), biOrig.getWidth(), biOrig.getHeight(), Color.WHITE);
     for(int y=0; y<biOrig.getHeight(); y++) {
       for(int x=0; x<biOrig.getWidth(); x++) {
         Color origColor = biOrig.getPixel(x, y);
@@ -17,10 +17,10 @@ public class ImageCompareUtils {
         float redOff = Math.abs((float)(origColor.getRedPct() - newColor.getRedPct()));
         float greenOff = Math.abs((float)(origColor.getGreenPct() - newColor.getGreenPct()));
         float blueOff = Math.abs((float)(origColor.getBluePct() - newColor.getBluePct()));
-        if(redOff < pctOff && greenOff < pctOff && blueOff < pctOff ) {
-          outImage.setPixel(x, y, Color.ALPHA);
+        if(redOff <= pctOff && greenOff <= pctOff && blueOff <= pctOff ) {
+          outImage.setPixel(x, y, Color.WHITE);
         } else {
-          outImage.setPixel(x, y, newColor);
+          outImage.setPixel(x, y, Color.BLACK);
         }
       }
     }

@@ -1,10 +1,24 @@
 package me.lcw.jil.Utils;
 
 import me.lcw.jil.JilImage;
+import me.lcw.jil.BaseImage;
 import me.lcw.jil.BaseImage.MODE;
 import me.lcw.jil.Color;
 
 public class ImageConvertUtils {
+  
+  public static void simpleModeConvert(BaseImage si, BaseImage ni) {
+    if(si.getWidth() != ni.getWidth() || si.getHeight() != ni.getHeight()) {
+      throw new IllegalArgumentException("Images must be same width and height!");
+    }
+    for(int y=0; y<si.getHeight(); y++) {
+      for(int x=0; x<si.getWidth(); x++) {
+        ni.setPixel(x, y, si.getPixel(x, y));
+      }
+    }
+  }
+
+
   public static JilImage convertMode(JilImage image, MODE toMode) {
     switch(image.getMode()) {
     case GREY: {
