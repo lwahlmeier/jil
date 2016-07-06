@@ -3,7 +3,7 @@ package me.lcw.jil.awt;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
-import me.lcw.jil.JilUtils;
+import me.lcw.jil.Utils.JilUtils;
 
 public class AWTUtils {
 

@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
 
 import javax.imageio.ImageIO;
 
@@ -19,7 +18,8 @@ import me.lcw.jil.Color;
 import me.lcw.jil.Draw;
 import me.lcw.jil.ImageException;
 import me.lcw.jil.JilImage;
-import me.lcw.jil.JilUtils;
+import me.lcw.jil.Utils.ImageFillUtils;
+import me.lcw.jil.Utils.JilUtils;
 import me.lcw.jil.awt.parsers.JpegFile;
 import me.lcw.jil.awt.parsers.PngFile;
 import me.lcw.jil.parsers.tiff.TIFFDecoder;
@@ -27,6 +27,7 @@ import me.lcw.jil.parsers.tiff.TIFFEncoder;
 
 public class AWTImage implements BaseImage {
 
+  private final AWTDraw draw = new AWTDraw(this);
   private final int width;
   private final int height;
   private final MODE mode;
@@ -76,7 +77,6 @@ public class AWTImage implements BaseImage {
       BB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
       byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
       System.arraycopy(img.getArray(), 0, test, 0, test.length);
-
     } else if(img.getMode() == MODE.RGB || img.getMode() == MODE.YUV) {
       BaseImage nbi;
       if(img.getMode() == MODE.YUV) {
@@ -103,10 +103,13 @@ public class AWTImage implements BaseImage {
         array[pos+1] = MAP[pos+2];
         array[pos+2] = MAP[pos+1];
         array[pos+3] = MAP[pos];
-
       }
     }
     return new AWTImage(BB, img.getMode());
+  }
+
+  public static AWTImage fromByteArray(MODE mode, int width, int height, byte[] ba){
+    return AWTImage.fromBaseImage(JilImage.fromByteArray(mode, width, height, ba));
   }
 
   public static AWTImage fromBufferedImage(BufferedImage bi) {
@@ -330,7 +333,7 @@ public class AWTImage implements BaseImage {
   public void fillImageWithColor(Color c) {
     Graphics2D graphics = bi.createGraphics();
     try {
-      graphics.setPaint(JilUtils.toAWTColor(c));
+      graphics.setPaint(Color.toAWTColor(c));
       graphics.fillRect(0, 0, width, height);
       this.localBACacheDirty = true;
     } finally {
@@ -340,14 +343,14 @@ public class AWTImage implements BaseImage {
 
   @Override
   public void setPixel(int x, int y, Color c) {
-    bi.setRGB(x, y, JilUtils.toAWTColor(c).getRGB());
+    bi.setRGB(x, y, Color.toAWTColor(c).getRGB());
     this.localBACacheDirty = true;
   }
 
   @Override
   public Color getPixel(int x, int y) {
     java.awt.Color ac = new java.awt.Color(bi.getRGB(x, y), true);
-    return JilUtils.toJILColor(ac);
+    return Color.toJILColor(ac);
   }
 
   @Override
@@ -485,11 +488,11 @@ public class AWTImage implements BaseImage {
   }
 
   @Override
-  public AWTDraw draw() {
-    return new AWTDraw(this);
+  public Draw draw() {
+    return draw;
   }
 
-  public static class AWTDraw implements Draw {
+  private static class AWTDraw implements Draw {
     private final AWTImage ai;
 
     public AWTDraw(AWTImage ai) {
@@ -505,62 +508,10 @@ public class AWTImage implements BaseImage {
         return;
       }
 
-      Integer[] ce = new Integer[] {x, y};
-      ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
-      pl.add(ce);
-      ai.localBACacheDirty = true;
       if(edge == null) {
-        Color OC = ai.getPixel(x, y);
-        if(OC.equals(c)) {
-          return;
-        }
-        while(pl.size() > 0) {
-          ce = pl.poll();
-          Color tmpC = ai.getPixel(ce[0], ce[1]);
-          if(tmpC!=null && tmpC.equalsNoAlpha(OC)) {
-            Color nc = c;
-            if(keepAlpha) {
-              nc = c.changeAlpha(tmpC.getAlpha());
-            }
-            ai.setPixel(ce[0], ce[1], nc);
-            if(ce[0]+1 < ai.getWidth()) {
-              pl.add(new Integer[]{ce[0]+1, ce[1]});
-            }
-            if(ce[0]-1 >= 0) {
-              pl.add(new Integer[]{ce[0]-1, ce[1]});
-            }
-            if(ce[1]+1 < ai.getHeight()) {
-              pl.add(new Integer[]{ce[0], ce[1]+1});
-            }
-            if(ce[1]-1 >= 0) {
-              pl.add(new Integer[]{ce[0], ce[1]-1});
-            }
-          }
-        }
+        ImageFillUtils.noEdgeFill(ai, x, y, c, keepAlpha);
       } else {
-        while(pl.size() > 0) {
-          ce = pl.poll();
-          Color tmpC = ai.getPixel(ce[0], ce[1]);
-          Color nc = c;
-          if(keepAlpha) {
-            nc = c.changeAlpha(tmpC.getAlpha());
-          }
-          if(!tmpC.equals(edge) && !tmpC.equals(nc)) {
-            ai.setPixel(ce[0], ce[1], nc);
-            if(ce[0]+1 < ai.getWidth()) {
-              pl.add(new Integer[]{ce[0]+1, ce[1]});
-            }
-            if(ce[0] -1 >= 0) {
-              pl.add(new Integer[]{ce[0]-1, ce[1]});
-            }
-            if(ce[1]+1 < ai.getHeight()) {
-              pl.add(new Integer[]{ce[0], ce[1]+1});
-            }
-            if(ce[1] -1 >= 0) {
-              pl.add(new Integer[]{ce[0], ce[1]-1});
-            }
-          }
-        }
+        ImageFillUtils.edgeFill(ai, x, y, c, edge, keepAlpha);
       }
     }
 
@@ -574,7 +525,7 @@ public class AWTImage implements BaseImage {
       Graphics2D graph = ai.bi.createGraphics();
       ai.localBACacheDirty = true;
       try{
-        graph.setColor(JilUtils.toAWTColor(c));
+        graph.setColor(Color.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
         int offset = (lineWidth/2);
         if(fill) {
@@ -592,7 +543,7 @@ public class AWTImage implements BaseImage {
       Graphics2D graph = ai.bi.createGraphics();
       ai.localBACacheDirty = true;
       try {
-        graph.setColor(JilUtils.toAWTColor(c));
+        graph.setColor(Color.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
         if(fill) {
           graph.fillOval(cx-(size/2), cy-(size/2), size, size);
@@ -609,7 +560,7 @@ public class AWTImage implements BaseImage {
       Graphics2D graph = ai.bi.createGraphics();
       ai.localBACacheDirty = true;
       try {
-        java.awt.Color awt_c = JilUtils.toAWTColor(c);
+        java.awt.Color awt_c = Color.toAWTColor(c);
         if(!alphaMerge) {
           graph.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));  
         }
@@ -625,4 +576,6 @@ public class AWTImage implements BaseImage {
   public String toString() {
     return "AWTImage: width:"+width+": height"+height+": mode:"+mode.toString();
   }
+
 }
+

@@ -7,7 +7,7 @@ import me.lcw.jil.BaseImage;
 import me.lcw.jil.Color;
 import me.lcw.jil.Draw;
 import me.lcw.jil.JilImage;
-import me.lcw.jil.JilUtils;
+import me.lcw.jil.Utils.JilUtils;
 
 public class NativeImage implements BaseImage {
   
