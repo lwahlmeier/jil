@@ -1,6 +1,7 @@
 package me.lcw.jil.awt;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.image.BufferedImage;
@@ -27,6 +28,20 @@ public class AWTImageTests {
   public void exceptionTest3() throws ImageException, IOException {
     AWTImage.open("TEST.BLAH");
   }
+  
+  @Test
+  public void checkCachedBA() {
+    AWTImage img = AWTImage.fromBaseImage(TestUtils.RGBAImageGenerator());
+    img.enableBAcache();
+    byte[] oba = img.getArray();
+    img.draw().line(0, 0, 100, 100, Color.RED, 10, true);
+    assertFalse(Arrays.equals(oba, img.getArray()));
+    assertTrue(Arrays.equals(img.getArray(), img.getArray()));
+    assertTrue(img.getArray() == img.getArray());
+    img.disableBAcache();
+    assertFalse(img.getArray() == img.getArray());
+  }
+  
   @Test
   public void modeChageTest() throws ImageException, IOException {
     AWTImage img = AWTImage.fromBaseImage(TestUtils.RGBAImageGenerator());

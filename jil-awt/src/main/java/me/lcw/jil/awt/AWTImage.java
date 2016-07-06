@@ -31,6 +31,9 @@ public class AWTImage implements BaseImage {
   private final int height;
   private final MODE mode;
   private final BufferedImage bi;
+  private volatile boolean localBACache = false;
+  private volatile boolean localBACacheDirty = true;
+  private volatile byte[] localBA = null;
 
 
   private AWTImage(MODE mode, int width, int height) {
@@ -186,6 +189,16 @@ public class AWTImage implements BaseImage {
       throw new ImageException("Could not determen filetype");
     }
   }
+  
+  public void enableBAcache() {
+    localBACache = true;
+  }
+  
+  public void disableBAcache() {
+    localBACache = false;
+    localBACacheDirty = true;
+    localBA = null;
+  }
 
   public BufferedImage getBufferedImage() {
     return bi;
@@ -246,7 +259,11 @@ public class AWTImage implements BaseImage {
     } finally {
       g.dispose();
     }
-    return new AWTImage(nbi, nmode);
+    AWTImage ai = new AWTImage(nbi, nmode);
+    if(localBACache) {
+      ai.enableBAcache();
+    }
+    return ai;
   }
 
   @Override
@@ -254,12 +271,15 @@ public class AWTImage implements BaseImage {
     AWTImage aio = AWTImage.create(this.getMode(), bWidth, bHeight, borderColor);
     AWTImage aii = resize(bWidth, bHeight, true, st);
     if(aii.getHeight() == aii.getHeight()) {
-        int pos = (aio.getWidth()/2) - (aii.getWidth()/2);
-        aio.paste(pos, 0, aii);
-      } else {
-        int pos = (aio.getHeight()/2)  - (aii.getHeight()/2);
-        aio.paste(0, pos, aii);
-      }
+      int pos = (aio.getWidth()/2) - (aii.getWidth()/2);
+      aio.paste(pos, 0, aii);
+    } else {
+      int pos = (aio.getHeight()/2)  - (aii.getHeight()/2);
+      aio.paste(0, pos, aii);
+    }
+    if(localBACache) {
+      aio.enableBAcache();
+    }
     return aio;
   }
 
@@ -296,6 +316,9 @@ public class AWTImage implements BaseImage {
         nimg = new AWTImage(resizedImage, mode);
       }break;
       }
+      if(localBACache) {
+        nimg.enableBAcache();
+      }
       return nimg;
     } finally {
       g.dispose();
@@ -309,6 +332,7 @@ public class AWTImage implements BaseImage {
     try {
       graphics.setPaint(JilUtils.toAWTColor(c));
       graphics.fillRect(0, 0, width, height);
+      this.localBACacheDirty = true;
     } finally {
       graphics.dispose();
     }
@@ -316,7 +340,12 @@ public class AWTImage implements BaseImage {
 
   @Override
   public void setPixel(int x, int y, Color c) {
+<<<<<<< Updated upstream
     bi.setRGB(x, y, JilUtils.toAWTColor(c).getRGB());
+=======
+    bi.setRGB(x, y, Color.toAWTColor(c).getRGB());
+    this.localBACacheDirty = true;
+>>>>>>> Stashed changes
   }
 
   @Override
@@ -338,6 +367,7 @@ public class AWTImage implements BaseImage {
       float opacity = 1.0f;
       gi.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, opacity));
       gi.drawImage(bi2, x, y, null);
+      this.localBACacheDirty = true;
     } finally {
       gi.dispose();
     }
@@ -356,6 +386,7 @@ public class AWTImage implements BaseImage {
       float opacity = 1.0f;
       gi.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
       gi.drawImage(bi2, x, y, null);
+      this.localBACacheDirty = true;
     } finally {
       gi.dispose();
     }
@@ -367,7 +398,11 @@ public class AWTImage implements BaseImage {
     Graphics g = b.getGraphics();
     try {
       g.drawImage(bi, 0, 0, null);
-      return new AWTImage(b, mode);
+      AWTImage ai = new AWTImage(b, mode);
+      if(localBACache) {
+        ai.enableBAcache();
+      }
+      return ai;
     } finally {
       g.dispose();
     }
@@ -380,7 +415,11 @@ public class AWTImage implements BaseImage {
     Graphics2D gi2 = bi2.createGraphics();
     try{
       gi2.drawImage(bi.getSubimage(x, y, w, h), 0, 0, null);
-      return new AWTImage(bi2, mode);
+      AWTImage ai = new AWTImage(bi2, mode);
+      if(localBACache) {
+        ai.enableBAcache();
+      }
+      return ai;
     } finally {
       gi2.dispose();
     }
@@ -389,6 +428,7 @@ public class AWTImage implements BaseImage {
 
   @Override
   public byte[] getArray() {
+<<<<<<< Updated upstream
     //TODO: need to figure out if there are better ways to do this??
     if(bi.getType() == BufferedImage.TYPE_BYTE_GRAY) {
       return ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
@@ -402,18 +442,45 @@ public class AWTImage implements BaseImage {
         nba[pos+2] = ba[pos];
       }
       return nba;
+=======
+    if(this.localBACache && !this.localBACacheDirty) {
+      return this.localBA;
+>>>>>>> Stashed changes
     } else {
-      byte[] ba = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
-      byte[] nba = new byte[ba.length];
-      for(int i=0; i<ba.length/4; i++) {
-        int pos = i*4;
-        nba[pos] = ba[pos+3];
-        nba[pos+1] = ba[pos+2];
-        nba[pos+2] = ba[pos+1];
-        nba[pos+3] = ba[pos];
+      byte[] fba;
+      if(bi.getType() == BufferedImage.TYPE_BYTE_GRAY) {
+        fba = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+      } else if (bi.getType() == BufferedImage.TYPE_3BYTE_BGR){
+        byte[] ba = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        byte[] nba = new byte[ba.length];
+        for(int i=0; i<ba.length/3; i++) {
+          int pos = i*3;
+          nba[pos] = ba[pos+2];
+          nba[pos+1] = ba[pos+1];
+          nba[pos+2] = ba[pos];
+        }
+        fba = nba;
+      } else {
+        byte[] ba = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        byte[] nba = new byte[ba.length];
+        for(int i=0; i<ba.length/4; i++) {
+          int pos = i*4;
+          nba[pos] = ba[pos+3];
+          nba[pos+1] = ba[pos+2];
+          nba[pos+2] = ba[pos+1];
+          nba[pos+3] = ba[pos];
+        }
+        fba = nba;
       }
-      return nba;
+      if(this.localBACache) {
+        localBACacheDirty = false;
+        localBA = fba;
+        return localBA;
+      } else {
+         return fba;
+      }
     }
+    
   }
 
   @Override
@@ -456,9 +523,13 @@ public class AWTImage implements BaseImage {
       if(y <0 || y>=ai.getWidth()) {
         return;
       }
+<<<<<<< Updated upstream
       Integer[] ce = new Integer[] {x, y};
       ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
       pl.add(ce);
+=======
+      ai.localBACacheDirty = true;
+>>>>>>> Stashed changes
       if(edge == null) {
         Color OC = ai.getPixel(x, y);
         if(OC.equals(c)) {
@@ -522,6 +593,7 @@ public class AWTImage implements BaseImage {
     @Override
     public void rect(int x, int y, int w, int h, Color c, int lineWidth, boolean fill) {
       Graphics2D graph = ai.bi.createGraphics();
+      ai.localBACacheDirty = true;
       try{
         graph.setColor(JilUtils.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
@@ -539,6 +611,7 @@ public class AWTImage implements BaseImage {
     @Override
     public void circle(int cx, int cy, int size, Color c, int lineWidth, boolean fill) {
       Graphics2D graph = ai.bi.createGraphics();
+      ai.localBACacheDirty = true;
       try {
         graph.setColor(JilUtils.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
@@ -555,6 +628,7 @@ public class AWTImage implements BaseImage {
     @Override
     public void line(int startX, int startY, int endX, int endY, Color c, int lineWidth, boolean alphaMerge) {
       Graphics2D graph = ai.bi.createGraphics();
+      ai.localBACacheDirty = true;
       try {
         java.awt.Color awt_c = JilUtils.toAWTColor(c);
         if(!alphaMerge) {
