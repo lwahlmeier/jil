@@ -63,12 +63,12 @@ public class AWTImage implements BaseImage {
   public static AWTImage create(MODE mode, int width, int height) {
     return new AWTImage(mode, width, height);
   }
-  
+
   public static AWTImage create(MODE mode, int width, int height, Color c) {
-      AWTImage i = new AWTImage(mode, width, height);
-      i.fillImageWithColor(c);
-      return i;
-    }
+    AWTImage i = new AWTImage(mode, width, height);
+    i.fillImageWithColor(c);
+    return i;
+  }
 
   public static AWTImage fromBaseImage(BaseImage img) {
     BufferedImage BB;
@@ -189,11 +189,11 @@ public class AWTImage implements BaseImage {
       throw new ImageException("Could not determen filetype");
     }
   }
-  
+
   public void enableBAcache() {
     localBACache = true;
   }
-  
+
   public void disableBAcache() {
     localBACache = false;
     localBACacheDirty = true;
@@ -340,12 +340,8 @@ public class AWTImage implements BaseImage {
 
   @Override
   public void setPixel(int x, int y, Color c) {
-<<<<<<< Updated upstream
     bi.setRGB(x, y, JilUtils.toAWTColor(c).getRGB());
-=======
-    bi.setRGB(x, y, Color.toAWTColor(c).getRGB());
     this.localBACacheDirty = true;
->>>>>>> Stashed changes
   }
 
   @Override
@@ -428,24 +424,9 @@ public class AWTImage implements BaseImage {
 
   @Override
   public byte[] getArray() {
-<<<<<<< Updated upstream
-    //TODO: need to figure out if there are better ways to do this??
-    if(bi.getType() == BufferedImage.TYPE_BYTE_GRAY) {
-      return ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
-    } else if (bi.getType() == BufferedImage.TYPE_3BYTE_BGR){
-      byte[] ba = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
-      byte[] nba = new byte[ba.length];
-      for(int i=0; i<ba.length/3; i++) {
-        int pos = i*3;
-        nba[pos] = ba[pos+2];
-        nba[pos+1] = ba[pos+1];
-        nba[pos+2] = ba[pos];
-      }
-      return nba;
-=======
+
     if(this.localBACache && !this.localBACacheDirty) {
       return this.localBA;
->>>>>>> Stashed changes
     } else {
       byte[] fba;
       if(bi.getType() == BufferedImage.TYPE_BYTE_GRAY) {
@@ -477,10 +458,10 @@ public class AWTImage implements BaseImage {
         localBA = fba;
         return localBA;
       } else {
-         return fba;
+        return fba;
       }
     }
-    
+
   }
 
   @Override
@@ -523,13 +504,11 @@ public class AWTImage implements BaseImage {
       if(y <0 || y>=ai.getWidth()) {
         return;
       }
-<<<<<<< Updated upstream
+
       Integer[] ce = new Integer[] {x, y};
       ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
       pl.add(ce);
-=======
       ai.localBACacheDirty = true;
->>>>>>> Stashed changes
       if(edge == null) {
         Color OC = ai.getPixel(x, y);
         if(OC.equals(c)) {
@@ -632,7 +611,7 @@ public class AWTImage implements BaseImage {
       try {
         java.awt.Color awt_c = JilUtils.toAWTColor(c);
         if(!alphaMerge) {
-            graph.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));  
+          graph.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));  
         }
         graph.setColor(awt_c);
         graph.setStroke(new BasicStroke(lineWidth));
