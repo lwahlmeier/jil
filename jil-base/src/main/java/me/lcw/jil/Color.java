@@ -31,7 +31,7 @@ public class Color implements Comparable<Color> {
    * 
    * @param grey grey color level.
    */
-  public Color(byte grey) {
+  private Color(byte grey) {
     this.red = grey;
     this.green = grey;
     this.blue = grey;
@@ -46,7 +46,7 @@ public class Color implements Comparable<Color> {
    * @param green green color level
    * @param blue blue color level
    */
-  public Color(byte red, byte green, byte blue) {
+  private Color(byte red, byte green, byte blue) {
     this(red, green, blue, MAX_BYTE);
   }
   
@@ -58,12 +58,36 @@ public class Color implements Comparable<Color> {
    * @param blue blue color level
    * @param alpha alpha level
    */
-  public Color(byte red, byte green, byte blue, byte alpha) {
+  private Color(byte red, byte green, byte blue, byte alpha) {
     this.red = red;
     this.green = green;
     this.blue = blue;
     this.alpha = alpha;
     this.grey = colorsToGrey(red, green, blue);
+  }
+  
+  public static Color fromGreyValue(byte grey) {
+    return new Color(grey);
+  }
+  
+  public static Color fromGreyPCT(double grey) {
+    return new Color((byte)(grey*255));
+  }
+  
+  public static Color fromRGBValue(byte red, byte green, byte blue) {
+    return new Color(red, green, blue);
+  }
+  
+  public static Color fromRGBPCT(double red, double green, double blue) {
+    return new Color((byte)(red*255), (byte)(green*255), (byte)(blue*255));
+  }
+  
+  public static Color fromRGBAValue(byte red, byte green, byte blue, byte alpha) {
+    return new Color(red, green, blue, alpha);
+  }
+  
+  public static Color fromRGBAPCT(double red, double green, double blue, double alpha) {
+    return new Color((byte)(red*255), (byte)(green*255), (byte)(blue*255), (byte)(alpha*255));
   }
 
   /**
@@ -241,15 +265,7 @@ public class Color implements Comparable<Color> {
     
       return new Color(red, green, blue, alpha);
   }
-  
-  public static java.awt.Color toAWTColor(Color c) {
-    return new java.awt.Color( c.getRed()&0xff, c.getGreen()&0xff, c.getBlue()&0xff, c.getAlpha()&0xff);
-  }
 
-  public static Color toJILColor(java.awt.Color c) {
-    return new Color( (byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
-  }
-  
   public static byte colorsToGrey(byte red, byte green, byte blue) {
     double r = (((red&0xff)*0.2126));//+(red&0xff));
     double g = (((green&0xff)*0.7152));//+(green&0xff));

@@ -13,7 +13,7 @@ import me.lcw.jil.TestUtils;
 
 import org.junit.Test;
 
-public class JavaImageTests {
+public class JilImageTests {
   
   @Test(expected=IOException.class)
   public void exceptionTest() throws ImageException, IOException {

@@ -261,11 +261,11 @@ public class JilImage implements BaseImage {
     }
     int POS = ((y*this.getWidth())+x)*(getColors());
     if (this.getMode() == MODE.RGBA) {
-      return new Color(MAP[POS], MAP[POS+1], MAP[POS+2], MAP[POS+3]);
+      return Color.fromRGBAValue(MAP[POS], MAP[POS+1], MAP[POS+2], MAP[POS+3]);
     } else if (this.getMode() == MODE.RGB) {
-      return new Color(MAP[POS], MAP[POS+1], MAP[POS+2]);
+      return Color.fromRGBValue(MAP[POS], MAP[POS+1], MAP[POS+2]);
     } else {
-      return new Color(MAP[POS]);
+      return Color.fromGreyValue(MAP[POS]);
     }
   }
 
@@ -537,7 +537,7 @@ public class JilImage implements BaseImage {
         newImg = JilImage.create(BaseImage.MODE.RGBA, ji.getWidth(), ji.getHeight());  
         if(circle == null) {
           circle = JilImage.create(BaseImage.MODE.RGBA, lineWidth+1, lineWidth+1);
-          circle.draw().circle((lineWidth/2), (lineWidth/2), lineWidth, new Color(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
+          circle.draw().circle((lineWidth/2), (lineWidth/2), lineWidth, Color.fromRGBValue(c.getRed(), c.getGreen(), c.getBlue()), 1, true);
         }
       }
 
@@ -561,6 +561,17 @@ public class JilImage implements BaseImage {
         ji.merge(0, 0, newImg);
       }
     }
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    if(o instanceof BaseImage) {
+      BaseImage bi = (BaseImage)o;
+      if(bi.getWidth() == width && bi.getHeight() == height && bi.getMode() == mode) {
+        return Arrays.equals(this.MAP, bi.getArray());
+      }
+    }
+    return false;
   }
 
   @Override

@@ -128,11 +128,11 @@ public class NativeImage implements BaseImage {
   public Color getPixel(int x, int y) {
     byte[] color = imageGetPixel(this.nativePointer, x, y);
     if(mode == MODE.RGBA) {
-      return new Color(color[0],color[1],color[2],color[3]);
+      return Color.fromRGBAValue(color[0],color[1],color[2],color[3]);
     } else if(mode == MODE.RGB) {
-      return new Color(color[0],color[1],color[2]);
+      return Color.fromRGBValue(color[0],color[1],color[2]);
     } else {
-      return new Color(color[0]);
+      return Color.fromGreyValue(color[0]);
     }
   }
 

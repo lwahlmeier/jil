@@ -114,15 +114,15 @@ public class BiCubicScaler {
     }
     Color last = null;
     if(cSize == 1) { 
-      last = new Color (getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty));
+      last = Color.fromGreyValue(getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty));
     } else if(cSize == 3) {
-      last = new Color (
+      last = Color.fromRGBValue(
           getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty),
           getInterpolatedValues(newColors[0][1],newColors[1][1],newColors[2][1],newColors[3][1], ty),
           getInterpolatedValues(newColors[0][2],newColors[1][2],newColors[2][2],newColors[3][2], ty)
           );
     } else if (cSize == 4) {
-      last = new Color (
+      last = Color.fromRGBAValue(
           getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty),
           getInterpolatedValues(newColors[0][1],newColors[1][1],newColors[2][1],newColors[3][1], ty),
           getInterpolatedValues(newColors[0][2],newColors[1][2],newColors[2][2],newColors[3][2], ty),

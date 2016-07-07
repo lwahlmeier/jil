@@ -19,7 +19,7 @@ public class TestUtils {
       for(int i=0; i<1080; i++) {
         double pct = i/1080.0;
         byte tmp = (byte)(256*pct);
-        img.draw().line(0, i, 480, i, new Color(tmp), 0, false);
+        img.draw().line(0, i, 480, i, Color.fromGreyValue(tmp), 0, false);
       }
     }
     return greyImage.copy();
@@ -64,7 +64,7 @@ public class TestUtils {
         byte r = (byte)(0xff * (pct*2));
         byte g = (byte)(0xff* (pct*1));
         byte b = (byte)(0xff -(0xff* (pct*2)));
-        Color c = new Color(r,g,b);
+        Color c = Color.fromRGBValue(r,g,b);
         img.draw().line(0, i, img.getWidth(), i, c, 0, false);
       }
       rgbImage = img;

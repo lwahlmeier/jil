@@ -65,7 +65,7 @@ public class AWTDrawTests {
   @Test
   public void floodFillTest2() throws Exception {
     BaseImage img = JilImage.create(BaseImage.MODE.RGBA, 200, 200);
-    img.fillImageWithColor(new Color(Color.MAX_BYTE, Color.MAX_BYTE, Color.MAX_BYTE, (byte)200));
+    img.fillImageWithColor(Color.fromRGBAValue(Color.MAX_BYTE, Color.MAX_BYTE, Color.MAX_BYTE, (byte)200));
     img.draw().rect(30, 30, 140, 140, Color.RED, 1, true);
     img.draw().rect(80, 80, 80, 80, Color.GREEN, 1, true);
 
@@ -111,23 +111,23 @@ public class AWTDrawTests {
   public void circleTest() throws ImageException, IOException, NoSuchAlgorithmException {
     Color c;
 
-    c = new Color((byte)100,(byte)100,(byte)100);
+    c = Color.fromRGBValue((byte)100,(byte)100,(byte)100);
     img400.draw().fillColor(0, 0, c);
 
     //Center Circle no fill
-    c = new Color((byte)255,(byte)255,(byte)255);
+    c = Color.fromRGBValue((byte)255,(byte)255,(byte)255);
     img400.draw().circle(200, 200, 200, c, 1, false);
 
     //Manually fill it
-    c = new Color((byte)145,(byte)28,(byte)222);
+    c = Color.fromRGBValue((byte)145,(byte)28,(byte)222);
     img400.draw().fillColor(200, 200, c);
 
     //Draw at 0,0 and have it fill
-    c = new Color((byte)145,(byte)28,(byte)22);
+    c = Color.fromRGBValue((byte)145,(byte)28,(byte)22);
     img400.draw().circle(0, 0, 200, c, 1, true);
 
     //Draw at 400x400 and no fill 1px wide
-    c = new Color((byte)245,(byte)228,(byte)22);
+    c = Color.fromRGBValue((byte)245,(byte)228,(byte)22);
     img400.draw().circle(400, 400, 200, c, 1, false);
 
     //assertEquals("c8da98f88b48090892577530f04093ac6cb14f46c1ea9ab7d1a61f6ba92eb31a", TestUtils.hashByteArray(img400.getArray()));
@@ -138,23 +138,23 @@ public class AWTDrawTests {
     Color c;
 
     //grey canvas
-    c = new Color((byte)100,(byte)100,(byte)100);
+    c = Color.fromRGBValue((byte)100,(byte)100,(byte)100);
     img400.draw().fillColor(0, 0, c);
 
     //Horizontal line all the way through
-    c = new Color((byte)200,(byte)12,(byte)100);
+    c = Color.fromRGBValue((byte)200,(byte)12,(byte)100);
     img400.draw().line(-100, 200, 500, 200, c, 5, false);
 
     //Vertical line all the way through
-    c = new Color((byte)142,(byte)114,(byte)176);
+    c = Color.fromRGBValue((byte)142,(byte)114,(byte)176);
     img400.draw().line(200, -100, 200, 500, c, 5, false);
 
     //left to right line all the way through
-    c = new Color((byte)44,(byte)214,(byte)55);
+    c = Color.fromRGBValue((byte)44,(byte)214,(byte)55);
     img400.draw().line(-100, -100, 500, 500, c, 5, false);
 
     //right to left line all the way through
-    c = new Color((byte)144,(byte)114,(byte)55);
+    c = Color.fromRGBValue((byte)144,(byte)114,(byte)55);
     img400.draw().line( 500, -100, -100, 500, c, 5, false);
     //System.out.println(TestUtils.hashByteArray(img400.getArray()));
     assertEquals("afd9aa1ebd1fd64ede7cb78887cff1785fb454c3b4c2cf69f442f49469770160", TestUtils.hashByteArray(img400.getArray()));
@@ -165,23 +165,23 @@ public class AWTDrawTests {
   public void lineTestWithAlpha() throws ImageException, IOException, NoSuchAlgorithmException {   
     Color c;
     //grey canvas
-    c = new Color((byte)100,(byte)100,(byte)100);
+    c = Color.fromRGBValue((byte)100,(byte)100,(byte)100);
     img400a.draw().fillColor(0, 0, c);
 
     //Horizontal line all the way through
-    c = new Color((byte)200,(byte)12,(byte)100, (byte)100);
+    c = Color.fromRGBAValue((byte)200,(byte)12,(byte)100, (byte)100);
     img400a.draw().line(-100, 200, 500, 200, c, 5, true);
 
     //Vertical line all the way through
-    c = new Color((byte)142,(byte)114,(byte)176, (byte)100);
+    c = Color.fromRGBAValue((byte)142,(byte)114,(byte)176, (byte)100);
     img400a.draw().line(200, -100, 200, 500, c, 5, true);
 
     //left to right line all the way through
-    c = new Color((byte)44,(byte)214,(byte)55, (byte)100);
+    c = Color.fromRGBAValue((byte)44,(byte)214,(byte)55, (byte)100);
     img400a.draw().line(-100, -100, 500, 500, c, 5, true);
 
     //right to left line all the way through
-    c = new Color((byte)144,(byte)114,(byte)55, (byte)100);
+    c = Color.fromRGBAValue((byte)144,(byte)114,(byte)55, (byte)100);
 
     //System.out.println(TestUtils.hashByteArray(img400a.getArray()));
     assertEquals("95df8420fb458b5120f6be9e2e7cbda3c7f6d6baa70bd1b304a33ccdde71d5b2", TestUtils.hashByteArray(img400a.getArray()));

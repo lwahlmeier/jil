@@ -77,13 +77,8 @@ public class AWTImage implements BaseImage {
       BB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
       byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
       System.arraycopy(img.getArray(), 0, test, 0, test.length);
-    } else if(img.getMode() == MODE.RGB || img.getMode() == MODE.YUV) {
-      BaseImage nbi;
-      if(img.getMode() == MODE.YUV) {
-        nbi = img;//.changeMode(MODE.RGB);
-      } else {
-        nbi = img;
-      }
+    } else if(img.getMode() == MODE.RGB) {
+      BaseImage nbi = img;
       BB = new BufferedImage(nbi.getWidth(), nbi.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
       byte[] array = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
       byte[] MAP = nbi.getArray();
@@ -333,7 +328,7 @@ public class AWTImage implements BaseImage {
   public void fillImageWithColor(Color c) {
     Graphics2D graphics = bi.createGraphics();
     try {
-      graphics.setPaint(Color.toAWTColor(c));
+      graphics.setPaint(AWTUtils.toAWTColor(c));
       graphics.fillRect(0, 0, width, height);
       this.localBACacheDirty = true;
     } finally {
@@ -343,14 +338,14 @@ public class AWTImage implements BaseImage {
 
   @Override
   public void setPixel(int x, int y, Color c) {
-    bi.setRGB(x, y, Color.toAWTColor(c).getRGB());
+    bi.setRGB(x, y, AWTUtils.toAWTColor(c).getRGB());
     this.localBACacheDirty = true;
   }
 
   @Override
   public Color getPixel(int x, int y) {
     java.awt.Color ac = new java.awt.Color(bi.getRGB(x, y), true);
-    return Color.toJILColor(ac);
+    return AWTUtils.toJILColor(ac);
   }
 
   @Override
@@ -525,7 +520,7 @@ public class AWTImage implements BaseImage {
       Graphics2D graph = ai.bi.createGraphics();
       ai.localBACacheDirty = true;
       try{
-        graph.setColor(Color.toAWTColor(c));
+        graph.setColor(AWTUtils.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
         int offset = (lineWidth/2);
         if(fill) {
@@ -543,7 +538,7 @@ public class AWTImage implements BaseImage {
       Graphics2D graph = ai.bi.createGraphics();
       ai.localBACacheDirty = true;
       try {
-        graph.setColor(Color.toAWTColor(c));
+        graph.setColor(AWTUtils.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
         if(fill) {
           graph.fillOval(cx-(size/2), cy-(size/2), size, size);
@@ -560,7 +555,7 @@ public class AWTImage implements BaseImage {
       Graphics2D graph = ai.bi.createGraphics();
       ai.localBACacheDirty = true;
       try {
-        java.awt.Color awt_c = Color.toAWTColor(c);
+        java.awt.Color awt_c = AWTUtils.toAWTColor(c);
         if(!alphaMerge) {
           graph.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));  
         }

@@ -90,7 +90,7 @@ public class AWTImageTests {
   @Test
   public void fillColorTestRGB() throws ImageException, IOException, NoSuchAlgorithmException {
     AWTImage img = AWTImage.create(BaseImage.MODE.RGB, 200, 400);
-    Color c = new Color((byte)10, (byte)220, (byte)110);
+    Color c = Color.fromRGBValue((byte)10, (byte)220, (byte)110);
     img.fillImageWithColor(c);
     assertEquals("a745a437a586082d12e79f1d4a94550aec33adc7d08c6da682a669f1fb638569", TestUtils.hashByteArray(img.getArray()));
   }
@@ -98,7 +98,7 @@ public class AWTImageTests {
   @Test
   public void fillColorTestRGBA() throws ImageException, IOException, NoSuchAlgorithmException {
     AWTImage img = AWTImage.create(BaseImage.MODE.RGBA, 1203, 1226);
-    Color c = new Color((byte)223,(byte)101,(byte)30, (byte)240);
+    Color c = Color.fromRGBAValue((byte)223,(byte)101,(byte)30, (byte)240);
     img.fillImageWithColor(c);
     assertEquals("fa61315bf8ed035d399b528207b5cbe04beed45631ae98b1f84136113f94eb38", TestUtils.hashByteArray(img.getArray()));
   }
@@ -106,7 +106,7 @@ public class AWTImageTests {
   @Test
   public void fillColorTestL() throws ImageException, IOException, NoSuchAlgorithmException {
     AWTImage img = AWTImage.create(BaseImage.MODE.GREY, 1440, 19887);
-    Color c = new Color((byte)231);
+    Color c = Color.fromGreyValue((byte)231);
     img.fillImageWithColor(c);
     assertEquals("164be1e3cd389318de8cce67781687ebda9e98571c7592c5ec65d12b40eae091", TestUtils.hashByteArray(img.getArray()));
   }
@@ -114,7 +114,7 @@ public class AWTImageTests {
   @Test
   public void cutTest() throws IOException, ImageException {
     AWTImage img = AWTImage.create(BaseImage.MODE.GREY, 1440, 1988);
-    Color c = new Color((byte)231);
+    Color c = Color.fromGreyValue((byte)231);
     img.fillImageWithColor(c);
     AWTImage img2 =img.cut(0, 0, 200, 200);
     AWTImage img3 =img.cut(200, 200, 200, 200);
@@ -124,7 +124,7 @@ public class AWTImageTests {
   @Test
   public void copyTest() throws IOException, ImageException {
     AWTImage img = AWTImage.create(BaseImage.MODE.GREY, 1440, 1988);
-    Color c = new Color((byte)231);
+    Color c = Color.fromGreyValue((byte)231);
     img.fillImageWithColor(c);
     AWTImage img2 = img.copy();
     assertTrue(Arrays.equals(img2.getArray(), img.getArray()));

@@ -15,9 +15,6 @@ public class ImageConvertUtils {
       case RGB: {
         return fromGreyToRGB(image);
       }
-      case YUV: {
-        return fromGreyToYUV(image);
-      }
       case RGBA: {
         return fromGreyToRGBA(image);
       }
@@ -33,29 +30,8 @@ public class ImageConvertUtils {
       case RGB: {
         return image.copy();
       }
-      case YUV: {
-        return fromRGBToYUV(image);
-      }
       case RGBA: {
         return fromRGBToRGBA(image);
-      }
-      default:
-        throw new IllegalStateException("Invalid Type: "+toMode);
-      }
-    }
-    case YUV: {
-      switch(toMode) {
-      case GREY: {
-        return fromYUVToGrey(image);
-      }
-      case RGB: {
-        return fromYUVToRGB(image);
-      }
-      case YUV: {
-        return image.copy();
-      }
-      case RGBA: {
-        return fromYUVToRGBA(image);
       }
       default:
         throw new IllegalStateException("Invalid Type: "+toMode);
@@ -68,9 +44,6 @@ public class ImageConvertUtils {
       }
       case RGB: {
         return fromRGBAToRGB(image);
-      }
-      case YUV: {
-        return fromRGBAToYUV(image);
       }
       case RGBA: {
         return image.copy();
@@ -97,26 +70,7 @@ public class ImageConvertUtils {
     }
     return nji;
   }
-  public static JilImage fromRGBAToYUV(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.YUV, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<ba.length/4; i++) {
-      int pos = i*4;
-      int npos = i*3;
-      int red = ba[pos]&0xff;
-      int green = ba[pos+1]&0xff;
-      int blue = ba[pos+2]&0xff;
-      int y = (int)((red*0.299) + (green*0.587) + ((blue*0.114)));
-      int u = (int)((blue-y)*0.492);
-      int v = (int)((red-y)*0.877);
-      nba[npos] = (byte)y;
-      nba[npos+1] = (byte)u;
-      nba[npos+2] = (byte)v;
-    }
-    return nji;
-  }
-
+  
   public static JilImage fromYUVToRGB(JilImage ji) {
     JilImage nji = JilImage.create(MODE.RGB, ji.getWidth(), ji.getHeight());
     byte[] ba = ji.getArray();
@@ -176,27 +130,6 @@ public class ImageConvertUtils {
     return nji;
   }
 
-  public static JilImage fromRGBToYUV(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.YUV, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<nba.length; i+=3) {
-      double red = (ba[i]&0xff)/255.0;
-      double green = (ba[i+1]&0xff)/255.0;
-      double blue = (ba[i+2]&0xff)/255.0;
-      double y = ((red*0.299) + (green*0.587) + ((blue*0.114)));
-      double u = ((blue-y)*0.492);
-      double v = ((red-y)*0.877);
-      System.out.println(red+":"+green+":"+blue);
-      System.out.println("yuv:"+y+":"+u+":"+v);
-      nba[i] = (byte)(y*255);
-      nba[i+1] = (byte)(u*255);
-      nba[i+2] = (byte)(v*255);
-      System.out.println(nba[i]+":"+nba[i+1]+":"+nba[i+2]);
-    }
-    return nji;
-  }
-
   public static JilImage fromRGBToGrey(JilImage ji) {
     JilImage nji = JilImage.create(MODE.GREY, ji.getWidth(), ji.getHeight());
     byte[] ba = ji.getArray();
@@ -228,19 +161,6 @@ public class ImageConvertUtils {
       nba[pos] = ba[i];
       nba[pos+1] = ba[i];
       nba[pos+2] = ba[i];
-    }
-    return nji;
-  }
-
-  public static JilImage fromGreyToYUV(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.YUV, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<ba.length; i++) {
-      int pos = i*3;
-      nba[pos] = ba[i];
-      nba[pos+1] = 0;
-      nba[pos+2] = 0;
     }
     return nji;
   }
