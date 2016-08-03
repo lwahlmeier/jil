@@ -6,6 +6,25 @@ import me.lcw.jil.Color;
 import me.lcw.jil.JilImage;
 
 public class ImageCompareUtils {
+  
+  public static boolean hasImageChanged(final BaseImage biOrig, final BaseImage biNew) {
+    if(biOrig.equals(biNew)) {
+      return false;
+    } 
+    if(biOrig.getWidth() == biNew.getWidth() && biOrig.getHeight() == biNew.getHeight()) {
+      long size = (biOrig.getWidth()*biOrig.getHeight());
+      for(long i=0; i<size; i++) {
+        int px = (int) (i%biOrig.getWidth());
+        int py = (int) (i/biOrig.getWidth());
+        if(!biOrig.getPixel(px, py).equals(biNew.getPixel(px, py))) {
+          return true;
+        }
+      }
+      return false;
+    }
+    return true;
+  }
+  
   public static JilImage diffImages(final BaseImage biOrig, final BaseImage biNew) {
     if(biOrig.getWidth() != biNew.getWidth() || biOrig.getHeight() != biNew.getHeight()) {
       throw new IllegalStateException("Images must be the same width and height!");
