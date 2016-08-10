@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -35,6 +36,7 @@ public class AWTImage implements BaseImage {
   private volatile boolean localBACache = false;
   private volatile boolean localBACacheDirty = true;
   private volatile byte[] localBA = null;
+  private volatile boolean smoothCircle = false;
 
 
   private AWTImage(MODE mode, int width, int height) {
@@ -197,6 +199,14 @@ public class AWTImage implements BaseImage {
     localBACacheDirty = true;
     localBA = null;
   }
+  
+  public void enableSmoothCircle() {
+    this.smoothCircle = true;
+  }
+  
+  public void disableSmoothCircle() {
+    this.smoothCircle = false;
+  }
 
   public BufferedImage getBufferedImage() {
     return bi;
@@ -268,7 +278,7 @@ public class AWTImage implements BaseImage {
   public AWTImage resizeWithBorders(int bWidth, int bHeight, Color borderColor, ScaleType st) {
     AWTImage aio = AWTImage.create(this.getMode(), bWidth, bHeight, borderColor);
     AWTImage aii = resize(bWidth, bHeight, true, st);
-    if(aii.getHeight() == aii.getHeight()) {
+    if(aio.getHeight() == aii.getHeight()) {
       int pos = (aio.getWidth()/2) - (aii.getWidth()/2);
       aio.paste(pos, 0, aii);
     } else {
@@ -504,9 +514,9 @@ public class AWTImage implements BaseImage {
       }
 
       if(edge == null) {
-        ImageFillUtils.noEdgeFill(ai, x, y, c, keepAlpha);
+        ImageFillUtils.noEdgeLineFill(ai, x, y, c, keepAlpha);
       } else {
-        ImageFillUtils.edgeFill(ai, x, y, c, edge, keepAlpha);
+        ImageFillUtils.edgeCustomFill(ai, x, y, c, edge, keepAlpha);
       }
     }
 
@@ -538,6 +548,14 @@ public class AWTImage implements BaseImage {
       Graphics2D graph = ai.bi.createGraphics();
       ai.localBACacheDirty = true;
       try {
+        if(ai.smoothCircle) {
+          graph.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+          graph.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+          graph.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+          graph.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+          graph.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+          graph.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        }
         graph.setColor(AWTUtils.toAWTColor(c));
         graph.setStroke(new BasicStroke(lineWidth));
         if(fill) {
@@ -567,6 +585,18 @@ public class AWTImage implements BaseImage {
       }
     }
   }
+  
+  @Override
+  public boolean equals(Object o) {
+    if(o instanceof BaseImage) {
+      BaseImage bi = (BaseImage)o;
+      if(bi.getWidth() == width && bi.getHeight() == height && bi.getMode() == mode) {
+        return Arrays.equals(this.getArray(), bi.getArray());
+      }
+    }
+    return false;
+  }
+  
   @Override
   public String toString() {
     return "AWTImage: width:"+width+": height"+height+": mode:"+mode.toString();

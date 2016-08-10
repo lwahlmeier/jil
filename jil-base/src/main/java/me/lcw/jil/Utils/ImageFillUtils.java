@@ -7,7 +7,8 @@ import me.lcw.jil.BaseImage;
 import me.lcw.jil.Color;
 
 public class ImageFillUtils {
-  public static void edgeFill(BaseImage ai, int x, int y, Color c, Color edge, boolean keepAlpha) {
+
+  public static void edgeLineFill(BaseImage ai, int x, int y, Color c, Color edge, boolean keepAlpha) {
     PixelPair startPair = new PixelPair(x, y);
 
     ArrayDeque<PixelPair> toCheck = new ArrayDeque<PixelPair>();
@@ -34,7 +35,6 @@ public class ImageFillUtils {
       x1++;
       spanAbove = false;
       spanBelow = false;
-
       while(x1 < ai.getWidth() && !ai.getPixel(x1, cpp.y).equals(edge)) {
         ai.setPixel(x1, cpp.y, NC);
         if(!spanAbove && cpp.y > 0 && !ai.getPixel(x1, cpp.y-1).equals(edge) ) {
@@ -57,12 +57,13 @@ public class ImageFillUtils {
           spanBelow = false;
         }
         x1++;
+
       }
     }
   }
 
-  
-  public static void noEdgeFill(BaseImage ai, int x, int y, Color c, boolean keepAlpha) {
+
+  public static void noEdgeLineFill(BaseImage ai, int x, int y, Color c, boolean keepAlpha) {
     PixelPair startPair = new PixelPair(x, y);
 
     ArrayDeque<PixelPair> toCheck = new ArrayDeque<PixelPair>();
@@ -114,5 +115,81 @@ public class ImageFillUtils {
       }
     }
   }
+
+  public static void edgeCustomFill(BaseImage ai, int x, int y, Color c, Color edge, boolean keepAlpha) {
+    if(x < 0 || x >= ai.getWidth()) {
+      return;
+    }
+    if(y <0 || y>=ai.getWidth()) {
+      return;
+    }
+    Integer[] ce = new Integer[] {x, y};
+    ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
+    pl.add(ce);
+    while(pl.size() > 0) {
+      ce = pl.poll();
+      Color tmpC = ai.getPixel(ce[0], ce[1]);
+      Color nc = c;
+      if(keepAlpha) {
+        nc = nc.changeAlpha(tmpC.getAlpha());
+      }
+      if(!tmpC.equals(edge) && !tmpC.equals(nc)) {
+
+        ai.setPixel(ce[0], ce[1], nc);
+        if(ce[0]+1 < ai.getWidth()) {
+          pl.add(new Integer[]{ce[0]+1, ce[1]});
+        }
+        if(ce[0] -1 >= 0) {
+          pl.add(new Integer[]{ce[0]-1, ce[1]});
+        }
+        if(ce[1]+1 < ai.getHeight()) {
+          pl.add(new Integer[]{ce[0], ce[1]+1});
+        }
+        if(ce[1] -1 >= 0) {
+          pl.add(new Integer[]{ce[0], ce[1]-1});
+        }
+      }
+    }
+  }
+
+  public static void noEdgeCustomFill(BaseImage ai, int x, int y, Color c, boolean keepAlpha) {
+    if(x < 0 || x >= ai.getWidth()) {
+      return;
+    }
+    if(y <0 || y>=ai.getWidth()) {
+      return;
+    }
+    Integer[] ce = new Integer[] {x, y};
+    ArrayDeque<Integer[]> pl = new ArrayDeque<Integer[]>();
+    pl.add(ce);
+    Color OC = ai.getPixel(x, y);
+    if(OC.equals(c)) {
+      return;
+    }
+    while(pl.size() > 0) {
+      ce = pl.poll();
+      Color tmpC = ai.getPixel(ce[0], ce[1]);
+      if(tmpC!=null && tmpC.equalsNoAlpha(OC)) {
+        Color nc = c;
+        if(keepAlpha) {
+          nc = nc.changeAlpha(tmpC.getAlpha());
+        }
+        ai.setPixel(ce[0], ce[1], nc);
+        if(ce[0]+1 < ai.getWidth()) {
+          pl.add(new Integer[]{ce[0]+1, ce[1]});
+        }
+        if(ce[0]-1 >= 0) {
+          pl.add(new Integer[]{ce[0]-1, ce[1]});
+        }
+        if(ce[1]+1 < ai.getHeight()) {
+          pl.add(new Integer[]{ce[0], ce[1]+1});
+        }
+        if(ce[1]-1 >= 0) {
+          pl.add(new Integer[]{ce[0], ce[1]-1});
+        }
+      }
+    }
+  }
+
 
 }

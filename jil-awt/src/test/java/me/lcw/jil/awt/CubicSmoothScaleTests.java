@@ -2,6 +2,7 @@ package me.lcw.jil.awt;
 
 import static org.junit.Assert.assertEquals;
 import me.lcw.jil.Color;
+import me.lcw.jil.JilImage;
 import me.lcw.jil.BaseImage;
 import me.lcw.jil.ResizeTests;
 import me.lcw.jil.TestUtils;

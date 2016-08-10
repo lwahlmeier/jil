@@ -494,9 +494,9 @@ public class JilImage implements BaseImage {
         return;
       }
       if(edge == null) {
-        ImageFillUtils.noEdgeFill(ji, x, y, c, keepAlpha);
+        ImageFillUtils.noEdgeLineFill(ji, x, y, c, keepAlpha);
       } else {
-        ImageFillUtils.edgeFill(ji, x, y, c, edge, keepAlpha);
+        ImageFillUtils.edgeCustomFill(ji, x, y, c, edge, keepAlpha);
       }
     }
 
