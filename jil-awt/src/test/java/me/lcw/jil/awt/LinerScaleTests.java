@@ -25,7 +25,7 @@ public class LinerScaleTests extends ResizeTests {
   @Override
   public void NoAspectScaleUp() throws Exception {
     super.NoAspectScaleUp();
-    subImgRGBA.save("/tmp/jil/test.png");
+
     assertEquals("d6ce8d665595dcb633d46e1bea11810b85b1ff12f94896e7346bf1bb07677975", TestUtils.hashByteArray(subImgRGBA.getArray()));
     assertEquals("21d172b7116591c75b87a0da9f8323503e2d0f58cca43020773823c3e9026579", TestUtils.hashByteArray(subImgRGB.getArray()));
     assertEquals("7dc83af803aaefd2d28f3957fa292c71fda58f3ea79674e699077abb1a7ec7d3", TestUtils.hashByteArray(subImgL.getArray()));
