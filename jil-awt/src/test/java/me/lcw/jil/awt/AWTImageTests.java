@@ -136,13 +136,10 @@ public class AWTImageTests {
   public void fromBufferedImageTest1() {
     AWTImage img = AWTImage.create(BaseImage.MODE.GREY, 1440, 1988);
     img.fillImageWithColor(Color.BLACK);
-    BufferedImage bi = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
+
+    BufferedImage bi = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
     bi.getGraphics().drawImage(img.getBufferedImage(), 0, 0, null);
     AWTImage i2 = AWTImage.fromBufferedImage(bi);
-    assertTrue(Arrays.equals(i2.getArray(), img.getArray()));
-    bi = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
-    bi.getGraphics().drawImage(img.getBufferedImage(), 0, 0, null);
-    i2 = AWTImage.fromBufferedImage(bi);
     assertTrue(Arrays.equals(i2.getArray(), img.getArray()));
     bi = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
     bi.getGraphics().drawImage(img.getBufferedImage(), 0, 0, null);
@@ -188,9 +185,13 @@ public class AWTImageTests {
   public void fromBufferedImageTest3() {
     AWTImage img = AWTImage.create(BaseImage.MODE.RGBA, 1440, 1988);
     img.fillImageWithColor(Color.BLACK);
-    BufferedImage bi = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+    BufferedImage bi = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
     bi.getGraphics().drawImage(img.getBufferedImage(), 0, 0, null);
     AWTImage i2 = AWTImage.fromBufferedImage(bi);
+    assertTrue(Arrays.equals(i2.getArray(), img.getArray()));
+    bi = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+    bi.getGraphics().drawImage(img.getBufferedImage(), 0, 0, null);
+    i2 = AWTImage.fromBufferedImage(bi);
     assertTrue(Arrays.equals(i2.getArray(), img.getArray()));
     bi = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_4BYTE_ABGR_PRE);
     bi.getGraphics().drawImage(img.getBufferedImage(), 0, 0, null);
