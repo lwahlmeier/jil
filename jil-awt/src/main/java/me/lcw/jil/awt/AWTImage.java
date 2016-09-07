@@ -110,7 +110,6 @@ public class AWTImage implements BaseImage {
   }
 
   public static AWTImage fromBufferedImage(BufferedImage bi) {
-    System.out.println(bi.getType());
     switch(bi.getType()) {
     case BufferedImage.TYPE_USHORT_GRAY: {
       BufferedImage nbi = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
