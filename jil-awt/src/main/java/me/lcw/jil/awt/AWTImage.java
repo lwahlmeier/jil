@@ -198,11 +198,11 @@ public class AWTImage implements BaseImage {
     localBACacheDirty = true;
     localBA = null;
   }
-  
+
   public void enableSmoothCircle() {
     this.smoothCircle = true;
   }
-  
+
   public void disableSmoothCircle() {
     this.smoothCircle = false;
   }
@@ -353,8 +353,11 @@ public class AWTImage implements BaseImage {
 
   @Override
   public Color getPixel(int x, int y) {
-    java.awt.Color ac = new java.awt.Color(bi.getRGB(x, y), true);
-    return AWTUtils.toJILColor(ac);
+    if(x >= 0 && x < width && y>=0 && y<height) {
+      java.awt.Color ac = new java.awt.Color(bi.getRGB(x, y), true);
+      return AWTUtils.toJILColor(ac);
+    }
+    return null;
   }
 
   @Override
@@ -584,7 +587,7 @@ public class AWTImage implements BaseImage {
       }
     }
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if(o instanceof BaseImage) {
@@ -595,7 +598,7 @@ public class AWTImage implements BaseImage {
     }
     return false;
   }
-  
+
   @Override
   public String toString() {
     return "AWTImage: width:"+width+": height"+height+": mode:"+mode.toString();
