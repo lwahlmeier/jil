@@ -11,7 +11,7 @@ public class PixelPair {
 
   @Override
   public int hashCode() {
-    return x+y;
+    return (y<<16)|x;
   }
 
   @Override
@@ -23,5 +23,10 @@ public class PixelPair {
       }
     }
     return false;
+  }
+  
+  @Override
+  public String toString() {
+    return "PixelPair{x:"+x+":y:"+y+"}";
   }
 }

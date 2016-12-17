@@ -73,7 +73,7 @@ public class AWTImageTests {
     AWTImage img = AWTImage.fromBaseImage(TestUtils.RGBAImageGenerator());
     img.save(tmpFile.getAbsolutePath());
     AWTImage img2 = AWTImage.open(tmpFile.getAbsolutePath());
-    assertEquals("1b059b123a1bd200626bdf58a88598af717663bd8d83c056fefe27fef4f06466",TestUtils.hashByteArray(img2.getArray()));
+    assertEquals("6c9dfd7a100110574495641f18590a282405f2082de92eef2c3777ee603e7509",TestUtils.hashByteArray(img2.getArray()));
     tmpFile.delete();
   }
 
