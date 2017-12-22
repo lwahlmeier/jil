@@ -1,14 +1,21 @@
-apply plugin: 'java'
-apply plugin: 'maven'
+allprojects {
+  apply plugin: 'java'
+  apply plugin: 'maven'
+  apply plugin: 'eclipse'
 
-group 'me.lcw'
-version="0.10."+"git rev-list HEAD --count".execute().in.text.trim()
+  group 'me.lcw'
+  version="1.0."+"git rev-list HEAD --count".execute().in.text.trim()
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+  repositories {
+    mavenCentral()
+    maven {url 'https://swt-repo.googlecode.com/svn/repo/' }
+  }
 
+  test {
+    maxParallelForks = 10
+    testLogging.showStandardStreams = true
+  }
 
-repositories {
-  mavenCentral()
-  maven {url 'https://swt-repo.googlecode.com/svn/repo/' }
 }

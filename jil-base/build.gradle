@@ -1,25 +1,6 @@
-apply plugin: 'java'
-apply plugin: 'maven'
-
-group 'me.lcw'
-version="0.6."+"git rev-list HEAD --count".execute().in.text.trim()
-
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-
-
-repositories {
-  mavenCentral()
-  maven {url 'https://swt-repo.googlecode.com/svn/repo/' }
-}
-
-
 dependencies {
-  compile ( 
-  )
-
   testCompile (
-  'junit:junit:4.11'
+  'junit:junit:4.12'
   )
 
 }
@@ -28,7 +9,7 @@ task createPom  {
     pom {
         project {
             groupId 'me.lcw'
-            artifactId 'jil'
+            artifactId 'jil-base'
             version "${version}"
   
             licenses {
