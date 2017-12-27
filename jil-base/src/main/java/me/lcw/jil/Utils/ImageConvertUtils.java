@@ -1,80 +1,65 @@
 package me.lcw.jil.Utils;
 
+import me.lcw.jil.BaseImage.ImageMode;
+import me.lcw.jil.JilByteImage;
 import me.lcw.jil.JilImage;
-import me.lcw.jil.BaseImage.MODE;
-import me.lcw.jil.Color;
 
 public class ImageConvertUtils {
-  public static JilImage convertMode(JilImage image, MODE toMode) {
-    switch(image.getMode()) {
-    case GREY: {
-      switch(toMode) {
-      case GREY: {
-        return image.copy();
+  public static JilImage convertMode(JilImage ji, ImageMode im) {
+    JilByteImage nji;
+    switch(im) {
+    case RGBAHQ:{
+      if(ji.getMode() == im) {
+        return ji.copy();
       }
-      case RGB: {
-        return fromGreyToRGB(image);
+      nji = new JilByteImage(ImageMode.RGBAHQ, ji.getWidth(), ji.getHeight());
+    } break;
+    case RGBHQ:{
+      if(ji.getMode() == im) {
+        return ji.copy();
       }
-      case RGBA: {
-        return fromGreyToRGBA(image);
+      nji = new JilByteImage(ImageMode.RGBHQ, ji.getWidth(), ji.getHeight());
+    } break;
+    case GREYHQ:{
+      if(ji.getMode() == im) {
+        return ji.copy();
       }
-      default:
-        throw new IllegalStateException("Invalid Type: "+toMode);
+      nji = new JilByteImage(ImageMode.GREYHQ, ji.getWidth(), ji.getHeight());
+    } break;
+    case RGBA32:{
+      if(ji.getMode() == im) {
+        return ji.copy();
       }
-    }
-    case RGB: {
-      switch(toMode) {
-      case GREY: {
-        return fromRGBToGrey(image);
+      nji = new JilByteImage(ImageMode.RGBA32, ji.getWidth(), ji.getHeight());
+    } break;
+    case RGB24:{
+      if(ji.getMode() == im) {
+        return ji.copy();
       }
-      case RGB: {
-        return image.copy();
+      nji = new JilByteImage(ImageMode.RGB24, ji.getWidth(), ji.getHeight());
+    } break;
+    case GREY8:{
+      if(ji.getMode() == im) {
+        return ji.copy();
       }
-      case RGBA: {
-        return fromRGBToRGBA(image);
-      }
-      default:
-        throw new IllegalStateException("Invalid Type: "+toMode);
-      }
-    }
-    case RGBA: {
-      switch(toMode) {
-      case GREY: {
-        return fromRGBAToGrey(image);
-      }
-      case RGB: {
-        return fromRGBAToRGB(image);
-      }
-      case RGBA: {
-        return image.copy();
-      }
-      default:
-        throw new IllegalStateException("Invalid Type: "+toMode);
-      }
-    }
+      nji = new JilByteImage(ImageMode.GREY8, ji.getWidth(), ji.getHeight());
+    } break;
     default:
-      throw new IllegalStateException("Invalid Type: "+toMode);
+      throw new IllegalStateException("Mode must be a byte mode! "+im);
     }
-  }
 
-  public static JilImage fromRGBAToRGB(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.RGB, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<(ba.length/4); i++) {
-      int npos = i*3;
-      int opos = i*4;
-      nba[npos] = ba[opos];
-      nba[npos+1] = ba[opos+1];
-      nba[npos+2] = ba[opos+2];
+    for(int y=0; y<ji.getHeight(); y++) {
+      for(int x=0; x<ji.getWidth(); x++) {
+        nji.setPixel(x, y, ji.getPixel(x, y));
+      }
     }
     return nji;
   }
-  
-  public static JilImage fromYUVToRGB(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.RGB, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
+
+  public static JilImage fromYUVToRGB(JilByteImage ji) {
+    JilImage nji = JilImage.create(ImageMode.RGB24, ji.getWidth(), ji.getHeight());
+    byte[] ba = ji.getByteArray();
+    byte[] nba = nji.getByteArray();
     for(int i=0; i<(nba.length/3); i++) {
       int pos = i*3;
       int y = ba[pos]&0xff;
@@ -88,9 +73,9 @@ public class ImageConvertUtils {
   }
 
   public static JilImage fromYUVToRGBA(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.RGB, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
+    JilImage nji = JilImage.create(ImageMode.RGB24, ji.getWidth(), ji.getHeight());
+    byte[] ba = ji.getByteArray();
+    byte[] nba = nji.getByteArray();
     for(int i=0; i<(nba.length/3); i++) {
       int pos = i*3;
       int opos = i*4;
@@ -106,77 +91,38 @@ public class ImageConvertUtils {
   }
 
   public static JilImage fromYUVToGrey(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.GREY, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
+    JilImage nji = JilImage.create(ImageMode.GREY8, ji.getWidth(), ji.getHeight());
+    byte[] ba = ji.getByteArray();
+    byte[] nba = nji.getByteArray();
     for(int i=0; i<(nba.length); i++) {
       nba[i] = ba[i*3];
     }
     return nji;
   }
 
-  public static JilImage fromRGBToRGBA(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.RGBA, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<(ba.length/3); i++) {
-      int npos = i*4;
-      int opos = i*3;
-      nba[npos] = ba[opos];
-      nba[npos+1] = ba[opos+1];
-      nba[npos+2] = ba[opos+2];
-      nba[npos+3] = (byte)255;
+  public static JilByteImage toByteImage(JilImage ji, ImageMode im) {
+    JilByteImage nji;
+    switch(im) {
+    case RGBA32:{
+      nji = new JilByteImage(ImageMode.RGBA32, ji.getWidth(), ji.getHeight());
+    } break;
+    case RGB24:{
+      nji = new JilByteImage(ImageMode.RGB24, ji.getWidth(), ji.getHeight());
+    } break;
+    case GREY8:{
+      nji = new JilByteImage(ImageMode.GREY8, ji.getWidth(), ji.getHeight());
+    } break;
+    default:
+      throw new IllegalStateException("Mode must be a byte mode! "+im);
+    }
+
+    for(int y=0; y<ji.getHeight(); y++) {
+      for(int x=0; y<ji.getWidth(); x++) {
+        nji.setPixel(x, y, ji.getPixel(x, y));
+      }
     }
     return nji;
   }
 
-  public static JilImage fromRGBToGrey(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.GREY, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<nba.length; i++) {
-      int pos = i*3;
-      nba[i] = Color.colorsToGrey(ba[pos], ba[pos+1], ba[pos+2]);
-    }
-    return nji;
-  }
-
-  public static JilImage fromRGBAToGrey(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.GREY, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<nba.length; i++) {
-      int pos = i*4;
-      nba[i] = Color.colorsToGrey(ba[pos], ba[pos+1], ba[pos+2]);
-    }
-    return nji;
-  }
-
-  public static JilImage fromGreyToRGB(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.RGB, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<ba.length; i++) {
-      int pos = i*3;
-      nba[pos] = ba[i];
-      nba[pos+1] = ba[i];
-      nba[pos+2] = ba[i];
-    }
-    return nji;
-  }
-
-  public static JilImage fromGreyToRGBA(JilImage ji) {
-    JilImage nji = JilImage.create(MODE.RGBA, ji.getWidth(), ji.getHeight());
-    byte[] ba = ji.getArray();
-    byte[] nba = nji.getArray();
-    for(int i=0; i<ba.length; i++) {
-      int pos = i*4;
-      nba[pos] = ba[i];
-      nba[pos+1] = ba[i];
-      nba[pos+2] = ba[i];
-      nba[pos+3] = (byte)255;
-    }
-    return nji;
-  }
 
 }

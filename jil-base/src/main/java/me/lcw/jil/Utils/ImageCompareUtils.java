@@ -1,7 +1,7 @@
 package me.lcw.jil.Utils;
 
 import me.lcw.jil.BaseImage;
-import me.lcw.jil.BaseImage.MODE;
+import me.lcw.jil.BaseImage.ImageMode;
 import me.lcw.jil.Color;
 import me.lcw.jil.JilImage;
 
@@ -30,7 +30,7 @@ public class ImageCompareUtils {
       throw new IllegalStateException("Images must be the same width and height!");
     }
     
-    JilImage outImage = JilImage.create(MODE.RGBA, biOrig.getWidth(), biOrig.getHeight(), Color.ALPHA);
+    JilImage outImage = JilImage.create(ImageMode.RGBA32, biOrig.getWidth(), biOrig.getHeight(), Color.ALPHA);
     for(int y=0; y<biOrig.getHeight(); y++) {
       for(int x=0; x<biOrig.getWidth(); x++) {
         Color origColor = biOrig.getPixel(x, y);

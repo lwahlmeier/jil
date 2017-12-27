@@ -21,7 +21,7 @@ public class TIFFDecoder {
     TiffDirectory td = getTiffDirectory(e, dis);
     byte[] data = new byte[td.getHeight()*td.getWidth()*3];
     System.arraycopy(ba, td.getImageOffset(), data, 0, data.length);
-    return JilImage.fromByteArray(BaseImage.MODE.RGB, td.getWidth(), td.getHeight(), data);
+    return JilImage.fromByteArray(BaseImage.ImageMode.RGB24, td.getWidth(), td.getHeight(), data);
   }
   
   public static JilImage decodeFromFile(File file) throws IOException {
@@ -32,7 +32,7 @@ public class TIFFDecoder {
     byte[] data = new byte[td.getHeight()*td.getWidth()*3];
     raf.read(data);
     raf.close();
-    return JilImage.fromByteArray(BaseImage.MODE.RGB, td.getWidth(), td.getHeight(), data);
+    return JilImage.fromByteArray(BaseImage.ImageMode.RGB24, td.getWidth(), td.getHeight(), data);
   }
   
   

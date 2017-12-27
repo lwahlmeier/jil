@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import org.junit.Test;
 
 import me.lcw.jil.BaseImage.ImageType;
-import me.lcw.jil.BaseImage.MODE;
+import me.lcw.jil.BaseImage.ImageMode;
 import me.lcw.jil.Color;
 import me.lcw.jil.JilImage;
 import me.lcw.jil.TestUtils;
@@ -20,7 +20,7 @@ public class PNGEncodeTest {
 	
 	@Test
 	public void simpleEncodeRGBFileTest() throws IOException, NoSuchAlgorithmException {
-		JilImage ji = JilImage.create(MODE.RGB, 200, 200);
+		JilImage ji = JilImage.create(ImageMode.RGB24, 200, 200);
 		ji.fillImageWithColor(Color.BLUE);
 		File f = File.createTempFile("test1", "png");
 		ji.save(f.getAbsolutePath(), ImageType.PNG);
@@ -35,7 +35,7 @@ public class PNGEncodeTest {
 	
 	@Test
 	public void simpleEncodeRGBTest() throws IOException, NoSuchAlgorithmException {
-		JilImage ji = JilImage.create(MODE.RGB, 200, 200);
+		JilImage ji = JilImage.create(ImageMode.RGB24, 200, 200);
 		ji.fillImageWithColor(Color.BLUE);
 		byte[] ba = PNGEncoder.encode(9, ji);
 		System.out.println(TestUtils.hashByteArray(ba));
@@ -44,7 +44,7 @@ public class PNGEncodeTest {
 	
 	@Test
 	public void simpleEncodeRGBAFileTest() throws IOException, NoSuchAlgorithmException {
-		JilImage ji = JilImage.create(MODE.RGBA, 200, 200);
+		JilImage ji = JilImage.create(ImageMode.RGBA32, 200, 200);
 		Color c = Color.BLUE.changeAlpha((byte)100);
 		ji.fillImageWithColor(c);
 		File f = File.createTempFile("test1", "png");
@@ -60,7 +60,7 @@ public class PNGEncodeTest {
 	
 	@Test
 	public void simpleEncodeRGBATest() throws IOException, NoSuchAlgorithmException {
-		JilImage ji = JilImage.create(MODE.RGBA, 200, 200);
+		JilImage ji = JilImage.create(ImageMode.RGBA32, 200, 200);
 		Color c = Color.BLUE.changeAlpha((byte)100);
 		ji.fillImageWithColor(c);
 		byte[] ba = PNGEncoder.encode(ji);
@@ -70,7 +70,7 @@ public class PNGEncodeTest {
 	
 	@Test
 	public void simpleEncodeLFileTest() throws IOException, NoSuchAlgorithmException {
-		JilImage ji = JilImage.create(MODE.GREY, 200, 200);
+		JilImage ji = JilImage.create(ImageMode.GREY8, 200, 200);
 		Color c = Color.BLUE.changeAlpha((byte)100);
 		ji.fillImageWithColor(c);
 		File f = File.createTempFile("test1", "png");
@@ -86,7 +86,7 @@ public class PNGEncodeTest {
 	
 	@Test
 	public void simpleEncodeLTest() throws IOException, NoSuchAlgorithmException {
-		JilImage ji = JilImage.create(MODE.GREY, 200, 200);
+		JilImage ji = JilImage.create(ImageMode.GREY8, 200, 200);
 		Color c = Color.BLUE.changeAlpha((byte)100);
 		ji.fillImageWithColor(c);
 		byte[] ba = PNGEncoder.encode(ji);

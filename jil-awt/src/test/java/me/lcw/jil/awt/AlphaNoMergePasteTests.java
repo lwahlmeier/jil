@@ -22,7 +22,7 @@ public class AlphaNoMergePasteTests extends PasteTests {
   
   @Override
   public void biggerPasteImage() throws Exception {
-    subImg2 = AWTImage.create(BaseImage.MODE.RGBA, 554, 371);
+    subImg2 = AWTImage.create(BaseImage.ImageMode.RGBA32, 554, 371);
     subImg2.fillImageWithColor(Color.BLACK);
     super.biggerPasteImage();
   }

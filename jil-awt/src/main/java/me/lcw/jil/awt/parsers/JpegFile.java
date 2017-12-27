@@ -58,7 +58,7 @@ public class JpegFile {
     ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
     jpgWriter.setOutput(ios);
     BufferedImage tmp;
-    if(image.getMode() == BaseImage.MODE.RGBA) {
+    if(image.getMode() == BaseImage.ImageMode.RGBA32) {
       tmp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
       tmp.getGraphics().drawImage(image.getBufferedImage(), 0, 0, null);
     } else {
@@ -95,7 +95,7 @@ public class JpegFile {
     
     //Have to convert Image to an RGB only
     BufferedImage tmp;
-    if(image.getMode() == BaseImage.MODE.RGBA) {
+    if(image.getMode() == BaseImage.ImageMode.RGBA32) {
       tmp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
       tmp.getGraphics().drawImage(image.getBufferedImage(), 0, 0, null);
     } else {

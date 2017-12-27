@@ -18,11 +18,11 @@ public class AWTUtils {
 
   
   public static java.awt.Color toAWTColor(Color c) {
-    return new java.awt.Color( c.getRed()&0xff, c.getGreen()&0xff, c.getBlue()&0xff, c.getAlpha()&0xff);
+    return new java.awt.Color( c.getRedByte()&0xff, c.getGreenByte()&0xff, c.getBlueByte()&0xff, c.getAlphaByte()&0xff);
   }
 
   public static Color toJILColor(java.awt.Color c) {
-    return Color.fromRGBAValue( (byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
+    return Color.fromRGBABytes( (byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
   }
   
   

@@ -11,13 +11,18 @@ import java.io.IOException;
  */
 public interface BaseImage {
   
-  public static enum MODE {
-    GREY(8), RGB(24), RGBA(32);
+  public static enum ImageMode {
+    GREY8(8), RGB24(24), RGBA32(32), GREYHQ(64, 1), RGBHQ(64*3, 3), RGBAHQ(64*4, 4);
   
     private final int bitsPerPixel;
     private final int colors;
     
-    MODE(int bpp) {
+    ImageMode(int bpp) {
+      this.bitsPerPixel = bpp;
+      this.colors = bpp/8;
+    }
+    
+    ImageMode(int bpp, int colors) {
       this.bitsPerPixel = bpp;
       this.colors = bpp/8;
     }
@@ -91,6 +96,7 @@ public interface BaseImage {
    * @return a JilImage of this current image.
    */
   public JilImage toJilImage();
+//TODO:  public JilHQImage toJilHQImage();
   
   /**
    * Change the MODE of the current Image. Use the static MODE_ types.
@@ -103,7 +109,7 @@ public interface BaseImage {
    * @return Returns a new Image Object in that mode (Caution current Image object should be discarded
    * as changes to it could effect the new Image Object 
    */
-  public BaseImage changeMode(MODE mode);
+  public BaseImage changeMode(ImageMode mode);
   
   /**
    * This resizes the Image keeping its aspect then adds a border to it if it is not the set width/height.
@@ -197,14 +203,14 @@ public interface BaseImage {
    *  
    * @return byte[] of the raw Image data
    */
-  public byte[] getArray();
+  public byte[] getByteArray();
   
   /**
    * Get the number of bitsPerPixel, this is the same as the Image.MODE_ of the Image.
    * 
    * @return byte (8, 24, 32)
    */
-  public MODE getMode();
+  public ImageMode getMode();
   
   /**
    * Returns the number color channels in this Image (BPP/8).

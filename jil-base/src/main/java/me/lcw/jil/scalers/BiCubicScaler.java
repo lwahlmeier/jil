@@ -14,7 +14,7 @@ public class BiCubicScaler {
   public static JilImage scale(JilImage srcImage, int newWidth, int newHeight) {
     BiCubicScaler tmp = new BiCubicScaler();
     tmp.srcImage = srcImage;
-    tmp.srcImageArray = srcImage.getArray();
+    tmp.srcImageArray = srcImage.getByteArray();
     return tmp.doScale(newWidth, newHeight);
   }
   
@@ -87,6 +87,8 @@ public class BiCubicScaler {
     return R;
   }
   
+
+  
   private Color getInterpolatedPixel(int x, int y, float tx, float ty){
     int cX;
     int cY;
@@ -114,15 +116,15 @@ public class BiCubicScaler {
     }
     Color last = null;
     if(cSize == 1) { 
-      last = Color.fromGreyValue(getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty));
+      last = Color.fromGreyByte(getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty));
     } else if(cSize == 3) {
-      last = Color.fromRGBValue(
+      last = Color.fromRGBBytes(
           getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty),
           getInterpolatedValues(newColors[0][1],newColors[1][1],newColors[2][1],newColors[3][1], ty),
           getInterpolatedValues(newColors[0][2],newColors[1][2],newColors[2][2],newColors[3][2], ty)
           );
     } else if (cSize == 4) {
-      last = Color.fromRGBAValue(
+      last = Color.fromRGBABytes(
           getInterpolatedValues(newColors[0][0],newColors[1][0],newColors[2][0],newColors[3][0], ty),
           getInterpolatedValues(newColors[0][1],newColors[1][1],newColors[2][1],newColors[3][1], ty),
           getInterpolatedValues(newColors[0][2],newColors[1][2],newColors[2][2],newColors[3][2], ty),
@@ -131,4 +133,33 @@ public class BiCubicScaler {
     }
     return last; 
   }
+  
+//  private Color getInterpolatedValues(Color c0, Color c1, Color c2, Color c3, float t) {
+//    byte r = getInterpolatedValues(c0.getRedByte(),c1.getRedByte(), c2.getRedByte(), c3.getRedByte(), t);
+//    byte g = getInterpolatedValues(c0.getRedByte(),c1.getRedByte(), c2.getRedByte(), c3.getRedByte(), t);
+//    byte b = getInterpolatedValues(c0.getRedByte(),c1.getRedByte(), c2.getRedByte(), c3.getRedByte(), t);
+//    byte a = getInterpolatedValues(c0.getRedByte(),c1.getRedByte(), c2.getRedByte(), c3.getRedByte(), t);
+//    return Color.fromRGBABytes(r, g, b, a);
+//  }
+//  
+//  private Color getInterpolatedPixel2(int x, int y, float tx, float ty){
+//    int cX;
+//    int cY;
+//
+//    Color[] newColors = new Color[4];    
+//    Color[] pixles = new Color[4];
+//
+//    
+//    for(int newY = 0; newY<4; newY++){
+//      cY = this.clampYPos(y+newY-1);
+//      for(int newX = 0; newX<4; newX++){
+//        cX = this.clampXPos(x+newX-1);
+//        pixles[newX] = srcImage.getPixel(cX, cY);
+//      }
+//      newColors[newY] = getInterpolatedValues(pixles[0],pixles[1],pixles[2],pixles[3], tx);  
+//    }
+//    
+//    Color last = getInterpolatedValues(newColors[0],newColors[1],newColors[2],newColors[3], ty);
+//    return last; 
+//  }
 }

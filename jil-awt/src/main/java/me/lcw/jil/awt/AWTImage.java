@@ -31,7 +31,7 @@ public class AWTImage implements BaseImage {
   private final AWTDraw draw = new AWTDraw(this);
   private final int width;
   private final int height;
-  private final MODE mode;
+  private final ImageMode mode;
   private final BufferedImage bi;
   private volatile boolean localBACache = false;
   private volatile boolean localBACacheDirty = true;
@@ -39,35 +39,35 @@ public class AWTImage implements BaseImage {
   private volatile boolean smoothCircle = false;
 
 
-  private AWTImage(MODE mode, int width, int height) {
+  private AWTImage(ImageMode mode, int width, int height) {
     this.mode = mode;
     this.width = width;
     this.height = height;
-    if(mode == BaseImage.MODE.GREY) {
+    if(mode == BaseImage.ImageMode.GREY8) {
       bi = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-    } else if(mode == BaseImage.MODE.RGB) {
+    } else if(mode == BaseImage.ImageMode.RGB24) {
       bi = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
     } else {
       bi = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
     }
   }
 
-  private AWTImage(MODE mode, int width, int height, BufferedImage cbi) {
+  private AWTImage(ImageMode mode, int width, int height, BufferedImage cbi) {
     this.mode = mode;
     this.width = width;
     this.height = height;
     bi = cbi;
   }
 
-  private AWTImage(BufferedImage cbi, MODE mode) {
+  private AWTImage(BufferedImage cbi, ImageMode mode) {
     this(mode, cbi.getWidth(), cbi.getHeight(), cbi);
   }
 
-  public static AWTImage create(MODE mode, int width, int height) {
+  public static AWTImage create(ImageMode mode, int width, int height) {
     return new AWTImage(mode, width, height);
   }
 
-  public static AWTImage create(MODE mode, int width, int height, Color c) {
+  public static AWTImage create(ImageMode mode, int width, int height, Color c) {
     AWTImage i = new AWTImage(mode, width, height);
     i.fillImageWithColor(c);
     return i;
@@ -75,15 +75,15 @@ public class AWTImage implements BaseImage {
 
   public static AWTImage fromBaseImage(BaseImage img) {
     BufferedImage BB;
-    if(img.getMode() == MODE.GREY) {
+    if(img.getMode() == ImageMode.GREY8) {
       BB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
       byte[] test = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
-      System.arraycopy(img.getArray(), 0, test, 0, test.length);
-    } else if(img.getMode() == MODE.RGB) {
+      System.arraycopy(img.getByteArray(), 0, test, 0, test.length);
+    } else if(img.getMode() == ImageMode.RGB24) {
       BaseImage nbi = img;
       BB = new BufferedImage(nbi.getWidth(), nbi.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
       byte[] array = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
-      byte[] MAP = nbi.getArray();
+      byte[] MAP = nbi.getByteArray();
       for(int i=0; i<array.length/3; i++) {
         int pos = i*3;
         array[pos] = MAP[pos+2];
@@ -93,7 +93,7 @@ public class AWTImage implements BaseImage {
     } else {
       BB = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
       byte[] array = ((DataBufferByte) BB.getRaster().getDataBuffer()).getData();
-      byte[] MAP = img.getArray();
+      byte[] MAP = img.getByteArray();
       for(int i=0; i<array.length/4; i++) {
         int pos = i*4;
         array[pos] = MAP[pos+3];
@@ -105,7 +105,7 @@ public class AWTImage implements BaseImage {
     return new AWTImage(BB, img.getMode());
   }
 
-  public static AWTImage fromByteArray(MODE mode, int width, int height, byte[] ba){
+  public static AWTImage fromByteArray(ImageMode mode, int width, int height, byte[] ba){
     return AWTImage.fromBaseImage(JilImage.fromByteArray(mode, width, height, ba));
   }
 
@@ -119,7 +119,7 @@ public class AWTImage implements BaseImage {
       } finally {
         g.dispose();
       }
-      return new AWTImage(BaseImage.MODE.GREY, nbi.getWidth(), nbi.getHeight(), nbi);
+      return new AWTImage(BaseImage.ImageMode.GREY8, nbi.getWidth(), nbi.getHeight(), nbi);
     }
     case BufferedImage.TYPE_BYTE_INDEXED:
     case BufferedImage.TYPE_INT_RGB:
@@ -130,20 +130,20 @@ public class AWTImage implements BaseImage {
       Graphics g = nbi.getGraphics();
       try {
         g.drawImage(bi, 0, 0, null);
-        return new AWTImage(BaseImage.MODE.RGB, nbi.getWidth(), nbi.getHeight(), nbi);
+        return new AWTImage(BaseImage.ImageMode.RGB24, nbi.getWidth(), nbi.getHeight(), nbi);
       } finally {
         g.dispose();
       }
     }
 
     case BufferedImage.TYPE_BYTE_GRAY:{
-      return new AWTImage(BaseImage.MODE.GREY, bi.getWidth(), bi.getHeight(), bi);
+      return new AWTImage(BaseImage.ImageMode.GREY8, bi.getWidth(), bi.getHeight(), bi);
     }
     case BufferedImage.TYPE_3BYTE_BGR:{
-      return new AWTImage(BaseImage.MODE.RGB, bi.getWidth(), bi.getHeight(), bi);
+      return new AWTImage(BaseImage.ImageMode.RGB24, bi.getWidth(), bi.getHeight(), bi);
     }
     case BufferedImage.TYPE_4BYTE_ABGR: {
-      return new AWTImage(BaseImage.MODE.RGBA, bi.getWidth(), bi.getHeight(), bi);
+      return new AWTImage(BaseImage.ImageMode.RGBA32, bi.getWidth(), bi.getHeight(), bi);
     }
     case BufferedImage.TYPE_BYTE_BINARY:
     case BufferedImage.TYPE_4BYTE_ABGR_PRE:
@@ -154,7 +154,7 @@ public class AWTImage implements BaseImage {
       Graphics g = nbi.getGraphics();
       try {
         g.drawImage(bi, 0, 0, null);
-        return new AWTImage(BaseImage.MODE.RGBA, nbi.getWidth(), nbi.getHeight(), nbi);
+        return new AWTImage(BaseImage.ImageMode.RGBA32, nbi.getWidth(), nbi.getHeight(), nbi);
       } finally {
         g.dispose();
       }
@@ -247,15 +247,15 @@ public class AWTImage implements BaseImage {
 
   @Override
   public JilImage toJilImage() {
-    return JilImage.fromByteArray(this.mode, width, height, this.getArray());
+    return JilImage.fromByteArray(this.mode, width, height, this.getByteArray());
   }
 
   @Override
-  public AWTImage changeMode(MODE nmode) {
+  public AWTImage changeMode(ImageMode nmode) {
     BufferedImage nbi;
-    if(nmode == BaseImage.MODE.GREY) {
+    if(nmode == BaseImage.ImageMode.GREY8) {
       nbi = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-    } else if(nmode == BaseImage.MODE.RGB) {
+    } else if(nmode == BaseImage.ImageMode.RGB24) {
       nbi = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
     } else {
       nbi = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
@@ -433,7 +433,7 @@ public class AWTImage implements BaseImage {
   }
 
   @Override
-  public byte[] getArray() {
+  public byte[] getByteArray() {
 
     if(this.localBACache && !this.localBACacheDirty) {
       return this.localBA;
@@ -475,7 +475,7 @@ public class AWTImage implements BaseImage {
   }
 
   @Override
-  public MODE getMode() {
+  public ImageMode getMode() {
     return mode;
   }
 
@@ -593,7 +593,7 @@ public class AWTImage implements BaseImage {
     if(o instanceof BaseImage) {
       BaseImage bi = (BaseImage)o;
       if(bi.getWidth() == width && bi.getHeight() == height && bi.getMode() == mode) {
-        return Arrays.equals(this.getArray(), bi.getArray());
+        return Arrays.equals(this.getByteArray(), bi.getByteArray());
       }
     }
     return false;

@@ -1,5 +1,12 @@
 package me.lcw.jil;
 
+import me.lcw.jil.color.ColorGrey8;
+import me.lcw.jil.color.ColorGreyHQ;
+import me.lcw.jil.color.ColorRGB888;
+import me.lcw.jil.color.ColorRGBA8888;
+import me.lcw.jil.color.ColorRGBAHQ;
+import me.lcw.jil.color.ColorRGBHQ;
+
 /**
  * This class is how colors are passed around to/from the Image Object.
  * 
@@ -7,87 +14,56 @@ package me.lcw.jil;
  * color with a changed color channel.
  * 
  */
-public class Color implements Comparable<Color> {
+public interface Color extends Comparable<Color> {
   public static final byte MAX_BYTE = (byte)255;
   public static final byte EMPTY_BYTE = (byte)0;
   
-  public static final Color BLACK = new Color(EMPTY_BYTE);
-  public static final Color WHITE = new Color(MAX_BYTE);
-  public static final Color GREY = new Color((byte)127);
-  public static final Color RED   = new Color(MAX_BYTE, EMPTY_BYTE, EMPTY_BYTE);
-  public static final Color GREEN = new Color(EMPTY_BYTE, MAX_BYTE, EMPTY_BYTE);
-  public static final Color BLUE  = new Color(EMPTY_BYTE, EMPTY_BYTE, MAX_BYTE);
-  public static final Color ALPHA  = new Color(EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE);
+  public static final Color BLACK = Color.fromGreyByte(EMPTY_BYTE);
+  public static final Color WHITE = Color.fromGreyByte(MAX_BYTE);
+  public static final Color GREY = Color.fromGreyByte((byte)127);
+  public static final Color RED   = Color.fromRGBBytes(MAX_BYTE, EMPTY_BYTE, EMPTY_BYTE);
+  public static final Color GREEN = Color.fromRGBBytes(EMPTY_BYTE, MAX_BYTE, EMPTY_BYTE);
+  public static final Color BLUE  = Color.fromRGBBytes(EMPTY_BYTE, EMPTY_BYTE, MAX_BYTE);
+  public static final Color ALPHA  = Color.fromRGBABytes(EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE);
   
-  private final byte green;
-  private final byte red;
-  private final byte blue;
-  private final byte grey;
-  private final byte alpha;
-  
-
-  /**
-   * Construct a Grey color.  Alpha is set to max value.
-   * 
-   * @param grey grey color level.
-   */
-  private Color(byte grey) {
-    this.red = grey;
-    this.green = grey;
-    this.blue = grey;
-    this.alpha = MAX_BYTE;
-    this.grey = grey;
-  }
-
-  /**
-   * Construct the color with RGB values set.  Alpha will be max value.
-   * 
-   * @param red red color level
-   * @param green green color level
-   * @param blue blue color level
-   */
-  private Color(byte red, byte green, byte blue) {
-    this(red, green, blue, MAX_BYTE);
-  }
-  
-  /**
-   * Construct the color with RGBA values set.
-   * 
-   * @param red red color level
-   * @param green green color level
-   * @param blue blue color level
-   * @param alpha alpha level
-   */
-  private Color(byte red, byte green, byte blue, byte alpha) {
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
-    this.alpha = alpha;
-    this.grey = colorsToGrey(red, green, blue);
-  }
-  
-  public static Color fromGreyValue(byte grey) {
-    return new Color(grey);
+  public static Color fromGreyByte(byte grey) {
+    return new ColorGrey8(grey);
   }
   
   public static Color fromGreyPCT(double grey) {
-    return new Color((byte)(grey*255));
+    return new ColorGreyHQ(grey);
   }
   
-  public static Color fromRGBValue(byte red, byte green, byte blue) {
-    return new Color(red, green, blue);
+  public static Color fromRGBBytes(byte red, byte green, byte blue) {
+    return new ColorRGB888(red, green, blue);
   }
   
   public static Color fromRGBPCT(double red, double green, double blue) {
-    return new Color((byte)(red*255), (byte)(green*255), (byte)(blue*255));
+    return new ColorRGBHQ(red, green, blue);
   }
   
-  public static Color fromRGBAValue(byte red, byte green, byte blue, byte alpha) {
-    return new Color(red, green, blue, alpha);
+  public static Color fromRGBABytes(byte red, byte green, byte blue, byte alpha) {
+    return new ColorRGBA8888(red, green, blue, alpha);
   }
   
   public static Color fromRGBAPCT(double red, double green, double blue, double alpha) {
-    return new Color((byte)(red*255), (byte)(green*255), (byte)(blue*255), (byte)(alpha*255));
+    return new ColorRGBAHQ(red, green, blue, alpha);
+  }
+  
+  public static Color fromARGB(int c) {
+    byte alpha = (byte)(c >> 24);
+    byte red = (byte)(c >> 16 &0xff);
+    byte green = (byte)(c >> 8 &0xff);
+    byte blue = (byte)(c &0xff);
+    return new ColorRGBA8888(red, green, blue, alpha);
+  }
+  
+  public static Color fromRGBA(int c) {
+    byte red = (byte)(c >> 24);
+    byte green = (byte)(c >> 16 &0xff);
+    byte blue = (byte)(c >> 8 &0xff);
+    byte alpha = (byte)(c &0xff);
+    return new ColorRGBA8888(red, green, blue, alpha);
   }
 
   /**
@@ -95,144 +71,94 @@ public class Color implements Comparable<Color> {
    * 
    * @param lblue value to set the blue color of the new color too.
    */
-  public Color changeBlue(byte lblue) {
-    return new Color(red, green, lblue, alpha);
-  }
+  public Color changeBlue(byte lblue);
+  public Color changeBlue(double lblue);
   
   /**
    * 
    * @return the value of the blue channel for this color.
    */
-  public byte getBlue() {
-    return blue;
-  }
+  public byte getBlueByte();
   
-  public double getBluePct() {
-    return (blue & 0xff)/255.0;
-  }
+  public double getBluePct();
 
   /**
    * Creates a duplicate of this color with the RedChannel changed.
    * 
    * @param lred value to set the blue color of the new color too.
    */
-  public Color changeRed(byte lred) {
-    return new Color(lred, green, blue, alpha);
-  }
+  public Color changeRed(byte lred);
+  public Color changeRed(double lred);
   
   /**
    * 
    * @return the value of the red channel for this color.
    */
-  public byte getRed() {
-    return red;
-  }
+  public byte getRedByte();
   
-  public double getRedPct() {
-    return (red & 0xff)/255.0;
-  }
+  public double getRedPct();
 
   /**
    * Creates a duplicate of this color with the GreenChannel changed.
    * 
    * @param lgreen value to set the blue color of the new color too.
    */
-  public Color changeGreen(byte lgreen) {
-    return new Color(red, lgreen, blue, alpha);
-  }
+  public Color changeGreen(byte lgreen);
+  public Color changeGreen(double lgreen);
   
   /**
    * 
    * @return the value of the green channel for this color.
    */
-  public byte getGreen() {
-    return green;
-  }
+  public byte getGreenByte();
   
-  public double getGreenPct() {
-    return (green & 0xff)/255.0;
-  }
+  public double getGreenPct();
 
   /**
    * Creates a duplicate of this color with the AlphaChannel changed.
    * 
    * @param lalpha value to set the alpha color of the new color too.
    */
-  public Color changeAlpha(byte lalpha) {
-    return new Color(red, green, blue, lalpha);
-  }
+  public Color changeAlpha(byte lalpha);
+  public Color changeAlpha(double lalpha);
   
   /**
    * 
    * @return the value of the Alpha channel for this color.
    */
-  public byte getAlpha() {
-    return alpha;
-  }
+  public byte getAlphaByte();
   
-  public double getAlphaPct() {
-    return (alpha & 0xff)/255.0;
-  }
+  public double getAlphaPct();
 
   /**
    * Creates a duplicate of this color with the GreyChannel changed.
    * 
    * @param lgrey value to set the grey color of the new color too.
    */
-  public Color changeGrey(byte lgrey) {
-    return new Color(lgrey);
-  }
+  public Color changeGrey(byte lgrey);
+  public Color changeGrey(double lgrey);
   
   /**
    * 
    * @return the value of the Grey channel for this color.
    */
-  public byte getGrey() {
-    return grey;
-  }
+  public byte getGreyByte();
   
-  public double getGreyPct() {
-    return (grey & 0xff)/255.0;
-  }
+  public double getGreyPct();
   
-  public int getARGB() {
-    return alpha<<24 & 0xff000000 | red<<16 & 0xff0000 | green<<8 & 0xff00 | blue & 0xff;
-  }
+  public int getARGB();
   
-  public int getRGBA() {
-    return red<<24 & 0xff000000 | green<<16 & 0xff0000 | blue<<8 & 0xff00 |alpha & 0xff;
-  }
+  public int getRGBA();
   
-  public int getRGB() {
-    return red<<16 & 0xff0000 | green<<8 & 0xff00 | blue & 0xff;
-  }
+  public int getRGB();
   
-  @Override
-  public String toString() {
-    return "Colors: R:"+(red&0xff)+" G:"+(green&0xff)+" B:"+(blue&0xff)+" Alpha:"+(alpha&0xff)+" grey:"+(grey&0xff);
-  }
+  public String toString();
   
-  @Override
-  public int hashCode() {
-    return getARGB();
-  }
+  public int hashCode();
   
-  @Override
-  public boolean equals(Object o) {
-    if(!(o instanceof Color)) {
-      return false;
-    }
-
-    Color c = (Color) o;
-    long t = getARGB() & 0xffffffffL;
-    long ot = c.getARGB() & 0xffffffffL;
-    if (t == ot){
-      return true;
-    }
-    return false;
-  }
+  public boolean equals(Object o);
   
-  public boolean equalsNoAlpha(Object o) {
+  public default boolean equalsNoAlpha(Object o) {
     if(!(o instanceof Color)) {
       return false;
     }
@@ -245,8 +171,7 @@ public class Color implements Comparable<Color> {
     return false;
   }
 
-  @Override
-  public int compareTo(Color o) {
+  public default int compareTo(Color o) {
     long t = getARGB() & (long)0xffffffffL;
     long ot = o.getARGB() & (long)0xffffffffL;
     if(t > ot) {
@@ -257,34 +182,9 @@ public class Color implements Comparable<Color> {
     return 0;
   }
   
-  public static Color fromARGB(int c) {
-      byte alpha = (byte)(c >> 24);
-      byte red = (byte)(c >> 16 &0xff);
-      byte green = (byte)(c >> 8 &0xff);
-      byte blue = (byte)(c &0xff);
-    
-      return new Color(red, green, blue, alpha);
-  }
+ 
 
-  public static byte colorsToGrey(byte red, byte green, byte blue) {
-    double r = (((red&0xff)*0.2126));//+(red&0xff));
-    double g = (((green&0xff)*0.7152));//+(green&0xff));
-    double b = (((blue&0xff)*0.0722));//+(blue&0xff));
-    return (byte) Math.ceil((r+g+b));
-  }
-  
-  public static Color mergeColors(Color first, Color second) {
-    double napct = (second.getAlphaPct()+(first.getAlphaPct()*(1-second.getAlphaPct())));
-    byte na = (byte) Math.round(napct*255);
-    byte nr = (byte) Math.round(((second.getRedPct()*second.getAlphaPct() + 
-        first.getRedPct()*first.getAlphaPct()*(1-second.getAlphaPct()))/napct)*255);
-    byte nb = (byte) Math.round(((second.getBluePct()*second.getAlphaPct() + 
-        first.getBluePct()*first.getAlphaPct()*(1-second.getAlphaPct()))/napct)*255);
-    byte ng = (byte) Math.round(((second.getGreenPct()*second.getAlphaPct() + 
-        first.getGreenPct()*first.getAlphaPct()*(1-second.getAlphaPct()))/napct)*255);
-    Color nC = new Color(nr, ng, nb, na);
-    return nC;
-  }
+
 }
 
 

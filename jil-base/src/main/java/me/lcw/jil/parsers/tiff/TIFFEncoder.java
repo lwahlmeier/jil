@@ -31,7 +31,7 @@ public class TIFFEncoder {
   }
   
   private static void encode(DataOutput out, BaseImage bi) throws IOException {
-    final byte[] data = bi.changeMode(BaseImage.MODE.RGB).getArray();
+    final byte[] data = bi.changeMode(BaseImage.ImageMode.RGB24).getByteArray();
     //TODO: Nothing seems to work with bigI here anymore??
     Endianness bt = Endianness.LITTLE;
     out.write('I');

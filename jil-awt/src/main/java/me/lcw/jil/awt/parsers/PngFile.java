@@ -38,7 +38,7 @@ public class PngFile {
   public static byte[] saveToByteArray(AWTImage image) throws IOException, ImageException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BufferedImage tmp;
-    if(image.getMode() == BaseImage.MODE.RGBA) {
+    if(image.getMode() == BaseImage.ImageMode.RGBA32) {
       tmp = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
       tmp.getGraphics().drawImage(image.getBufferedImage(), 0, 0, null);
     } else {

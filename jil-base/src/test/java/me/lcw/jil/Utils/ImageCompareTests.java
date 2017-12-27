@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import me.lcw.jil.BaseImage.MODE;
+import me.lcw.jil.BaseImage.ImageMode;
 import me.lcw.jil.Color;
 import me.lcw.jil.ImageException;
 import me.lcw.jil.JilImage;
@@ -16,8 +16,8 @@ public class ImageCompareTests {
   
   @Test
   public void simpleCompareTest() throws ImageException, IOException {
-    JilImage ji = JilImage.create(MODE.RGBA, 640, 480, Color.RED);
-    JilImage ji2 = JilImage.create(MODE.RGBA, 640, 480, Color.RED);
+    JilImage ji = JilImage.create(ImageMode.RGBA32, 640, 480, Color.RED);
+    JilImage ji2 = JilImage.create(ImageMode.RGBA32, 640, 480, Color.RED);
     ji.draw().line(0, 0, 640, 480, Color.GREEN, 10, false);
     ji2.draw().line(640, 0, 0, 480, Color.BLUE, 10, false);
     ji2.draw().line(640, 0, 0, 480, Color.RED, 1, false);
@@ -35,8 +35,8 @@ public class ImageCompareTests {
   
   @Test
   public void simpleCompareTest2() throws ImageException, IOException {
-    JilImage ji = JilImage.create(MODE.RGB, 640, 480, Color.RED);
-    JilImage ji2 = JilImage.create(MODE.RGB, 640, 480, Color.RED);
+    JilImage ji = JilImage.create(ImageMode.RGB24, 640, 480, Color.RED);
+    JilImage ji2 = JilImage.create(ImageMode.RGB24, 640, 480, Color.RED);
     ji.draw().line(0, 0, 640, 480, Color.GREEN, 10, false);
     ji2.draw().line(640, 0, 0, 480, Color.BLUE, 10, false);
     ji2.draw().line(640, 0, 0, 480, Color.RED, 1, false);
@@ -53,8 +53,8 @@ public class ImageCompareTests {
   
   @Test(expected=IllegalStateException.class)
   public void simpleCompareTest3() throws ImageException, IOException {
-    JilImage ji = JilImage.create(MODE.RGB, 640, 480, Color.RED);
-    JilImage ji2 = JilImage.create(MODE.RGB, 640, 481, Color.RED);
+    JilImage ji = JilImage.create(ImageMode.RGB24, 640, 480, Color.RED);
+    JilImage ji2 = JilImage.create(ImageMode.RGB24, 640, 481, Color.RED);
     ji.draw().line(0, 0, 640, 480, Color.GREEN, 10, false);
     ji2.draw().line(640, 0, 0, 480, Color.BLUE, 10, false);
     ji2.draw().line(640, 0, 0, 480, Color.RED, 1, false);

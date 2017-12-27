@@ -10,7 +10,7 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
 import me.lcw.jil.BaseImage;
-import me.lcw.jil.BaseImage.MODE;
+import me.lcw.jil.BaseImage.ImageMode;
 import me.lcw.jil.parsers.png.PNGConstants.PNG_COLOR_TYPE;
 
 public class PNGEncoder {
@@ -22,14 +22,14 @@ public class PNGEncoder {
   }
   public static byte[] encode(int compression, BaseImage bi) throws IOException {
     PNG_COLOR_TYPE pct; 
-    if(bi.getMode() == MODE.GREY) {
+    if(bi.getMode() == ImageMode.GREY8) {
       pct = PNG_COLOR_TYPE.GREY;
-    } else if(bi.getMode() == MODE.RGB) {
+    } else if(bi.getMode() == ImageMode.RGB24) {
       pct = PNG_COLOR_TYPE.RGB;
     } else {
       pct = PNG_COLOR_TYPE.RGBA;
     }
-    return encode(bi.getWidth(), bi.getHeight(), compression, pct, bi.getArray());
+    return encode(bi.getWidth(), bi.getHeight(), compression, pct, bi.getByteArray());
   }
 
   public static void encodeToFile(BaseImage bi, File file) throws IOException {
@@ -38,14 +38,14 @@ public class PNGEncoder {
 
   public static void encodeToFile(int compression, BaseImage bi, File file) throws IOException {
     PNG_COLOR_TYPE pct; 
-    if(bi.getMode() == MODE.GREY) {
+    if(bi.getMode() == ImageMode.GREY8) {
       pct = PNG_COLOR_TYPE.GREY;
-    } else if(bi.getMode() == MODE.RGB) {
+    } else if(bi.getMode() == ImageMode.RGB24) {
       pct = PNG_COLOR_TYPE.RGB;
     } else {
       pct = PNG_COLOR_TYPE.RGBA;
     }
-    encodeToFile(bi.getWidth(), bi.getHeight(), compression, pct, bi.getArray(), file);
+    encodeToFile(bi.getWidth(), bi.getHeight(), compression, pct, bi.getByteArray(), file);
   }
 
   private static byte[] makeHeader(int width, int height, byte bd, PNG_COLOR_TYPE colorType) {

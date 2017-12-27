@@ -15,18 +15,18 @@ public class TestUtils {
   
   public static JilImage GreyImageGenerator() {
     if(greyImage == null) {
-      JilImage img = JilImage.create(BaseImage.MODE.GREY, 480, 270);
+      JilImage img = JilImage.create(BaseImage.ImageMode.GREY8, 480, 270);
       for(int i=0; i<1080; i++) {
         double pct = i/1080.0;
         byte tmp = (byte)(256*pct);
-        img.draw().line(0, i, 480, i, Color.fromGreyValue(tmp), 0, false);
+        img.draw().line(0, i, 480, i, Color.fromGreyByte(tmp), 0, false);
       }
     }
     return greyImage.copy();
   }
   public static JilImage RGBAImageGenerator() {
     if(rgbaImage == null) {
-      JilImage img = JilImage.create(BaseImage.MODE.RGBA, 480, 240);
+      JilImage img = JilImage.create(BaseImage.ImageMode.RGBA32, 480, 240);
       img.fillImageWithColor(Color.ALPHA);
       Color c = Color.RED.changeAlpha((byte) 50);
       img.draw().rect(0, 0, 480, 20, c, 1, true);
@@ -58,13 +58,13 @@ public class TestUtils {
   
   public static JilImage RGBImageGenerator() {
     if(rgbImage == null) {
-      JilImage img = JilImage.create(BaseImage.MODE.RGB, 480, 270);
+      JilImage img = JilImage.create(BaseImage.ImageMode.RGB24, 480, 270);
       for(int i=0; i<img.getHeight(); i++) {
         double pct = i/(double)img.getHeight();
         byte r = (byte)(0xff * (pct*2));
         byte g = (byte)(0xff* (pct*1));
         byte b = (byte)(0xff -(0xff* (pct*2)));
-        Color c = Color.fromRGBValue(r,g,b);
+        Color c = Color.fromRGBBytes(r,g,b);
         img.draw().line(0, i, img.getWidth(), i, c, 0, false);
       }
       rgbImage = img;

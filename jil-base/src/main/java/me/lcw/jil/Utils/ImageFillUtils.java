@@ -18,7 +18,7 @@ public class ImageFillUtils {
     Color OC = ai.getPixel(x, y);
     Color NC = c;
     if(keepAlpha) {
-      NC = c.changeAlpha(OC.getAlpha());
+      NC = c.changeAlpha(OC.getAlphaByte());
     }
     if(OC.equals(c)) {
       return;
@@ -72,7 +72,7 @@ public class ImageFillUtils {
     Color OC = ai.getPixel(x, y);
     Color NC = c;
     if(keepAlpha) {
-      NC = c.changeAlpha(OC.getAlpha());
+      NC = c.changeAlpha(OC.getAlphaByte());
     }
     if(OC.equals(c)) {
       return;
@@ -131,7 +131,7 @@ public class ImageFillUtils {
       Color tmpC = ai.getPixel(ce[0], ce[1]);
       Color nc = c;
       if(keepAlpha) {
-        nc = nc.changeAlpha(tmpC.getAlpha());
+        nc = nc.changeAlpha(tmpC.getAlphaByte());
       }
       if(!tmpC.equals(edge) && !tmpC.equals(nc)) {
 
@@ -172,7 +172,7 @@ public class ImageFillUtils {
       if(tmpC!=null && tmpC.equalsNoAlpha(OC)) {
         Color nc = c;
         if(keepAlpha) {
-          nc = nc.changeAlpha(tmpC.getAlpha());
+          nc = nc.changeAlpha(tmpC.getAlphaByte());
         }
         ai.setPixel(ce[0], ce[1], nc);
         if(ce[0]+1 < ai.getWidth()) {
