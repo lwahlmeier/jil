@@ -4,12 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
-import me.lcw.jil.BaseImage.ImageMode;
-import me.lcw.jil.BaseImage.ScaleType;
-import me.lcw.jil.Utils.ColorUtils;
-import me.lcw.jil.Utils.ImageConvertUtils;
 import me.lcw.jil.Utils.ImageFillUtils;
 import me.lcw.jil.Utils.JilUtils;
 import me.lcw.jil.parsers.png.PNGEncoder;

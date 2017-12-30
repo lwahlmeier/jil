@@ -2,7 +2,7 @@ package me.lcw.jil;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import me.lcw.jil.Utils.ColorUtils;
 import me.lcw.jil.Utils.ImageConvertUtils;
@@ -237,12 +237,9 @@ public class JilByteImage extends JilImage {
     return newImage;
   }
 
-  /**
-   * Sets this Image to random Data
-   */
+  @Override
   public void mkRandom() {
-    Random r = new Random();
-    r.nextBytes(MAP);
+    ThreadLocalRandom.current().nextBytes(MAP);
   }
 
   @Override

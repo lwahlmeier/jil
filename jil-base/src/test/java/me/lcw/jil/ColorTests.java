@@ -1,10 +1,12 @@
 package me.lcw.jil;
 
 import static org.junit.Assert.assertEquals;
-import me.lcw.jil.BaseImage.ImageMode;
-import me.lcw.jil.Color;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Test;
+
+import me.lcw.jil.BaseImage.ImageMode;
 
 public class ColorTests {
   
@@ -37,6 +39,86 @@ public class ColorTests {
     Color c2 = ji.getPixel(5, 5);
     assertEquals(Color.WHITE, c);
     assertEquals(Color.WHITE, c2);
+  }
+  
+  @Test
+  public void loopTest() {
+    for(int i=0; i<1000; i++) {
+      Color c1 = Color.fromGreyByte((byte)ThreadLocalRandom.current().nextInt());
+      Color c2 = Color.fromRGBBytes(c1.getRedByte(), c1.getGreenByte(), c1.getBlueByte());
+      Color c3 = Color.fromRGBABytes(c1.getRedByte(), c1.getGreenByte(), c1.getBlueByte(), c1.getAlphaByte());
+      
+      Color c4 = Color.fromGreyPCT(c1.getGreyPct());
+      Color c5 = Color.fromRGBAPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct(), c1.getAlphaPct());
+      Color c6 = Color.fromRGBPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct());
+      
+      assertEquals(c1, c2);
+      assertEquals(c1, c3);
+      assertEquals(c2, c3);
+      assertEquals(c1, c4);
+      assertEquals(c1, c5);
+      assertEquals(c1, c6);
+    }
+  }
+  
+  @Test
+  public void loopLQtoHQTest() {
+    for(int i=0; i<1000; i++) {
+      Color c1 = Color.fromRGBABytes((byte)ThreadLocalRandom.current().nextInt(), (byte)ThreadLocalRandom.current().nextInt(), (byte)ThreadLocalRandom.current().nextInt(), (byte)ThreadLocalRandom.current().nextInt());
+      Color c2 = Color.fromRGBBytes(c1.getRedByte(), c1.getGreenByte(), c1.getBlueByte());
+      Color c3 = Color.fromGreyByte(c1.getGreyByte());
+      
+      Color c4 = Color.fromRGBAPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct(), c1.getAlphaPct());
+      Color c5 = Color.fromRGBPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct());
+      Color c6 = Color.fromGreyPCT(c1.getGreyPct());
+      
+      assertEquals(c1, c4);
+      assertEquals(c2, c5);
+      assertEquals(c3, c6);
+    }
+  }
+
+  
+  @Test
+  public void MaxRedTest() {
+    Color c1 = Color.fromRGBBytes(Color.MAX_BYTE, Color.EMPTY_BYTE, Color.EMPTY_BYTE);
+    Color c2 = Color.fromRGBABytes(c1.getRedByte(), c1.getGreenByte(), c1.getBlueByte(), c1.getAlphaByte());
+
+    Color c3 = Color.fromRGBPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct());
+    Color c4 = Color.fromRGBAPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct(), c1.getAlphaPct());
+
+    assertEquals(c1, c2);
+    assertEquals(c1, c3);
+    assertEquals(c2, c3);
+    assertEquals(c1, c4);
+  }
+  
+  @Test
+  public void MaxGreenTest() {
+    Color c1 = Color.fromRGBBytes(Color.EMPTY_BYTE, Color.MAX_BYTE, Color.EMPTY_BYTE);
+    Color c2 = Color.fromRGBABytes(c1.getRedByte(), c1.getGreenByte(), c1.getBlueByte(), c1.getAlphaByte());
+
+    Color c3 = Color.fromRGBPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct());
+    Color c4 = Color.fromRGBAPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct(), c1.getAlphaPct());
+
+    assertEquals(c1, c2);
+    assertEquals(c1, c3);
+    assertEquals(c2, c3);
+    assertEquals(c1, c4);
+  }
+  
+  @Test
+  public void MaxBlueTest() {
+    Color c1 = Color.fromRGBBytes(Color.EMPTY_BYTE, Color.EMPTY_BYTE, Color.MAX_BYTE);
+    Color c2 = Color.fromRGBABytes(c1.getRedByte(), c1.getGreenByte(), c1.getBlueByte(), c1.getAlphaByte());
+
+    Color c3 = Color.fromRGBPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct());
+    Color c4 = Color.fromRGBAPCT(c1.getRedPct(), c1.getGreenPct(), c1.getBluePct(), c1.getAlphaPct());
+
+    assertEquals(c1, c2);
+    assertEquals(c1, c3);
+    assertEquals(c2, c3);
+    assertEquals(c1, c4);
   }
   
   @Test

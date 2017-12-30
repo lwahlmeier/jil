@@ -106,7 +106,7 @@ public class ColorGrey8 implements Color {
 
   @Override
   public double getGreyPct() {
-    return grey/255.0;
+    return (grey&0xff)/255.0;
   }
 
   @Override

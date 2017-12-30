@@ -12,19 +12,14 @@ import java.io.IOException;
 public interface BaseImage {
   
   public static enum ImageMode {
-    GREY8(8), RGB24(24), RGBA32(32), GREYHQ(64, 1), RGBHQ(64*3, 3), RGBAHQ(64*4, 4);
+    GREY8(8, 1), RGB24(24, 3), RGBA32(32, 4), GREYHQ(64, 1), RGBHQ(64*3, 3), RGBAHQ(64*4, 4);
   
     private final int bitsPerPixel;
     private final int colors;
-    
-    ImageMode(int bpp) {
-      this.bitsPerPixel = bpp;
-      this.colors = bpp/8;
-    }
-    
+        
     ImageMode(int bpp, int colors) {
       this.bitsPerPixel = bpp;
-      this.colors = bpp/8;
+      this.colors = colors;
     }
     
     public int getBPP() {

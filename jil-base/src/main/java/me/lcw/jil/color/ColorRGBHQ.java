@@ -59,7 +59,7 @@ public class ColorRGBHQ implements Color {
   
   @Override
   public byte getGreenByte() {
-    return (byte)(red*255);
+    return (byte)(green*255);
   }
 
   @Override

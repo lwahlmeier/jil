@@ -95,6 +95,8 @@ public class JilUtils {
         }
       }
 
+      
+      
       if(nimg.getHeight() > height) {
         runHeight = nimg.getHeight()-Math.max(1, (nimg.getHeight()/scaleFactor)); 
         if(runHeight < height) {
