@@ -193,20 +193,16 @@ public class JilImage implements BaseImage {
       newWidth = aspect[0];
       newHeight = aspect[1];
     }
-    JilImage tmp;
     switch(st) {
     case LINER:
-      tmp = BiLinearScaler.scale(this, newWidth, newHeight);
-      break;
+      return BiLinearScaler.scale(this, newWidth, newHeight);
     case CUBIC:
-      tmp = BiCubicScaler.scale(this, newWidth, newHeight);
-      break;
+      return BiCubicScaler.scale(this, newWidth, newHeight);
     case CUBIC_SMOOTH:
-      tmp = (JilImage)JilUtils.biCubicSmooth(this, newWidth, newHeight);
+      return (JilImage)JilUtils.biCubicSmooth(this, newWidth, newHeight);
     default:
-      tmp = NearestNeighborScaler.scale(this, newWidth, newHeight);
+      return NearestNeighborScaler.scale(this, newWidth, newHeight);
     }
-    return tmp;
   }
 
   @Override
