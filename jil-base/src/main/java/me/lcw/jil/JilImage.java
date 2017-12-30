@@ -207,7 +207,7 @@ public abstract class JilImage implements BaseImage {
     case CUBIC:
       return BiCubicScaler.scale(this, newWidth, newHeight);
     case CUBIC_SMOOTH:
-      return (JilByteImage)JilUtils.biCubicSmooth(this, newWidth, newHeight);
+      return (JilImage)JilUtils.biCubicSmooth(this, newWidth, newHeight);
     default:
       return NearestNeighborScaler.scale(this, newWidth, newHeight);
     }
