@@ -53,38 +53,24 @@ public class BiCubicScaler {
     }
     return y;
   }
+  
+  private byte getInterpolatedValues(byte c0, byte c1, byte c2, byte c3, float t) {
+    double p0 = c0 & 0xff;
+    double p1 = c1 & 0xff;
+    double p2 = c2 & 0xff;
+    double p3 = c3 & 0xff;
 
-  private static byte getInterpolatedValues(byte c0, byte c1, byte c2, byte c3, float t) {
-    int p0 = c0 & 0xff;
-    int p1 = c1 & 0xff;
-    int p2 = c2 & 0xff;
-    int p3 = c3 & 0xff;
-    int p = (p3 - p2) - (p0 - p1);
-    int q = (p0 - p1) - p;
-    int r = p2 - p0;
-    int s = p1;
-    float tSqrd = t*t;
-
-    //double X = (p * (tSqrd * t)) + (q * tSqrd) + (r * t) + s;
-    float X = ((p * (tSqrd * t) + 0.5f) + (q * tSqrd + 0.5f) + (r * t + 0.5f) + s);
-    //double X = ((p1 + 0.5 * t*(p2 - p0 + t*(2.0*p0 - 5.0*p1 + 4.0*p2 - p3 + t*(3.0*(p1 - p2) + p3 - p0)))) );
-    //double X = ((p1 + 0.5 * t*(p2 - p0 + t*(2.0*p0 - 5.0*p1 + 4.0*p2 - p3 + t*(3.0*(p1 - p2) + p3 - p0)))) );
-    //double X = ( p0 + p1 + p2 + p3 ) / 4;
-
-    //double X = (-0.5 * p0 + 1.5 * p1 - 1.5 * p2 + 0.5 * p3) * 
-    //    Math.pow(t,3)+(p0-2.5f*p1+2.f*p2-0.5f*p3) * 
-    //    Math.pow(t,2)+(-0.5f*p0+0.5f*p2)*t+p1;
-
+    double q0 = 2*p1;
+    double q1 = p2-p0;
+    double q2 = 2*p0-5*p1+4*p2-p3;
+    double q3 = -p0+3*p1-3*p2+p3;
+    double res = Math.round((q3*t*t*t + q2*t*t + q1*t + q0)/2);
+    
     //Constrain to a Byte
-    byte R;
-    if (X < 0) {
-      R = 0;
-    } else if (X > 255) {
-      R = -1;
-    } else {
-      R = (byte) X;
-    }
-    return R;
+    if(res < 0) res = 0;
+    if(res > 255) res = 255;
+
+    return (byte)res;
   }
 
   private Color getInterpolatedValues(Color c0, Color c1, Color c2, Color c3, float t) {

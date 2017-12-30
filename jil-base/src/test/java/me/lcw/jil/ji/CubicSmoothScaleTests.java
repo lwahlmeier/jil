@@ -35,9 +35,9 @@ public class CubicSmoothScaleTests extends ResizeTests{
   public void NoAspectScaleDown() throws Exception {
     super.NoAspectScaleDown();
 
-    assertEquals("f5506eba33e50ad99dbe9564d9b26d379635d04a03c2a0040774898c099369cb", TestUtils.hashByteArray(subImgRGBA.getByteArray()));
-    assertEquals("c2635d24a00745a4a8b95aa4f473d80c2bd48513d26a44f3efbcd04b9061af02", TestUtils.hashByteArray(subImgRGB.getByteArray()));
-    assertEquals("5667bbefaebaf02ff8f3140ce148f5a04a002e25498e7dd57f1a7d947a45ed6a", TestUtils.hashByteArray(subImgL.getByteArray()));
+    assertEquals("c9dafe0c64083a2f7fe9e151b116aa2d55d4fa11328876faf3f8d512595ca44f", TestUtils.hashByteArray(subImgRGBA.getByteArray()));
+    assertEquals("75182f918346fc84fcabe1b2f217f156f6f3c4a3473af62ce27fe29af17ab800", TestUtils.hashByteArray(subImgRGB.getByteArray()));
+    assertEquals("c98617ca9aa8b3374fc267b10fd8ef0d75cebd1b756263efcd8cc063a8f92c09", TestUtils.hashByteArray(subImgL.getByteArray()));
   }
   
   @Override
@@ -73,29 +73,26 @@ public class CubicSmoothScaleTests extends ResizeTests{
   @Override
   public void AspectScaleDown() throws Exception {
     super.AspectScaleDown();
-    imgRGBA.save("/tmp/test.png");
-    subImgRGBA.save("/tmp/test2.png");
-    assertEquals("ed1617f27d3dfff27b9d7c6e5f514a1917d8db126351f748b80033148edd89fa", TestUtils.hashByteArray(subImgRGBA.getByteArray()));
-    assertEquals("836b5b4897fd191894de56692d6a3397b775ab5ba26153432682c0d600ed0de5", TestUtils.hashByteArray(subImgRGB.getByteArray()));
-    assertEquals("84ab1b253670780f8d6896d1c39b2f4af493818ca6302769ba0705854a959184", TestUtils.hashByteArray(subImgL.getByteArray()));
+
+    assertEquals("8980d0f793db01e3ad7d69b36d415ac8f058d74ce2754148beab96201612e054", TestUtils.hashByteArray(subImgRGBA.getByteArray()));
+    assertEquals("d410989dddb117fe7833ba956f3413a7d20669f35e4687901a668639a3ff29f6", TestUtils.hashByteArray(subImgRGB.getByteArray()));
+    assertEquals("230be9a0cbdea82b208ee49164d53aec6e86e46278c433e30b624ce4af829395", TestUtils.hashByteArray(subImgL.getByteArray()));
   }
   
   @Override
   public void AspectUpHeight() throws Exception {
     super.AspectUpHeight();
-
-    assertEquals("85dcd24f92d88c67a4d53ba85808a428ec51c67111c84590eedcca130ec0719d", TestUtils.hashByteArray(subImgRGBA.getByteArray()));
-    assertEquals("74fca582e49048a15702b9bf4f5f6430fb6e7bccf68ba87af302d0f158b6ba95", TestUtils.hashByteArray(subImgRGB.getByteArray()));
-    assertEquals("b84780928266641dd6cc88e4fdf08f4261a8ceafa7fa39a8f4ae9e3416e797c6", TestUtils.hashByteArray(subImgL.getByteArray()));
+    assertEquals("48bdb3a84d0e6aaefec70f5f7c02e24e44aa38a5b1158a57b453a024556c7fe0", TestUtils.hashByteArray(subImgRGBA.getByteArray()));
+    assertEquals("05dc1d11f5c941d2a255063479424bc59be64d5425e5d6a9901d023cdbb06cc9", TestUtils.hashByteArray(subImgRGB.getByteArray()));
+    assertEquals("438006068b5044d0eef44e3963bd68d2553d2ccd8ca578d392244352cc0090e5", TestUtils.hashByteArray(subImgL.getByteArray()));
   }
   
   @Override
   public void AspectUpWidth() throws Exception {
     super.AspectUpWidth();
-
-    assertEquals("ed1617f27d3dfff27b9d7c6e5f514a1917d8db126351f748b80033148edd89fa", TestUtils.hashByteArray(subImgRGBA.getByteArray()));
-    assertEquals("836b5b4897fd191894de56692d6a3397b775ab5ba26153432682c0d600ed0de5", TestUtils.hashByteArray(subImgRGB.getByteArray()));
-    assertEquals("84ab1b253670780f8d6896d1c39b2f4af493818ca6302769ba0705854a959184", TestUtils.hashByteArray(subImgL.getByteArray()));
+    assertEquals("8980d0f793db01e3ad7d69b36d415ac8f058d74ce2754148beab96201612e054", TestUtils.hashByteArray(subImgRGBA.getByteArray()));
+    assertEquals("d410989dddb117fe7833ba956f3413a7d20669f35e4687901a668639a3ff29f6", TestUtils.hashByteArray(subImgRGB.getByteArray()));
+    assertEquals("230be9a0cbdea82b208ee49164d53aec6e86e46278c433e30b624ce4af829395", TestUtils.hashByteArray(subImgL.getByteArray()));
   }
 
 }

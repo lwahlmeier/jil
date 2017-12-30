@@ -195,7 +195,6 @@ public abstract class JilImage implements BaseImage {
       newWidth = aspect[0];
       newHeight = aspect[1];
     }
-
     switch(st) {
     case LINER:
       return BiLinearScaler.scale(this, newWidth, newHeight);
